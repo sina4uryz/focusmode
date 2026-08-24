@@ -31,7 +31,7 @@ function ensureChartJs(){
       try{
         await new Promise((resolve, reject)=>{
           const s = document.createElement('script');
-          s.src = src; s.onload = resolve; s.onerror = reject;
+          s.src = src + (src.includes('?') ? '&' : '?') + '_cb=' + Date.now(); s.onload = resolve; s.onerror = reject;
           document.head.appendChild(s);
         });
         if(typeof Chart !== 'undefined') return true;
@@ -2370,6 +2370,133 @@ async function renderRecordedDays(){
   }));
 }
 
+
+// ================= robust native chart fallback =================
+// If Chart.js cannot be downloaded (blocked CDN/offline), draw the same daily chart
+// directly on canvas so the dashboard never shows a blank chart.
+function renderNativeDailyChart(canvas, labels, data){
+  if(!canvas) return;
+  const wrap = canvas.parentElement;
+  if(!wrap) return;
+
+  const draw = ()=>{
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = wrap.getBoundingClientRect();
+    const w = Math.max(320, Math.floor(rect.width - 20));
+    const h = Math.max(180, Math.floor(rect.height - 20));
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+
+    const isLight = document.body.classList.contains("light");
+    const grid = isLight ? "#D2D9E2" : "#3A4152";
+    const textColor = isLight ? "#5F6876" : "#9AA3B2";
+    const navy = getComputedStyle(document.body).getPropertyValue("--navy-alt").trim() || (isLight ? "#EBEEF3" : "#232C40");
+
+    ctx.fillStyle = navy;
+    ctx.fillRect(0,0,w,h);
+
+    const pad = {l:38,r:16,t:18,b:34};
+    const pw = Math.max(1,w-pad.l-pad.r);
+    const ph = Math.max(1,h-pad.t-pad.b);
+
+    // Grid + Y labels
+    ctx.font = '10px Vazirmatn, Tahoma, sans-serif';
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for(let v=0; v<=100; v+=10){
+      const y = pad.t + ph - (v/100)*ph;
+      ctx.strokeStyle = grid;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(w-pad.r,y); ctx.stroke();
+      ctx.fillStyle = textColor;
+      ctx.fillText(String(v), pad.l-7, y);
+    }
+
+    const n = data.length;
+    if(!n) return;
+
+    const xAt = i => n===1 ? pad.l+pw/2 : pad.l + (i/(n-1))*pw;
+    const yAt = v => pad.t + ph - (Math.max(0,Math.min(100,Number(v)||0))/100)*ph;
+
+    // Alternating week bands
+    for(let start=0; start<n; start+=5){
+      const end=Math.min(start+4,n-1);
+      const x1=xAt(start)-(n>1 ? (xAt(1)-xAt(0))/2 : 20);
+      const x2=xAt(end)+(n>1 ? (xAt(1)-xAt(0))/2 : 20);
+      ctx.fillStyle = (Math.floor(start/5)%2===0)
+        ? (isLight ? "rgba(62,111,168,.055)" : "rgba(111,168,220,.06)")
+        : (isLight ? "rgba(30,40,60,.025)" : "rgba(233,234,236,.025)");
+      ctx.fillRect(Math.max(pad.l,x1),pad.t,Math.min(w-pad.r,x2)-Math.max(pad.l,x1),ph);
+    }
+
+    // Area + segmented line
+    for(let i=0;i<n-1;i++){
+      const x1=xAt(i), y1=yAt(data[i]), x2=xAt(i+1), y2=yAt(data[i+1]);
+      const up = Number(data[i+1]) > Number(data[i]);
+      const down = Number(data[i+1]) < Number(data[i]);
+      const line = up ? "#0F7B3D" : down ? "#A81616" : "#9AA3B2";
+
+      const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ph);
+      grad.addColorStop(0, up ? "rgba(15,123,61,.22)" : down ? "rgba(168,22,22,.22)" : "rgba(154,163,178,.08)");
+      grad.addColorStop(1, "rgba(154,163,178,0.01)");
+
+      ctx.beginPath();
+      ctx.moveTo(x1,pad.t+ph);
+      ctx.lineTo(x1,y1); ctx.lineTo(x2,y2); ctx.lineTo(x2,pad.t+ph);
+      ctx.closePath(); ctx.fillStyle=grad; ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+      ctx.strokeStyle=line; ctx.lineWidth=4; ctx.lineCap="round"; ctx.lineJoin="miter"; ctx.stroke();
+    }
+
+    // If every recorded value is zero, the line sits on the lower edge; draw a small
+    // visible guide there so the chart line is still unmistakable.
+    if(n > 1 && data.every(v => Number(v) === 0)){
+      const yy = yAt(0);
+      ctx.beginPath(); ctx.moveTo(xAt(0),yy); ctx.lineTo(xAt(n-1),yy);
+      ctx.strokeStyle='#6FA8DC'; ctx.lineWidth=4; ctx.lineCap='round'; ctx.stroke();
+    }
+
+    // Points + last value
+    for(let i=0;i<n;i++){
+      const x=xAt(i), y=yAt(data[i]);
+      ctx.beginPath(); ctx.arc(x,y,i===n-1?4:2,0,Math.PI*2);
+      ctx.fillStyle="#FFFFFF"; ctx.fill();
+    }
+    const lastX=xAt(n-1), lastY=yAt(data[n-1]);
+    ctx.font='bold 13px Vazirmatn, Tahoma, sans-serif';
+    ctx.fillStyle=isLight ? "#232B3B" : "#EDEDED";
+    ctx.textAlign="center";
+    ctx.textBaseline="alphabetic";
+    ctx.fillText(String(data[n-1]), lastX, lastY-pad.t<18 ? lastY+24 : lastY-12);
+
+    // X labels: keep them readable and avoid overlap.
+    ctx.font='10px Vazirmatn, Tahoma, sans-serif';
+    ctx.fillStyle=textColor;
+    ctx.textAlign="center";
+    ctx.textBaseline="top";
+    const step=Math.max(1,Math.ceil(n/8));
+    for(let i=0;i<n;i+=step) ctx.fillText(String(labels[i]||""),xAt(i),h-pad.b+10);
+    if((n-1)%step!==0) ctx.fillText(String(labels[n-1]||""),xAt(n-1),h-pad.b+10);
+  };
+
+  draw();
+  if(canvas.__nativeChartResize) window.removeEventListener("resize", canvas.__nativeChartResize);
+  canvas.__nativeChartResize = draw;
+  window.addEventListener("resize", canvas.__nativeChartResize, {passive:true});
+  return {destroy(){
+    if(canvas.__nativeChartResize) window.removeEventListener("resize", canvas.__nativeChartResize);
+    canvas.__nativeChartResize=null;
+  }};
+}
+
 // ================= dashboard panel =================
 async function renderDashboard(){
   const el = document.getElementById('panel-dashboard');
@@ -2449,11 +2576,13 @@ async function renderDashboard(){
   }
   const chartJsOk = await ensureChartJs();
   if(!chartJsOk){
-    chartWrap.classList.add('hidden');
-    chartEmptyMsg.classList.remove('hidden');
-    chartEmptyMsg.innerHTML = 'نمودار لود نشد — اتصال اینترنتت رو چک کن<br><button class="btn ghost small" id="retryChartBtn" style="margin-top:8px;">تلاش دوباره</button>';
-    const retryBtn = document.getElementById('retryChartBtn');
-    if(retryBtn) retryBtn.addEventListener('click', ()=>renderDashboard());
+    // Chart.js is optional now; the native canvas renderer below does not need a CDN.
+    chartWrap.classList.remove('hidden');
+    chartEmptyMsg.classList.add('hidden');
+    const cycleDates = allCycleDates(cycleStart);
+    const labels = cycleDates.map(d=>iranJalaliShort(d));
+    const data = cycleDates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
+    renderNativeDailyChart(ctx, labels, data);
     return;
   }
   chartWrap.classList.remove('hidden');
@@ -2555,7 +2684,7 @@ async function renderDashboard(){
     };
     chartInstance = new Chart(ctx, {
       type:'line',
-      data:{ labels, datasets:[{ label:'امتیاز روزانه', data, borderColor:'#3E5FCB', backgroundColor:'rgba(154,163,178,0.08)',
+      data:{ labels, datasets:[{ label:'امتیاز روزانه', data, borderColor:'#6FA8DC', backgroundColor:'rgba(111,168,220,0.10)',
         segment:{ borderColor: trendColor, backgroundColor: trendFill },
         pointBackgroundColor:'#FFFFFF',
         pointBorderColor:'transparent', pointBorderWidth:0,
@@ -2564,24 +2693,20 @@ async function renderDashboard(){
         tension:0, fill:true }] },
       options:{ responsive:true, maintainAspectRatio:false, devicePixelRatio:window.devicePixelRatio||1, plugins:{ legend:{display:false}, tooltip:{rtl:true} },
         // انیمیشن ورودِ خط از چپ به راست — انگار داره لحظه‌به‌لحظه کشیده میشه تا برسه به نقطه‌ی آخر
-        animation:{
-          x:{ type:'number', easing:'linear', duration:900,
-            from: NaN,
-            delay(c){ if(c.type!=='data' || c.xStarted) return 0; c.xStarted = true; return c.index * (900/Math.max(1,data.length-1)); } },
-          y:{ type:'number', easing:'linear', duration:0,
-            from(c){ return c.index===0 ? c.chart.scales.y.getPixelForValue(data[0]) : c.chart.getDatasetMeta(0).data[c.index-1].getProps(['y'],true).y; },
-            delay(c){ if(c.type!=='data' || c.yStarted) return 0; c.yStarted = true; return c.index * (900/Math.max(1,data.length-1)); } }
-        },
+        animation:false,
         scales:{ y:{min:0,max:100,ticks:{color:'#9AA3B2',stepSize:10},grid:{color:'#3A4152'}}, x:{ticks:{color:'#9AA3B2',font:{size:10}},grid:{display:false}} } },
-      plugins:[weekBandsPlugin, todayLabelPlugin, travelGlowPlugin]
+      plugins:[weekBandsPlugin, todayLabelPlugin]
     });
   }catch(e){
-    console.error('chart render failed', e);
-    chartWrap.classList.add('hidden');
-    chartEmptyMsg.classList.remove('hidden');
-    chartEmptyMsg.innerHTML = 'نمودار لود نشد<br><button class="btn ghost small" id="retryChartBtn2" style="margin-top:8px;">تلاش دوباره</button>';
-    const retryBtn2 = document.getElementById('retryChartBtn2');
-    if(retryBtn2) retryBtn2.addEventListener('click', ()=>renderDashboard());
+    console.error('chart render failed, using native fallback', e);
+    chartWrap.classList.remove('hidden');
+    chartEmptyMsg.classList.add('hidden');
+    try { renderNativeDailyChart(ctx, labels, data); }
+    catch(nativeErr){
+      console.error('native chart render failed', nativeErr);
+      chartEmptyMsg.classList.remove('hidden');
+      chartEmptyMsg.innerHTML = 'خطا در رسم نمودار — دوباره صفحه را باز کن';
+    }
   }
 }
 
