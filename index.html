@@ -14,7 +14,35 @@
 <title>Focus Mode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+// چند تا CDN پشت سر هم امتحان می‌کنیم — چون jsdelivr گاهی تو بعضی نت‌ها فیلتر/کند میشه و نمودار خالی می‌مونه.
+// اگه همه‌شون شکست بخورن، بعداً هروقت لازم شد (باز کردن تب امتیازات) دوباره امتحان می‌کنیم، نه فقط یه‌بار موقع لود صفحه.
+window.__chartJsSources = [
+  'https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js',
+  'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js',
+  'https://unpkg.com/chart.js@4.4.4/dist/chart.umd.min.js'
+];
+window.__chartJsPromise = null;
+function ensureChartJs(){
+  if(typeof Chart !== 'undefined') return Promise.resolve(true);
+  if(window.__chartJsPromise) return window.__chartJsPromise;
+  window.__chartJsPromise = (async ()=>{
+    for(const src of window.__chartJsSources){
+      try{
+        await new Promise((resolve, reject)=>{
+          const s = document.createElement('script');
+          s.src = src; s.onload = resolve; s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        if(typeof Chart !== 'undefined') return true;
+      }catch(e){ /* برو سراغ منبع بعدی */ }
+    }
+    window.__chartJsPromise = null; // شکست خورد — دفعه‌ی بعد دوباره امتحان کن، شاید نت وصل شده باشه
+    return false;
+  })();
+  return window.__chartJsPromise;
+}
+</script>
 <!-- Supabase (رایگان) — این اسکریپت دیتابیس رو فراهم می‌کنه تا خارج از Claude هم کار کنه -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
@@ -365,10 +393,10 @@
     color:var(--white-dim);cursor:pointer;user-select:none;
     transition:border-color .15s;
   }
-  .sq-cell:hover{border-color:#4ADE80;}
+  .sq-cell:hover{border-color:#2563EB;}
   .sq-cell.done{
-    background:linear-gradient(150deg, #E4FCE9, #4ADE80 48%, #15925A 100%);
-    border-color:transparent;color:#062814;
+    background:linear-gradient(150deg, #BFDBFE, #2563EB 48%, #1D3FA0 100%);
+    border-color:transparent;color:#0A1533;
     animation:chkBoxPop .4s cubic-bezier(.34,1.76,.64,1);
   }
   .sq-progress{font-size:11px;color:var(--white-dim);margin-bottom:8px;}
@@ -505,6 +533,28 @@
   .btn.small{padding:7px 12px;font-size:12px;}
   .today-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
   .weekday-pill{font-size:11px;padding:5px 12px;border-radius:20px;background:linear-gradient(135deg, rgba(111,168,220,.18), rgba(111,168,220,.05));color:var(--lightblue);font-weight:700;border:1px solid rgba(111,168,220,.3);}
+
+  .weekday-tab-row{
+    display:flex;gap:4px;margin-top:2px;position:relative;overflow-x:auto;overflow-y:hidden;
+    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter:blur(26px) saturate(200%);-webkit-backdrop-filter:blur(26px) saturate(200%);
+    border-radius:16px;padding:5px;
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14), 0 8px 22px rgba(0,0,0,.3);
+    flex-wrap:nowrap;scrollbar-width:thin;
+  }
+  .weekday-tab-btn{
+    -webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;outline:none;margin:0;
+    background:none;border:none;color:var(--white-dim);font-family:inherit;font-size:12.5px;font-weight:600;
+    padding:9px 12px;cursor:pointer;border-radius:11px;transition:.35s cubic-bezier(.34,1.56,.64,1);
+    white-space:nowrap;flex-shrink:0;position:relative;z-index:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .weekday-tab-btn:active{transform:scale(.92);}
+  .weekday-tab-btn.active{
+    color:var(--white);
+    background:linear-gradient(135deg, var(--lightblue), color-mix(in srgb, var(--lightblue) 65%, black));
+    box-shadow:0 4px 14px rgba(111,168,220,.4), inset 0 1px 0 rgba(255,255,255,.25);
+    font-weight:800;
+  }
   .weekday-pill.warn{background:rgba(255,255,255,.05);color:var(--white-dim);border-color:var(--line);}
   .checklist-cat{margin-top:16px;position:relative;padding-right:14px;}
   .checklist-cat::before{content:'';position:absolute;top:1px;bottom:5px;right:0;width:3px;border-radius:3px;background:var(--catColor, var(--lightblue));box-shadow:0 0 8px var(--catColor, var(--lightblue));}
@@ -576,7 +626,7 @@
     display:inline-block;font-size:10px;font-weight:800;color:#BFDCF5;background:rgba(111,168,220,.14);
     border:1px solid rgba(111,168,220,.3);border-radius:20px;padding:1px 9px;margin-top:4px;
   }
-  /* ============ چک‌باکس‌ها — طرح تازه، بدون آبی: گرادیان سبز-زمردی با درخشش ============ */
+  /* ============ چک‌باکس‌ها — آبی پررنگ با درخشش ============ */
   input[type=checkbox]{
     appearance:none; -webkit-appearance:none; width:23px; height:23px; border-radius:8px;
     border:1.5px solid rgba(255,255,255,.16); background:linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,0));
@@ -584,15 +634,15 @@
     box-shadow:inset 0 1px 5px rgba(0,0,0,.35);
     transition:border-color .2s, box-shadow .2s, background .2s;
   }
-  input[type=checkbox]:hover{ border-color:#4ADE80; }
+  input[type=checkbox]:hover{ border-color:#2563EB; }
   input[type=checkbox]:checked{
-    background:linear-gradient(150deg, #E4FCE9, #4ADE80 48%, #15925A 100%);
+    background:linear-gradient(150deg, #BFDBFE, #2563EB 48%, #1D3FA0 100%);
     border-color:transparent;
-    box-shadow:0 4px 18px rgba(74,222,128,.55), inset 0 1px 0 rgba(255,255,255,.7);
+    box-shadow:0 4px 18px rgba(37,99,235,.55), inset 0 1px 0 rgba(255,255,255,.7);
   }
   input[type=checkbox]:checked::after{
     content:''; position:absolute; left:5.5px; top:7px; width:12px; height:9px;
-    background:#062814;
+    background:#0A1533;
     clip-path:polygon(9% 43%, 0 55%, 33% 88%, 100% 15%, 87% 0%, 33% 62%);
   }
   /* ============ انیمیشنِ تیک‌خوردن خفن‌تر — رو همه‌ی چک‌باکس‌های سایت ============ */
@@ -605,7 +655,7 @@
   }
   input[type=checkbox]:checked::before{
     content:''; position:absolute; inset:-4px; border-radius:11px; pointer-events:none;
-    border:2px solid #4ADE80;
+    border:2px solid #2563EB;
     animation:chkRingBurst .55s ease-out;
   }
   @keyframes chkBoxPop{
@@ -632,6 +682,32 @@
   .week-row-title{font-size:12.5px; font-weight:800; color:var(--white);}
   .week-row-score{font-size:12px; color:var(--white-dim); font-weight:700;}
   .week-row-pending{font-size:11px; color:var(--white-dim);}
+  .prev-months-compact{ margin-bottom:12px; padding-bottom:12px; border-bottom:1px dashed var(--line); }
+  .prev-months-label{ font-size:11px; color:var(--white-dim); font-weight:700; margin-bottom:6px; }
+
+  /* ============ گروه‌بندی تاریخچه بر اساس ماه (آکاردئون) ============ */
+  .history-group{
+    border:1px solid var(--line); border-radius:12px; margin-bottom:18px; overflow:hidden;
+    background:rgba(255,255,255,.02);
+  }
+  .history-group-summary{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:13px 14px; cursor:pointer; list-style:none; font-size:13px; font-weight:800; color:var(--white);
+    -webkit-tap-highlight-color:transparent; user-select:none;
+  }
+  .history-group-summary::-webkit-details-marker{ display:none; }
+  .history-group-summary::before{
+    content:'▸'; display:inline-flex; align-items:center; justify-content:center;
+    width:22px; height:22px; margin-left:9px; border-radius:50%;
+    background:rgba(111,168,220,.14); color:var(--lightblue); font-size:12px;
+    transition:transform .3s cubic-bezier(.34,1.2,.64,1), background .2s;
+  }
+  .history-group[open] > .history-group-summary::before{ transform:rotate(90deg); background:rgba(111,168,220,.26); }
+  .history-group-count{ font-size:11px; font-weight:600; color:var(--white-dim); }
+  .history-group-body{ padding:0 10px 10px; }
+  .week-sep-row td{ padding:0 !important; border:none !important; }
+  .week-sep-line{ height:1px; background:var(--line); margin:18px 2px 20px; opacity:.8; }
+
   .week-days{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; padding-top:9px; border-top:1px dashed var(--line);}
   .week-day-chip{font-size:10.5px; color:var(--white-dim); background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:7px; padding:3px 8px; white-space:nowrap;}
   .week-day-chip b{color:var(--white); font-weight:800; margin-inline-start:3px;}
@@ -642,8 +718,7 @@
   th,td{padding:8px 6px;text-align:right;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;}
   th{color:var(--white-dim);font-weight:600;font-size:11px;}
   .chart-wrap{background:var(--navy-alt);border-radius:8px;padding:10px;margin-top:6px;height:260px;box-sizing:border-box;}
-  .fb-entry{
-    position:relative;border-top:none;
+  .fb-entry{    position:relative;border-top:none;
     padding:12px 34px 12px 14px;margin:0 0 12px;
     background:linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
     border:1px solid var(--line);border-radius:10px;
@@ -1404,7 +1479,8 @@ let viaMentorList = false;   // true if we entered member view from mentor/admin
 let currentMentorCode = null;
 let currentMentorProfile = null;
 
-let categories = [];
+let categoriesByDay = {};
+const WEEKDAYS_FA = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه'];
 let dailyRecords = {};
 let feedbackList = [];
 let achievementsList = [];
@@ -1515,6 +1591,15 @@ function defaultCategories(){
     cats.push({id:uid(), name:'دسته '+c, tasks});
   }
   return cats;
+}
+function defaultCategoriesByDay(){
+  const obj = {};
+  WEEKDAYS_FA.forEach(d=>{ obj[d] = defaultCategories(); });
+  return obj;
+}
+function categoriesForDay(day){
+  if(!categoriesByDay[day]) categoriesByDay[day] = defaultCategories();
+  return categoriesByDay[day];
 }
 
 // ================= registries (shared) =================
@@ -1855,13 +1940,23 @@ async function loadMemberState(){
     window.storage.get('daily:'+currentCode, true).catch(()=>null),
     window.storage.get('feedback:'+currentCode, true).catch(()=>null)
   ]);
-  categories = catRes && catRes.value ? JSON.parse(catRes.value) : defaultCategories();
+  const rawCat = catRes && catRes.value ? JSON.parse(catRes.value) : null;
+  if(Array.isArray(rawCat)){
+    // داده‌ی قدیمی (یه لیست تسک مشترک برای همه‌ی روزها) — تا چیزی از دست نره، همون لیست رو برای هر ۷ روز کپی می‌کنیم
+    categoriesByDay = {};
+    WEEKDAYS_FA.forEach(d=>{ categoriesByDay[d] = JSON.parse(JSON.stringify(rawCat)); });
+  }else if(rawCat && typeof rawCat==='object'){
+    categoriesByDay = rawCat;
+    WEEKDAYS_FA.forEach(d=>{ if(!categoriesByDay[d]) categoriesByDay[d] = defaultCategories(); });
+  }else{
+    categoriesByDay = defaultCategoriesByDay();
+  }
   dailyRecords = dailyRes && dailyRes.value ? JSON.parse(dailyRes.value) : {};
   feedbackList = fbRes && fbRes.value ? JSON.parse(fbRes.value) : [];
 }
 async function saveCategories(){
   if(isViewOnly) return;
-  try{ await window.storage.set('categories:'+currentCode, JSON.stringify(categories), true); showToast(); }
+  try{ await window.storage.set('categories:'+currentCode, JSON.stringify(categoriesByDay), true); showToast(); }
   catch(e){ console.error(e); }
 }
 async function saveDaily(silent){
@@ -2019,14 +2114,25 @@ document.querySelectorAll('#mainTabs .tab-btn').forEach(btn=>{
   });
 });
 
-// ================= tasks panel (UNCHANGED behaviour: user fully controls categories/points) =================
+// ================= tasks panel (کاربر کامل کنترل تسک‌ها/امتیازها رو داره — حالا برای هر روز هفته جدا) =================
+let selectedTaskDay = null;
 function renderTasks(){
   const el = document.getElementById('panel-tasks');
   el.innerHTML = '';
+  if(!selectedTaskDay || !WEEKDAYS_FA.includes(selectedTaskDay)) selectedTaskDay = iranWeekday(iranTodayISO());
+  const dayRow = document.createElement('div');
+  dayRow.className = 'card';
+  dayRow.style.padding = '12px';
+  dayRow.innerHTML = `<div style="font-size:12px;color:var(--white-dim);margin-bottom:9px;font-weight:700;">تسک‌های کدوم روز هفته رو می‌بینی/ویرایش می‌کنی؟</div>
+    <div class="weekday-tab-row">${WEEKDAYS_FA.map(d=>`<button class="weekday-tab-btn${d===selectedTaskDay?' active':''}" data-day="${d}">${d}</button>`).join('')}</div>`;
+  el.appendChild(dayRow);
+  dayRow.querySelectorAll('[data-day]').forEach(btn=>btn.addEventListener('click', ()=>{ selectedTaskDay = btn.dataset.day; renderTasks(); }));
+
   if(isViewOnly){
-    el.innerHTML = '<div class="card"><div class="empty">در حالت مشاهده، ویرایش تسک‌ها غیرفعاله.</div></div>';
+    el.insertAdjacentHTML('beforeend', '<div class="card"><div class="empty">در حالت مشاهده، ویرایش تسک‌ها غیرفعاله.</div></div>');
   }
-  categories.forEach((cat,idx)=>{
+  const cats = categoriesForDay(selectedTaskDay);
+  cats.forEach((cat,idx)=>{
     const total = cat.tasks.reduce((s,t)=>s+Number(t.points||0),0);
     const pct = Math.max(0, Math.min(100, total));
     const accent = catColor(idx);
@@ -2061,16 +2167,16 @@ function renderTasks(){
   if(isViewOnly) return;
 
   el.querySelectorAll('.cat-name-input').forEach(inp=>inp.addEventListener('change', ()=>{
-    const cat = categories.find(c=>c.id===inp.dataset.cat);
+    const cat = cats.find(c=>c.id===inp.dataset.cat);
     cat.name = inp.value.trim() || cat.name; saveCategories();
   }));
-  el.querySelectorAll('[data-task-name]').forEach(inp=>inp.addEventListener('change', ()=>updateTaskField(inp.dataset.taskName,'name',inp.value.trim())));
-  el.querySelectorAll('[data-task-pts]').forEach(inp=>inp.addEventListener('change', ()=>{updateTaskField(inp.dataset.taskPts,'points',Number(inp.value)||0); renderTasks();}));
-  el.querySelectorAll('[data-del-task]').forEach(btn=>btn.addEventListener('click', ()=>{categories.forEach(c=>c.tasks=c.tasks.filter(t=>t.id!==btn.dataset.delTask)); saveCategories(); renderTasks();}));
-  el.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click', ()=>{const cat=categories.find(c=>c.id===btn.dataset.add); cat.tasks.push({id:uid(),name:'تسک جدید',points:0}); saveCategories(); renderTasks();}));
+  el.querySelectorAll('[data-task-name]').forEach(inp=>inp.addEventListener('change', ()=>updateTaskField(cats, inp.dataset.taskName,'name',inp.value.trim())));
+  el.querySelectorAll('[data-task-pts]').forEach(inp=>inp.addEventListener('change', ()=>{updateTaskField(cats, inp.dataset.taskPts,'points',Number(inp.value)||0); renderTasks();}));
+  el.querySelectorAll('[data-del-task]').forEach(btn=>btn.addEventListener('click', ()=>{cats.forEach(c=>c.tasks=c.tasks.filter(t=>t.id!==btn.dataset.delTask)); saveCategories(); renderTasks();}));
+  el.querySelectorAll('[data-add]').forEach(btn=>btn.addEventListener('click', ()=>{const cat=cats.find(c=>c.id===btn.dataset.add); cat.tasks.push({id:uid(),name:'تسک جدید',points:0}); saveCategories(); renderTasks();}));
 }
-function updateTaskField(taskId, field, value){
-  categories.forEach(c=>{ const t=c.tasks.find(t=>t.id===taskId); if(t) t[field]=value; });
+function updateTaskField(cats, taskId, field, value){
+  cats.forEach(c=>{ const t=c.tasks.find(t=>t.id===taskId); if(t) t[field]=value; });
   saveCategories();
 }
 
@@ -2081,6 +2187,7 @@ function renderToday(){
   const rec = dailyRecords[currentDate] || {done:{}};
   const weekdayFa = iranWeekday(currentDate);
   const isWorkday = !['جمعه','پنجشنبه'].includes(weekdayFa);
+  const categories = categoriesForDay(weekdayFa); // تسک‌های مخصوص همین روز هفته (شنبه با یکشنبه فرق داره)
 
   if(isViewOnly){
     let sumV = 0;
@@ -2100,7 +2207,7 @@ function renderToday(){
       <div class="card">
         <div class="today-header">
           <div><label class="field-label">تاریخ</label><div style="padding:9px 2px;font-size:13px;color:var(--white-dim);">${iranJalaliDate(currentDate)} · فقط نمایش</div></div>
-          <span class="weekday-pill ${isWorkday?'':'warn'}">${weekdayFa}${isWorkday?'':' · روز کاری نیست'}</span>
+          <span class="weekday-pill ${isWorkday?'':'warn'}">${weekdayFa}${isWorkday?' ':` <span style="color:#EDEDED;" title="روز تفریحی — توی نمودار و نمره حساب نمیشه">★</span> · روز تفریحی — مستقل ثبت میشه`}</span>
         </div>
         ${checklistHtml}
         <div class="today-footer"><div class="live-score">امتیاز امروز: <b>${scoreV}</b> / ۱۰۰</div></div>
@@ -2116,10 +2223,9 @@ function renderToday(){
     <div class="card">
       <div class="today-header">
         <div><label class="field-label">تاریخ</label><div style="padding:9px 2px;font-size:13px;color:var(--white-dim);">${iranJalaliDate(currentDate)} · فقط امروز قابل ثبته</div></div>
-        <span class="weekday-pill ${isWorkday?'':'warn'}">${weekdayFa}${isWorkday?'':' · روز کاری نیست'}</span>
+        <span class="weekday-pill ${isWorkday?'':'warn'}">${weekdayFa}${isWorkday?' ':` <span style="color:#EDEDED;" title="روز تفریحی — توی نمودار و نمره حساب نمیشه">★</span> · روز تفریحی — مستقل ثبت میشه`}</span>
       </div>
       <div id="checklistArea"></div>
-      <div class="err-msg hidden" id="saveWarn">پنجشنبه و جمعه روز کاری نیست، نمی‌تونی امتیاز این روز رو ثبت کنی.</div>
       <div class="today-footer">
         <div class="live-score">امتیاز امروز: <b id="liveScore">0</b> / ۱۰۰</div>
         <div class="row-flex" style="flex:none;">
@@ -2158,7 +2264,7 @@ function renderToday(){
   }
   async function autoPersist(){
     const {sum, score} = recalcLive();
-    if(!isWorkday) return; // روز کاری نیست، چیزی ذخیره نمیشه (فقط با دکمه اخطار می‌بینه)
+    // پنجشنبه/جمعه هم الان ذخیره میشه (تفریحیه) — فقط توی نمودار و محاسبه‌ی نمره‌ی هفته/ماه دخیل نیست چون این تاریخ‌ها اصلاً جزو تاریخ‌های دوره (شنبه تا چهارشنبه) نیستن
     const done = {};
     checklistArea.querySelectorAll('[data-chk]').forEach(chk=>{ done[chk.dataset.chk] = chk.checked; });
     dailyRecords[currentDate] = {done, totalPoints:sum, dailyScore:score, weekday:weekdayFa, time:iranNowTime()};
@@ -2170,14 +2276,12 @@ function renderToday(){
 
   const saveBtn = el.querySelector('#saveDayBtn');
   saveBtn.addEventListener('click', guard(saveBtn, async ()=>{
-    const warnEl = el.querySelector('#saveWarn');
-    if(!isWorkday){ warnEl.classList.remove('hidden'); showToast('روز کاری نیست — ثبت نشد'); return; }
-    warnEl.classList.add('hidden');
     const done = {};
     checklistArea.querySelectorAll('[data-chk]').forEach(chk=>{ done[chk.dataset.chk] = chk.checked; });
     const {sum, score} = recalcLive();
     dailyRecords[currentDate] = {done, totalPoints:sum, dailyScore:score, weekday:weekdayFa, time:iranNowTime()};
     await saveDaily();
+    if(!isWorkday) showToast('ثبت شد — تفریحیه، توی نمودار و نمره حساب نمیشه');
     let cs = await loadCycleStart(currentCode);
     if(!cs){ cs = mostRecentSaturday(currentDate); await saveCycleStart(currentCode, cs); }
     await updateHeaderStats();
@@ -2186,21 +2290,64 @@ function renderToday(){
 
   renderRecordedDays();
 }
-function renderRecordedDays(){
+async function renderRecordedDays(){
   const wrap = document.getElementById('recordedDaysList') || document.getElementById('recordedDaysListVO');
   if(!wrap) return;
   const dates = sortedDates();
   if(dates.length===0){ wrap.innerHTML = '<div class="empty">هنوز روزی ثبت نشده</div>'; return; }
-  let html = '<table><tr><th>تاریخ</th><th>روز</th><th>امتیاز روزانه</th><th></th></tr>';
-  dates.slice().reverse().forEach(d=>{
+
+  function rowHtml(d){
     const r = dailyRecords[d];
-    html += `<tr><td>${iranJalaliDate(d)}</td><td>${r.weekday||''}</td><td>${r.dailyScore}</td><td><div class="icon-row">
+    if(!r) return '';
+    const isFunDay = ['پنجشنبه','جمعه'].includes(r.weekday);
+    const star = isFunDay ? ' <span style="color:#EDEDED;font-size:12px;" title="روز تفریحی — توی نمودار و نمره حساب نمیشه">★</span>' : '';
+    return `<tr><td>${iranJalaliDate(d)}</td><td>${r.weekday||''}${star}</td><td>${r.dailyScore}</td><td><div class="icon-row">
       <button class="icon-btn" data-view-day="${d}" title="مشاهده جزئیات">◉</button>
       ${isViewOnly?'':`<button class="icon-btn" data-del-day="${d}" title="حذف">✕</button>`}
     </div></td></tr>`;
+  }
+
+  // گروه‌بندی روزهای ثبت‌شده بر اساس ماه (دوره‌ی ۲۰ روزه) — تا لازم نباشه کل تاریخچه رو اسکرول کنی
+  const monthHistory = await loadMonthHistory(currentCode);
+  const cycleStartNow = await loadCycleStart(currentCode);
+  const usedDates = new Set();
+  const groups = [];
+
+  monthHistory.forEach(m=>{
+    const weeks = (m.weeks||[]).map(w=>({ index:w.index, dates:(w.dates||[]).filter(d=>dailyRecords[d]) })).filter(w=>w.dates.length);
+    weeks.forEach(w=>w.dates.forEach(d=>usedDates.add(d)));
+    if(weeks.length) groups.push({ label:`ماه ${m.index}`, weeks });
   });
-  html += '</table>';
+
+  if(cycleStartNow){
+    const info = computeCycle(cycleStartNow);
+    if(info){
+      const weeks = info.weeks.map(w=>({ index:w.index, dates:w.dates.filter(d=>dailyRecords[d]) })).filter(w=>w.dates.length);
+      if(weeks.length){
+        weeks.forEach(w=>w.dates.forEach(d=>usedDates.add(d)));
+        groups.push({ label:`ماه ${monthHistory.length+1} (در حال انجام)`, weeks });
+      }
+    }
+  }
+
+  const leftover = dates.filter(d=>!usedDates.has(d));
+  if(leftover.length) groups.push({ label:'سایر روزها (تفریحی / خارج از دوره)', weeks:[{ index:null, dates:leftover }] });
+
+  let html = '';
+  groups.slice().reverse().forEach((g, gi)=>{
+    let inner = '<table><tr><th>تاریخ</th><th>روز</th><th>امتیاز روزانه</th><th></th></tr>';
+    g.weeks.forEach((w, wi)=>{
+      if(wi>0) inner += '<tr class="week-sep-row"><td colspan="4"><div class="week-sep-line"></div></td></tr>';
+      w.dates.slice().sort().reverse().forEach(d=>{ inner += rowHtml(d); });
+    });
+    inner += '</table>';
+    html += `<details class="history-group"${gi===0?' open':''}>
+      <summary class="history-group-summary"><span>${g.label}</span><span class="history-group-count">${g.weeks.reduce((s,w)=>s+w.dates.length,0)} روز</span></summary>
+      <div class="history-group-body">${inner}</div>
+    </details>`;
+  });
   wrap.innerHTML = html;
+
   wrap.querySelectorAll('[data-del-day]').forEach(btn=>btn.addEventListener('click', ()=>{ delete dailyRecords[btn.dataset.delDay]; saveDaily(); updateHeaderStats(); renderToday(); }));
   wrap.querySelectorAll('[data-view-day]').forEach(btn=>btn.addEventListener('click', ()=>{
     const d = btn.dataset.viewDay;
@@ -2209,7 +2356,8 @@ function renderRecordedDays(){
     if(!card) return;
     card.classList.remove('hidden');
     let html2 = `<h2>جزئیات روز ${iranJalaliDate(d)} (${rec.weekday||''}) — فقط نمایش</h2>`;
-    categories.forEach((cat,idx)=>{
+    const dayCategories = categoriesForDay(rec.weekday);
+    dayCategories.forEach((cat,idx)=>{
       html2 += `<div class="checklist-cat" style="--catColor:${catColor(idx)};"><div class="cat-title">${escapeHtml(cat.name)}</div>`;
       cat.tasks.forEach(task=>{
         const checked = rec.done && rec.done[task.id] ? 'checked' : '';
@@ -2241,9 +2389,14 @@ async function renderDashboard(){
   `;
 
   const wWrap = document.getElementById('weeklyTable');
-  if(!cycle){ wWrap.innerHTML = '<div class="empty">هنوز دوره‌ای شروع نشده — با اولین ثبت تسک شروع میشه</div>'; }
+  let prevMonthsCompactHtml = '';
+  if(monthHistory.length){
+    const chips = monthHistory.map(m=>`<span class="week-day-chip" title="ماه ${m.index} — ${m.label}">ماه ${m.index}<b>${Math.round(m.score*10)/10} · ${m.grade}</b></span>`).join('');
+    prevMonthsCompactHtml = `<div class="prev-months-compact"><div class="prev-months-label">ماه‌های قبلی</div><div class="week-days">${chips}</div></div>`;
+  }
+  if(!cycle){ wWrap.innerHTML = prevMonthsCompactHtml + '<div class="empty">هنوز دوره‌ای شروع نشده — با اولین ثبت تسک شروع میشه</div>'; }
   else{
-    let h = '';
+    let h = prevMonthsCompactHtml;
     cycle.weeks.forEach(w=>{
       const dayChips = w.dates.map((d,i)=>`<span class="week-day-chip">${iranWeekday(d)}<b>${w.scores[i]}</b></span>`).join('');
       if(w.revealed){
@@ -2294,6 +2447,15 @@ async function renderDashboard(){
     chartEmptyMsg.classList.remove('hidden');
     return;
   }
+  const chartJsOk = await ensureChartJs();
+  if(!chartJsOk){
+    chartWrap.classList.add('hidden');
+    chartEmptyMsg.classList.remove('hidden');
+    chartEmptyMsg.innerHTML = 'نمودار لود نشد — اتصال اینترنتت رو چک کن<br><button class="btn ghost small" id="retryChartBtn" style="margin-top:8px;">تلاش دوباره</button>';
+    const retryBtn = document.getElementById('retryChartBtn');
+    if(retryBtn) retryBtn.addEventListener('click', ()=>renderDashboard());
+    return;
+  }
   chartWrap.classList.remove('hidden');
   chartEmptyMsg.classList.add('hidden');
   const cycleDates = allCycleDates(cycleStart);
@@ -2323,8 +2485,8 @@ async function renderDashboard(){
     if(typeof Chart === 'undefined') throw new Error('chartjs-not-loaded');
     const trendColor = (ctx)=>{
       const y0 = ctx.p0.parsed.y, y1 = ctx.p1.parsed.y;
-      if(y1 > y0) return '#4ADE80'; // صعودی → سبز
-      if(y1 < y0) return '#E37272'; // نزولی → قرمز
+      if(y1 > y0) return '#0F7B3D'; // صعودی → سبز تیره و پررنگ
+      if(y1 < y0) return '#A81616'; // نزولی → قرمز تیره و پررنگ
       return '#9AA3B2'; // بدون تغییر → خاکستری
     };
     const trendFill = (sctx)=>{
@@ -2332,8 +2494,8 @@ async function renderDashboard(){
       const chart = sctx.chart, area = chart.chartArea;
       if(!area) return 'rgba(154,163,178,0.05)';
       const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
-      if(y1 > y0){ g.addColorStop(0,'rgba(74,222,128,0.20)'); g.addColorStop(1,'rgba(74,222,128,0.01)'); return g; }
-      if(y1 < y0){ g.addColorStop(0,'rgba(227,114,114,0.20)'); g.addColorStop(1,'rgba(227,114,114,0.01)'); return g; }
+      if(y1 > y0){ g.addColorStop(0,'rgba(15,123,61,0.30)'); g.addColorStop(1,'rgba(15,123,61,0.01)'); return g; }
+      if(y1 < y0){ g.addColorStop(0,'rgba(168,22,22,0.30)'); g.addColorStop(1,'rgba(168,22,22,0.01)'); return g; }
       g.addColorStop(0,'rgba(154,163,178,0.10)'); g.addColorStop(1,'rgba(154,163,178,0.01)');
       return g;
     };
@@ -2357,14 +2519,48 @@ async function renderDashboard(){
         ctx.restore();
       }
     };
+    // سایه‌ی نرم و سبک که همراه انیمیشن ورودی خط، از نقطه‌ی اول تا نقطه‌ی فعلی حرکت می‌کنه
+    // (به‌جای shadowBlur گرون، از یک گرادیانِ شعاعیِ ساده استفاده شده که خیلی سبک‌تره و لگ نمی‌ده)
+    const glowStartTime = performance.now();
+    const GLOW_DURATION = data.length>1 ? 1800 : 900; // هم‌زمان با کل مدت انیمیشن خط (تأخیر آخرین نقطه + مدت انیمیشنش)
+    const travelGlowPlugin = {
+      id:'travelGlow',
+      afterDatasetsDraw(chart){
+        const elapsed = performance.now() - glowStartTime;
+        if(elapsed >= GLOW_DURATION) return; // انیمیشن تموم شده، دیگه چیزی کشیده نمیشه
+        const t = Math.max(0, Math.min(1, elapsed / GLOW_DURATION));
+        const meta = chart.getDatasetMeta(0);
+        const pts = meta.data;
+        if(!pts || !pts.length) return;
+        const idxFloat = t * (pts.length-1);
+        const i0 = Math.floor(idxFloat);
+        const i1 = Math.min(pts.length-1, i0+1);
+        const frac = idxFloat - i0;
+        const p0 = pts[i0], p1 = pts[i1];
+        if(!p0) return;
+        const x = p0.x + (p1 ? (p1.x-p0.x)*frac : 0);
+        const y = p0.y + (p1 ? (p1.y-p0.y)*frac : 0);
+        const {ctx} = chart;
+        ctx.save();
+        const r = 15;
+        const grad = ctx.createRadialGradient(x,y,0,x,y,r);
+        grad.addColorStop(0, 'rgba(255,255,255,.5)');
+        grad.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
+    };
     chartInstance = new Chart(ctx, {
       type:'line',
       data:{ labels, datasets:[{ label:'امتیاز روزانه', data, borderColor:'#3E5FCB', backgroundColor:'rgba(154,163,178,0.08)',
         segment:{ borderColor: trendColor, backgroundColor: trendFill },
-        pointBackgroundColor:'#0A0E16',
-        pointBorderColor:'rgba(237,242,248,0.85)', pointBorderWidth:1.5,
-        pointRadius:(c)=> c.dataIndex===data.length-1 ? 6 : 3.5,
-        pointHoverRadius:6, borderWidth:3.75, borderJoinStyle:'miter', borderCapStyle:'round',
+        pointBackgroundColor:'#FFFFFF',
+        pointBorderColor:'transparent', pointBorderWidth:0,
+        pointRadius:(c)=> c.dataIndex===data.length-1 ? 4 : 2,
+        pointHoverRadius:5, borderWidth:3.75, borderJoinStyle:'miter', borderCapStyle:'round',
         tension:0, fill:true }] },
       options:{ responsive:true, maintainAspectRatio:false, devicePixelRatio:window.devicePixelRatio||1, plugins:{ legend:{display:false}, tooltip:{rtl:true} },
         // انیمیشن ورودِ خط از چپ به راست — انگار داره لحظه‌به‌لحظه کشیده میشه تا برسه به نقطه‌ی آخر
@@ -2377,13 +2573,15 @@ async function renderDashboard(){
             delay(c){ if(c.type!=='data' || c.yStarted) return 0; c.yStarted = true; return c.index * (900/Math.max(1,data.length-1)); } }
         },
         scales:{ y:{min:0,max:100,ticks:{color:'#9AA3B2',stepSize:10},grid:{color:'#3A4152'}}, x:{ticks:{color:'#9AA3B2',font:{size:10}},grid:{display:false}} } },
-      plugins:[weekBandsPlugin, todayLabelPlugin]
+      plugins:[weekBandsPlugin, todayLabelPlugin, travelGlowPlugin]
     });
   }catch(e){
     console.error('chart render failed', e);
     chartWrap.classList.add('hidden');
     chartEmptyMsg.classList.remove('hidden');
-    chartEmptyMsg.textContent = 'نمودار لود نشد — اتصال اینترنتت رو چک کن و صفحه رو باز کن دوباره';
+    chartEmptyMsg.innerHTML = 'نمودار لود نشد<br><button class="btn ghost small" id="retryChartBtn2" style="margin-top:8px;">تلاش دوباره</button>';
+    const retryBtn2 = document.getElementById('retryChartBtn2');
+    if(retryBtn2) retryBtn2.addEventListener('click', ()=>renderDashboard());
   }
 }
 
@@ -2508,11 +2706,12 @@ async function renderPersonalNotesPanel(panelId, code, viewOnly, notebookHidden)
   el.innerHTML = html;
 
   const jWrap = el.querySelector('#journalList_'+panelId);
+  let lastJId = null;
   function paintJournal(){
     if(journal.length===0){ jWrap.innerHTML = '<div class="empty">هنوز ژورنالی ثبت نشده</div>'; return; }
     let jHtml = '';
     journal.slice().reverse().forEach(j=>{
-      jHtml += `<div class="fb-entry"><div class="cyc">${iranJalaliDate(j.date)}${j.time?` · ساعت ${j.time}`:''} ${(!viewOnly)?`<button class="icon-btn" style="float:left;" data-del-j="${j.id}" title="حذف">✕</button>`:''}</div><div class="fb-line">${escapeHtml(j.text)}</div></div>`;
+      jHtml += `<div class="fb-entry${j.id===lastJId?' entry-pop':''}" data-entry-id="${j.id}"><div class="cyc">${iranJalaliDate(j.date)}${j.time?` · ساعت ${j.time}`:''} ${(!viewOnly)?`<button class="icon-btn" style="float:left;" data-del-j="${j.id}" title="حذف">✕</button>`:''}</div><div class="fb-line">${escapeHtml(j.text)}</div></div>`;
     });
     jWrap.innerHTML = jHtml;
     jWrap.querySelectorAll('[data-del-j]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
@@ -2521,16 +2720,21 @@ async function renderPersonalNotesPanel(panelId, code, viewOnly, notebookHidden)
       const fresh = await loadJournal(code);
       await saveJournal(code, fresh.filter(j=>j.id!==btn.dataset.delJ));
     })));
+    if(lastJId){
+      const freshEl = jWrap.querySelector(`[data-entry-id="${lastJId}"]`);
+      if(freshEl) freshEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
   }
   paintJournal();
 
   const nWrap = el.querySelector('#notebookList_'+panelId);
+  let lastNId = null;
   function paintNotebook(){
     if(!nWrap) return;
     if(notebook.length===0){ nWrap.innerHTML = '<div class="empty">هنوز یادداشتی ثبت نشده</div>'; return; }
     let nHtml = '';
     notebook.slice().reverse().forEach(n=>{
-      nHtml += `<div class="fb-entry"><div class="cyc">${iranJalaliDate(n.date)}${n.time?` · ساعت ${n.time}`:''} ${(!viewOnly)?`<button class="icon-btn" style="float:left;" data-del-n="${n.id}" title="حذف">✕</button>`:''}</div><div class="fb-line">${escapeHtml(n.text)}</div></div>`;
+      nHtml += `<div class="fb-entry${n.id===lastNId?' entry-pop':''}" data-entry-id="${n.id}"><div class="cyc">${iranJalaliDate(n.date)}${n.time?` · ساعت ${n.time}`:''} ${(!viewOnly)?`<button class="icon-btn" style="float:left;" data-del-n="${n.id}" title="حذف">✕</button>`:''}</div><div class="fb-line">${escapeHtml(n.text)}</div></div>`;
     });
     nWrap.innerHTML = nHtml;
     nWrap.querySelectorAll('[data-del-n]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
@@ -2539,6 +2743,10 @@ async function renderPersonalNotesPanel(panelId, code, viewOnly, notebookHidden)
       const fresh = await loadNotebook(code);
       await saveNotebook(code, fresh.filter(n=>n.id!==btn.dataset.delN));
     })));
+    if(lastNId){
+      const freshEl = nWrap.querySelector(`[data-entry-id="${lastNId}"]`);
+      if(freshEl) freshEl.scrollIntoView({behavior:'smooth', block:'center'});
+    }
   }
   if(!notebookHidden) paintNotebook();
 
@@ -2575,6 +2783,7 @@ async function renderPersonalNotesPanel(panelId, code, viewOnly, notebookHidden)
       ta.value='';
       const newEntry = {id:uid(), text:val, date:new Date().toISOString().slice(0,10), time:iranNowTime()};
       journal.push(newEntry);
+      lastJId = newEntry.id;
       paintJournal(); // نمایش فوری، بدون معطلی
       const fresh = await loadJournal(code); // آخرین نسخه رو می‌گیریم که چیزی گم نشه
       fresh.push(newEntry);
@@ -2590,6 +2799,7 @@ async function renderPersonalNotesPanel(panelId, code, viewOnly, notebookHidden)
         ta.value='';
         const newEntry = {id:uid(), text:val, date:new Date().toISOString().slice(0,10), time:iranNowTime()};
         notebook.push(newEntry);
+        lastNId = newEntry.id;
         paintNotebook();
         const fresh = await loadNotebook(code);
         fresh.push(newEntry);
@@ -2729,6 +2939,7 @@ async function renderPlannerPanel(panelId, code){
 
   function squaresHtml(proj){
     const doneSet = new Set(proj.done||[]); // کلید هر خونه: "b{شماره‌باکس}-{عدد}" چون هر باکس از ۱ تا ۱۰۰ دوباره شماره می‌خوره
+    const boxNames = proj.boxNames || {};
     let boxesHtml = '';
     for(let b=0; b<10; b++){
       let cells = '';
@@ -2739,8 +2950,9 @@ async function renderPlannerPanel(panelId, code){
         if(isDone) boxDoneCount++;
         cells += `<div class="sq-cell${isDone?' done':''}" data-box="${b}" data-sq="${i}">${i}</div>`;
       }
+      const boxLabel = boxNames[b] || `قسمت ${b+1}`;
       boxesHtml += `<div class="card project-card">
-        <h2>${icon('target')} مربع‌ها — قسمت ${b+1} (۱ تا ۱۰۰)</h2>
+        <h2>${icon('target')}<input type="text" value="${escapeHtml(boxLabel)}" data-boxname="${b}" placeholder="اسم این قسمت رو بنویس" style="font-size:13px;font-weight:800;border:none;background:none;padding:0;color:#E79AAC;width:auto;flex:1;"> <span style="font-weight:400;color:var(--white-dim);font-size:11px;">(۱ تا ۱۰۰)</span></h2>
         <div class="sq-progress" data-boxprogress="${b}">${boxDoneCount} از ۱۰۰ کامل شده</div>
         <div class="sq-grid" data-sqgrid="${b}">${cells}</div>
       </div>`;
