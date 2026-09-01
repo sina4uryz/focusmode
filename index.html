@@ -73,6 +73,31 @@ function ensureSupabaseLib(){
   })();
   return window.__supabasePromise;
 }
+function ensureHtml2Canvas(){
+  if(typeof html2canvas !== 'undefined') return Promise.resolve(true);
+  if(window.__html2canvasPromise) return window.__html2canvasPromise;
+  const urls = [
+    'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
+    'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+    'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js'
+  ];
+  window.__html2canvasPromise = (async ()=>{
+    for(const url of urls){
+      try{
+        await new Promise((resolve, reject)=>{
+          const s = document.createElement('script');
+          s.src = url; s.onload = resolve; s.onerror = reject;
+          setTimeout(()=>reject(new Error('html2canvas-timeout')), 6000);
+          document.head.appendChild(s);
+        });
+        if(typeof html2canvas !== 'undefined') return true;
+      }catch(e){ /* برو سراغ CDN بعدی */ }
+    }
+    window.__html2canvasPromise = null;
+    return false;
+  })();
+  return window.__html2canvasPromise;
+}
 </script>
 <!-- Supabase دیگه اینجا مستقیم لود نمیشه — چون یه تگ ساده و مسدودکننده بود و اگه CDNش کند/فیلتر بود
      کل صفحه رو معطل نگه می‌داشت. الان مثل Chart.js به‌صورت غیرمسدودکننده و با چند CDN جایگزین لود میشه. -->
@@ -98,8 +123,7 @@ function ensureSupabaseLib(){
   }
   body.light .id-card{ background:rgba(255,255,255,0.55); border:1px solid rgba(20,30,50,0.14); box-shadow:0 12px 40px rgba(30,40,60,.14), inset 0 1px 0 rgba(255,255,255,.7); }
   body.light .profile-hero{
-    background:linear-gradient(135deg, rgba(46,124,230,.09), rgba(255,255,255,.55) 55%, rgba(157,140,230,.08));
-    border:1px solid rgba(20,30,50,0.16); box-shadow:inset 0 1.5px 0 rgba(255,255,255,.7), 0 8px 24px rgba(30,40,60,.12), 0 0 20px 1px rgba(111,168,220,.14);
+    background:rgba(20,30,50,0.04); border:1px solid rgba(20,30,50,0.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 8px 22px rgba(30,40,60,.1);
   }
   body.light .mode-switch, body.light .tabs{ background:rgba(20,30,50,0.05); border:1px solid rgba(20,30,50,0.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 6px 18px rgba(30,40,60,.08); }
   body.light .mode-switch::before, body.light .tabs::before{ background:linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0)); }
@@ -266,7 +290,7 @@ function ensureSupabaseLib(){
     100%{ transform:translate3d(4%,-3%,0) rotate(-4deg); }
   }
   .id-card{
-    width:100%;max-width:420px;position:relative;overflow:hidden;border-radius:22px;padding:26px 26px 38px;
+    width:100%;max-width:460px;position:relative;overflow:hidden;border-radius:24px;padding:38px 30px 46px;
     background:rgba(27,34,51,0.42);
     border:1px solid rgba(255,255,255,0.16);
     box-shadow:0 12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10), inset 0 0 40px rgba(255,255,255,.03), 0 0 70px 14px rgba(111,168,220,.22);
@@ -284,16 +308,14 @@ function ensureSupabaseLib(){
     box-shadow:0 0 10px 2px rgba(46,124,230,.55);
   }
   @keyframes idLineFlow{ to{ background-position:400% 0; } }
-  .id-card h1{font-size:19px;font-weight:800;margin:6px 0 2px;}
-  .id-card .sub{color:var(--white-dim);font-size:12px;margin-bottom:14px;}
+  .id-card h1{font-size:20px;font-weight:800;margin:8px 0 4px;}
+  .id-card .sub{color:var(--white-dim);font-size:12.5px;margin-bottom:22px;}
 
   .quote-line{
     max-width:420px;width:100%;text-align:center;font-size:15.5px;font-weight:800;padding:12px 10px;
-    background:linear-gradient(100deg,var(--navy) 20%, var(--lightblue) 50%, var(--navy) 80%);
-    background-size:220% 100%; -webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:shine 1.8s ease-in-out 1 forwards; cursor:default; letter-spacing:.3px; line-height:1.7;
+    color:var(--lightblue); cursor:default; letter-spacing:.3px; line-height:1.7;
+    text-shadow:0 0 14px rgba(111,168,220,.35);
   }
-  .quote-line:hover{animation:shineFast 1.1s ease-in-out infinite;}
   @keyframes shine{0%{background-position:180% 0;}50%{background-position:0% 0;}100%{background-position:-180% 0;}}
   @keyframes shineFast{0%{background-position:220% 0;filter:brightness(1);}50%{background-position:0% 0;filter:brightness(1.6);}100%{background-position:-220% 0;filter:brightness(1);}}
 
@@ -301,7 +323,7 @@ function ensureSupabaseLib(){
     font-size:20px;font-weight:800;margin:6px 0 2px;letter-spacing:.5px;
     background:linear-gradient(100deg,var(--white) 20%, #ffffff 50%, var(--white) 80%);
     background-size:220% 100%; -webkit-background-clip:text;background-clip:text;color:transparent;
-    animation:shine 1.8s ease-in-out 1 forwards; text-shadow:0 0 10px rgba(255,255,255,.35);
+    animation:shine 1.8s ease-in-out 1; text-shadow:0 0 10px rgba(255,255,255,.35);
   }
   .brand-title:hover{animation:shineFast 1.1s ease-in-out infinite;}
 
@@ -326,7 +348,7 @@ function ensureSupabaseLib(){
     text-shadow:0 1px 3px rgba(0,0,0,.25);
   }
   .field-label{font-size:11px;color:var(--white-dim);display:block;margin-bottom:4px;}
-  .id-card input{width:100%;margin-bottom:12px;}
+  .id-card input{width:100%;margin-bottom:16px;}
   .id-card .btn{width:100%;}
   .stamp-note{margin-top:14px;font-size:11px;color:var(--white-dim);line-height:1.9;border-top:1px dashed var(--line);padding-top:12px;}
   .err-msg{color:var(--lightblue);font-size:12px;margin:-6px 0 10px;font-weight:700;}
@@ -369,31 +391,25 @@ function ensureSupabaseLib(){
   .profile-hero{
     position:relative;overflow:hidden;
     display:inline-flex;align-items:center;gap:14px;
-    background:linear-gradient(135deg, rgba(46,124,230,.18), rgba(20,25,40,.6) 55%, rgba(46,124,230,.10));
-    border:1px solid rgba(111,168,220,0.4);border-radius:18px;padding:10px 20px 10px 12px;
-    backdrop-filter:blur(24px) saturate(220%);-webkit-backdrop-filter:blur(24px) saturate(220%);
-    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.18), 0 8px 28px rgba(0,0,0,.32), 0 0 30px 2px rgba(111,168,220,.18);
-    animation:heroBorderPulse 3.5s ease-in-out infinite;
-  }
-  @keyframes heroBorderPulse{0%,100%{box-shadow:inset 0 1.5px 0 rgba(255,255,255,.18), 0 8px 28px rgba(0,0,0,.32), 0 0 30px 2px rgba(111,168,220,.18);}50%{box-shadow:inset 0 1.5px 0 rgba(255,255,255,.24), 0 8px 32px rgba(0,0,0,.32), 0 0 40px 5px rgba(111,168,220,.32);}}
-  .profile-hero::before{
-    content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
-    background:linear-gradient(120deg, rgba(191,220,245,.65), rgba(111,168,220,0) 30%, rgba(111,168,220,0) 70%, rgba(191,220,245,.65));
-    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite:xor; mask-composite:exclude;
+    background:linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.16);border-radius:20px;padding:10px 20px 10px 12px;
+    backdrop-filter:blur(18px) saturate(200%);-webkit-backdrop-filter:blur(18px) saturate(200%);
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.12), 0 10px 26px rgba(0,0,0,.32), 0 0 0 1px rgba(111,168,220,.06);
   }
   .profile-hero::after{
-    content:'';position:absolute;top:0;bottom:0;right:-60%;width:60%;
-    background:linear-gradient(100deg, transparent, rgba(255,255,255,.16), transparent);
-    animation:heroShine 4.5s ease-in-out infinite;pointer-events:none;will-change:transform;
+    content:''; position:absolute; inset:-40%; z-index:0; pointer-events:none;
+    background:radial-gradient(circle at 12% 20%, rgba(108,92,231,.16), transparent 45%),
+               radial-gradient(circle at 88% 80%, rgba(111,168,220,.16), transparent 45%);
+    animation:mentorBgDrift 10s ease-in-out infinite alternate;
   }
-  @keyframes heroShine{0%{transform:translateX(0%);}45%,100%{transform:translateX(-330%);}}
-  .ph-divider{width:1px;align-self:stretch;background:linear-gradient(180deg, transparent, rgba(111,168,220,.4), transparent);flex-shrink:0;}
+  .profile-hero > *{position:relative; z-index:1;}
+  .ph-divider{width:1px;align-self:stretch;background:linear-gradient(180deg, transparent, rgba(255,255,255,.18), transparent);flex-shrink:0;}
   .profile-hero .member-chip{ background:none; border:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; padding:0; }
   .profile-hero .member-chip::before{ display:none; }
   .profile-hero .cycle-reminder{ background:none; border:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; padding:0; min-width:auto; }
   .profile-hero .cycle-reminder.cr-v2::before{ display:none; }
   @media (max-width:560px){ .profile-hero{ padding:8px 12px 8px 8px; gap:10px; flex-wrap:wrap; } .ph-divider{ display:none; } }
+  .profile-hero .cr-fill::after{ display:none; } /* اون درخشش متحرک روی نوار ریمایندر که شبیه مربع چرخان به‌نظر میومد، فقط داخل پروفایل غیرفعال شد */
   .member-chip{
     position:relative;
     display:inline-flex;align-items:center;gap:10px;
@@ -405,25 +421,24 @@ function ensureSupabaseLib(){
   }
   .mc-avatar{
     position:relative;flex-shrink:0;width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;
-    font-size:17px;font-weight:900;color:#0b1220;
-    background:linear-gradient(155deg,#EAF2FF,#6FA8DC 55%,#2E7CE6);
-    box-shadow:0 4px 16px rgba(46,124,230,.6), inset 0 1.5px 0 rgba(255,255,255,.7), inset 0 -3px 6px rgba(0,0,0,.15);
+    font-size:17px;font-weight:900;color:#12151C;
+    background:linear-gradient(155deg,#E7EAEF,#9AA3B2 55%,#525A68);
+    box-shadow:0 4px 10px rgba(20,25,35,.5), inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.2);
   }
   .mc-avatar::before{
-    content:'';position:absolute;inset:-3px;border-radius:15px;z-index:-1;
-    background:conic-gradient(from 0deg, #2E7CE6, #9D8CE6, #6FA8DC, #EAF2FF, #2E7CE6);
-    animation:mcAvatarSpin 3.5s linear infinite;opacity:.9;
+    content:''; position:absolute; inset:-5px; border-radius:16px; z-index:-1; pointer-events:none;
+    border:1.5px solid rgba(154,163,178,.45); animation:mcAvatarPulse 2.6s ease-out infinite;
   }
+  @keyframes mcAvatarPulse{0%{transform:scale(.85); opacity:.9;}100%{transform:scale(1.28); opacity:0;}}
   .mc-avatar::after{
     content:'';position:absolute;bottom:-2px;left:-2px;width:12px;height:12px;border-radius:50%;
-    background:#3ECF6E;border:2px solid var(--navy);box-shadow:0 0 8px 2px rgba(62,207,110,.7);
+    background:#3ECF6E;border:2px solid var(--navy);
     animation:mcOnlinePulse 2s ease-in-out infinite;
   }
   @keyframes mcOnlinePulse{0%,100%{transform:scale(1);}50%{transform:scale(1.15);}}
-  @keyframes mcAvatarSpin{to{transform:rotate(360deg);}}
   .mc-info{display:flex;flex-direction:column;line-height:1.4;}
-  .mc-name{font-weight:900;color:var(--white);font-size:14.5px;letter-spacing:.2px;text-shadow:0 0 14px rgba(111,168,220,.5);}
-  .mc-code{font-size:10px;color:var(--lightblue);font-variant-numeric:tabular-nums;font-family:'Courier New',monospace;letter-spacing:1.5px;opacity:.9;}
+  .mc-name{font-weight:900;color:#fff;font-size:15.5px;letter-spacing:.2px;text-shadow:0 0 18px rgba(111,168,220,.7), 0 0 4px rgba(255,255,255,.4);}
+  .mc-code{display:inline-block;font-size:10.5px;color:#D9E8F7;font-variant-numeric:tabular-nums;font-family:'Courier New',monospace;letter-spacing:1.6px;font-weight:800;background:rgba(111,168,220,.16);border:1px solid rgba(111,168,220,.35);border-radius:20px;padding:1px 9px;margin-top:3px;}
   .member-chip b{color:var(--lightblue);}
   .view-only-badge{background:var(--lightblue-dim);color:var(--lightblue);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;}
   .logout-btn{
@@ -480,6 +495,74 @@ function ensureSupabaseLib(){
   .tabs::-webkit-scrollbar{height:4px;}
   .tabs::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
   .tab-btn:hover{color:var(--white);}
+
+  /* ============ ساید‌بار پنل کاربری — چیدمان جدید به‌جای نوار تب افقی ============ */
+  .app-shell{display:flex;align-items:flex-start;gap:18px;}
+  .app-content{flex:1;min-width:0;}
+  .sidebar{
+    flex-shrink:0;width:236px;position:sticky;top:14px;
+    background:linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.16);border-radius:20px;padding:10px;
+    backdrop-filter:blur(18px) saturate(200%);-webkit-backdrop-filter:blur(18px) saturate(200%);
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.12), 0 10px 26px rgba(0,0,0,.32);
+    max-height:calc(100vh - 28px);overflow-y:auto;
+  }
+  .sidebar::-webkit-scrollbar{width:4px;}
+  .sidebar::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px;}
+  body.light .sidebar{ background:rgba(20,30,50,0.04); border:1px solid rgba(20,30,50,0.14); box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 8px 22px rgba(30,40,60,.1); }
+  .sidebar .tabs{
+    display:flex;flex-direction:column;flex-wrap:nowrap;gap:3px;background:none;border:none;box-shadow:none;
+    backdrop-filter:none;-webkit-backdrop-filter:none;padding:0;overflow:visible;
+  }
+  .sidebar .tab-btn{
+    display:flex;align-items:center;gap:11px;justify-content:flex-start;width:100%;
+    padding:11px 12px;border-radius:13px;font-size:13.5px;text-align:right;box-shadow:none;
+  }
+  .sidebar .tab-btn svg{flex-shrink:0;opacity:.85;}
+  .sidebar .tab-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .sidebar .tab-btn:hover{background:rgba(255,255,255,.06);}
+  .sidebar .tab-btn.active svg{opacity:1;}
+  .sidebar .tab-btn.active{transform:none;}
+  .sidebar .tab-btn:active{transform:scale(.97);}
+  .sidebar-divider{height:1px;margin:8px 6px;background:linear-gradient(90deg, transparent, var(--line), transparent);flex-shrink:0;}
+  .sidebar-toggle-btn{
+    display:none;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;
+    background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.2);color:var(--white);
+    border-radius:11px;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  }
+  .sidebar-toggle-btn:active{transform:scale(.92);}
+  .sidebar-backdrop{display:none;}
+  @media (max-width:860px){
+    .sidebar-toggle-btn{display:inline-flex;}
+    .app-shell{display:block;}
+    .sidebar{
+      position:fixed;top:0;bottom:0;right:0;left:auto;height:100%;max-height:none;
+      width:78%;max-width:300px;z-index:220;border-radius:0;border-left:1px solid rgba(255,255,255,.14);
+      transform:translateX(100%);transition:transform .35s cubic-bezier(.22,1,.36,1);
+      padding-top:22px;
+    }
+    .sidebar.open{transform:translateX(0);box-shadow:-18px 0 40px rgba(0,0,0,.45);}
+    .sidebar-backdrop{
+      display:block;position:fixed;inset:0;z-index:210;background:rgba(0,0,0,.5);
+      backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .35s ease;
+    }
+    .sidebar-backdrop.open{opacity:1;pointer-events:auto;}
+  }
+  /* ============ کارت خانه — پروفایل کوچیک + ارتباط با تیم، اولین چیزی که کاربر می‌بینه ============ */
+  .home-profile-card{
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;
+    background:linear-gradient(165deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter:blur(22px) saturate(200%);-webkit-backdrop-filter:blur(22px) saturate(200%);
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14), 0 8px 24px rgba(0,0,0,.28), 0 0 20px 1px rgba(111,168,220,.08);
+  }
+  body.light .home-profile-card{
+    background:rgba(20,30,50,0.05);border:1px solid rgba(20,30,50,0.14);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 6px 18px rgba(30,40,60,.1);
+  }
+  .home-profile-card .hp-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+  .home-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--white-dim);margin:22px 2px 10px;}
+  .home-section-title svg{opacity:.85;}
   .panel{display:none;}
   @keyframes glassSwitchIn{
     0%{ opacity:0; transform:scale(.97) translateY(6px); }
@@ -698,6 +781,8 @@ function ensureSupabaseLib(){
     transition:.25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;
   }
   .chart-mode-switch button.active{color:#fff;background:linear-gradient(135deg, #2E7CE6, #1D4ED8);box-shadow:0 4px 14px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25);}
+  .chart-mode-switch button[data-mode="duo"].active{background:linear-gradient(135deg, #0F7B3D, #A81616);box-shadow:0 4px 14px rgba(15,123,61,.4), inset 0 1px 0 rgba(255,255,255,.25);}
+  .chart-mode-switch button[data-mode="emerald"].active{background:linear-gradient(135deg, #0F9D6E, #054E3B);box-shadow:0 4px 14px rgba(6,95,70,.55), inset 0 1px 0 rgba(255,255,255,.25);}
   .score-chart-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #6FA8DC, #BFDCF5, #6FA8DC, transparent);box-shadow:0 0 10px 1px rgba(111,168,220,.4);}
   .score-chart-card h2{display:flex;align-items:center;gap:8px;color:#9CC5EE;}
   .score-week-card{position:relative;overflow:hidden;border-color:rgba(255,163,92,.4);background:linear-gradient(160deg, rgba(255,163,92,.08), var(--navy-alt));}
@@ -873,6 +958,11 @@ function ensureSupabaseLib(){
   /* ---------- نسخه‌ی جدید ریمایندر دوره: گیج دایره‌ای HUD-وار ---------- */
   .cycle-reminder.cr-v2{ display:flex;align-items:center;gap:13px;padding:9px 17px 9px 11px;min-width:auto; }
   .cr-ring{position:relative;width:50px;height:50px;flex-shrink:0;}
+  .cr-ring::before{
+    content:''; position:absolute; inset:-6px; border-radius:50%; z-index:-1;
+    background:radial-gradient(circle, rgba(108,92,231,.35), transparent 70%);
+    animation:mcAvatarPulse 2.6s ease-out infinite;
+  }
   .cr-ring svg{width:100%;height:100%;transform:rotate(-90deg);shape-rendering:geometricPrecision;}
   .cr-ring-bg{fill:none;stroke:rgba(255,255,255,.14);stroke-width:4.5;}
   .cr-ring-fill{fill:none;stroke:url(#crRingGrad);stroke-width:4.5;stroke-linecap:round;filter:drop-shadow(0 0 2.5px rgba(111,168,220,.9));transition:stroke-dasharray .6s cubic-bezier(.22,1,.36,1);}
@@ -1021,43 +1111,73 @@ function ensureSupabaseLib(){
     background:linear-gradient(135deg, #2E7CE6, #1D4ED8); color:#fff; border:none; font-weight:800; font-size:13px;
     display:flex; align-items:center; gap:7px; cursor:pointer; box-shadow:0 6px 18px rgba(37,99,235,.5);
   }
+  .resume-img-btn{
+    top:66px; background:linear-gradient(135deg, #8C5CF0, #6B3FD6); box-shadow:0 6px 18px rgba(108,63,214,.5);
+  }
+  @media (max-width:520px){
+    .resume-print-btn{ top:auto; bottom:16px; right:16px; font-size:11.5px; padding:9px 14px; }
+    .resume-img-btn{ bottom:66px; }
+  }
   .resume-sheet{
     max-width:600px; margin:70px auto 40px; padding:30px 26px 26px; border-radius:22px; position:relative; overflow:hidden;
-    background:linear-gradient(165deg, #161B2C 0%, #0D101C 100%);
-    border:1px solid rgba(111,168,220,.25);
-    box-shadow:0 30px 70px rgba(0,0,0,.6), 0 0 90px 6px rgba(46,124,230,.14);
+    background:linear-gradient(165deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.16);
+    backdrop-filter:blur(18px) saturate(200%);-webkit-backdrop-filter:blur(18px) saturate(200%);
+    box-shadow:inset 0 1.5px 0 rgba(255,255,255,.12), 0 10px 26px rgba(0,0,0,.32);
     color:#E9EAEC; font-family:'Vazirmatn',sans-serif;
+  }
+  #resumePrintArea.show{
+    background:radial-gradient(ellipse at 50% -10%, rgba(46,124,230,.16), transparent 55%), #0B0D10;
   }
   .resume-sheet::before{
     content:''; position:absolute; top:0; left:0; right:0; height:5px;
     background:linear-gradient(90deg, transparent, #2E7CE6, #6FA8DC, #2E7CE6, transparent);
     box-shadow:0 0 14px 2px rgba(46,124,230,.6);
   }
-  .resume-brand{ text-align:center; font-size:11px; letter-spacing:3px; color:#6FA8DC; font-weight:800; opacity:.85; }
-  .resume-name{ text-align:center; font-size:22px; font-weight:900; margin-top:6px; }
+  .resume-brand{ text-align:center; font-size:11px; letter-spacing:3px; color:#6FA8DC; font-weight:800; opacity:.9; text-shadow:0 0 12px rgba(111,168,220,.6); }
+  .resume-name{ text-align:center; font-size:22px; font-weight:900; margin-top:6px; text-shadow:0 0 16px rgba(111,168,220,.35); }
   .resume-code{ text-align:center; font-size:11px; color:#8B95A6; font-family:'Courier New',monospace; letter-spacing:2px; margin-top:2px; }
   .resume-divider{ height:1px; background:linear-gradient(90deg, transparent, rgba(111,168,220,.4), transparent); margin:20px 0; }
   .resume-score-wrap{ display:flex; align-items:center; justify-content:center; gap:18px; margin:6px 0 22px; }
-  .resume-score-num{ font-size:52px; font-weight:900; line-height:1; background:linear-gradient(135deg,#BFDCF5,#2E7CE6); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .resume-score-num{ font-size:52px; font-weight:900; line-height:1; background:linear-gradient(135deg,#BFDCF5,#2E7CE6); -webkit-background-clip:text; background-clip:text; color:transparent; filter:drop-shadow(0 0 18px rgba(111,168,220,.45)); }
   .resume-score-badge{ display:flex; flex-direction:column; align-items:center; gap:5px; }
   .resume-grade-pill{ font-size:15px; font-weight:900; padding:5px 16px; border-radius:20px; }
-  .resume-grade-pill.good{ background:rgba(52,209,180,.16); color:#5FE8C9; border:1px solid rgba(52,209,180,.4); }
-  .resume-grade-pill.mid{ background:rgba(255,193,80,.16); color:#FFD37A; border:1px solid rgba(255,193,80,.4); }
-  .resume-grade-pill.bad{ background:rgba(255,107,107,.16); color:#FF9C7A; border:1px solid rgba(255,107,107,.4); }
+  .resume-grade-pill.good{ background:rgba(52,209,180,.16); color:#5FE8C9; border:1px solid rgba(52,209,180,.4); box-shadow:0 0 14px rgba(52,209,180,.25); }
+  .resume-grade-pill.mid{ background:rgba(255,193,80,.16); color:#FFD37A; border:1px solid rgba(255,193,80,.4); box-shadow:0 0 14px rgba(255,193,80,.2); }
+  .resume-grade-pill.bad{ background:rgba(255,107,107,.16); color:#FF9C7A; border:1px solid rgba(255,107,107,.4); box-shadow:0 0 14px rgba(255,107,107,.2); }
   .resume-grade-label{ font-size:11px; color:#8B95A6; }
-  .resume-section-title{ font-size:12px; font-weight:800; color:#6FA8DC; margin:4px 0 10px; letter-spacing:.3px; }
+  .resume-mentor-note{
+    display:flex; align-items:center; gap:12px; margin:2px 0 20px; padding:10px 14px; border-radius:14px;
+    background:linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015));
+    border:1px solid rgba(111,168,220,.22);
+  }
+  .resume-mentor-note svg{flex-shrink:0;filter:drop-shadow(0 0 6px rgba(111,168,220,.4));}
+  .resume-mentor-text{font-size:11.5px;line-height:1.7;color:#C7CDD8;}
+  .resume-mentor-text b{color:#8FC1EE;}
+  .resume-section-title{ font-size:12px; font-weight:800; color:#6FA8DC; margin:4px 0 10px; letter-spacing:.3px; text-shadow:0 0 10px rgba(111,168,220,.4); }
   .resume-week-table{ width:100%; border-collapse:collapse; font-size:12px; }
-  .resume-week-table th{ text-align:center; padding:7px 4px; color:#8B95A6; font-weight:700; font-size:10.5px; border-bottom:1px solid rgba(255,255,255,.1); }
+  .resume-week-table th{ text-align:center; padding:7px 4px; color:#8B95A6; font-weight:700; font-size:10.5px; border-bottom:1px solid rgba(111,168,220,.18); }
   .resume-week-table td{ text-align:center; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:700; }
   .resume-week-table tr:last-child td{ border-bottom:none; }
-  .resume-chart-wrap{ height:190px; margin:16px 0 4px; background:rgba(255,255,255,.03); border-radius:12px; padding:10px 6px; }
+  .resume-chart-wrap{ height:190px; margin:16px 0 4px; background:rgba(255,255,255,.03); border:1px solid rgba(111,168,220,.14); border-radius:12px; padding:10px 6px; }
   .resume-footer{ text-align:center; margin-top:22px; font-size:10px; color:#5B6472; letter-spacing:.5px; }
   @media print{
-    body *{ visibility:hidden; }
+    body > *:not(#resumePrintArea){ display:none !important; }
+    html, body{ height:auto !important; overflow:visible !important; background:#fff !important; margin:0; }
     #resumePrintArea, #resumePrintArea *{ visibility:visible; }
-    #resumePrintArea{ display:block !important; position:absolute; inset:0; background:#fff !important; }
+    #resumePrintArea{ display:block !important; position:static !important; inset:auto; background:#0B0D10 !important; height:auto !important; }
     .resume-close-btn, .resume-print-btn{ display:none !important; }
-    .resume-sheet{ margin:0 auto; box-shadow:none; border:1px solid #ccc; background:#161B2C !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .resume-sheet{ margin:0 auto; padding:18px 22px 16px; box-shadow:none; border:1px solid rgba(111,168,220,.4); background:#161B2C !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .resume-divider{ margin:12px 0 !important; }
+    .resume-score-wrap{ margin:4px 0 12px !important; }
+    .resume-section-title{ margin:10px 0 6px !important; }
+    .resume-week-table td, .resume-week-table th{ padding:4px !important; }
+    .resume-week-table{ page-break-inside:avoid; break-inside:avoid; }
+    .resume-mentor-note{ page-break-inside:avoid; break-inside:avoid; }
+    .resume-score-wrap{ page-break-inside:avoid; break-inside:avoid; }
+    .resume-chart-wrap{ height:170px !important; margin:8px 0 0 !important; page-break-inside:avoid; break-inside:avoid; }
+    .resume-footer{ margin-top:10px !important; }
+    @page{ size:auto; margin:8mm; }
   }
   .month-mini-chart{ height:210px; margin-top:10px; background:var(--navy-alt); border-radius:8px; padding:8px; box-sizing:border-box; }
   .week-day-chip{font-size:10.5px; color:var(--white-dim); background:rgba(255,255,255,.04); border:1px solid var(--line); border-radius:7px; padding:3px 8px; white-space:nowrap; unicode-bidi:isolate;}
@@ -1176,8 +1296,8 @@ function ensureSupabaseLib(){
   .contact-row.active-contact{background:rgba(111,168,220,0.12);border-color:rgba(111,168,220,0.4);}
   .contact-avatar{
     position:relative;flex-shrink:0;width:36px;height:36px;border-radius:11px;
-    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;color:#0b1220;
-    background:linear-gradient(155deg, var(--tagc, #AFD5F7), color-mix(in srgb, var(--tagc, #4E7CC8) 65%, #0b1220));
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;
+    background:linear-gradient(155deg, var(--tagc-a, #AFD5F7), var(--tagc-b, #2E7CE6));
     box-shadow:inset 0 1px 0 rgba(255,255,255,.35), 0 2px 8px rgba(0,0,0,.28);
   }
   .contact-online-dot{position:absolute;bottom:-1px;left:-1px;width:11px;height:11px;border-radius:50%;background:#3BC96A;border:2px solid var(--navy);box-shadow:0 0 6px 1px rgba(59,201,106,.7);}
@@ -1351,6 +1471,7 @@ function ensureSupabaseLib(){
     <div class="member-box">
       <span class="view-only-badge hidden" id="viewOnlyBadge" data-i18n="viewOnly">فقط نمایش</span>
       <button class="back-btn hidden" id="backToListBtn" data-i18n="backToList">↩ بازگشت به لیست</button>
+      <button class="sidebar-toggle-btn" id="sidebarToggleBtn" aria-label="منو" title="منو"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;">
         <button class="install-btn hidden" id="installBtn1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg> <span data-i18n="addToHome">افزودن به صفحه اصلی</span></button>
         <button class="logout-btn" id="logoutBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
@@ -1358,37 +1479,48 @@ function ensureSupabaseLib(){
     </div>
   </div>
 
-  <div class="tabs" id="mainTabs">
-    <button class="tab-btn" data-tab="commitment">Commitment</button>
-    <button class="tab-btn hidden" data-tab="planner" id="plannerTabBtn">Planner</button>
-    <button class="tab-btn active" data-tab="tasks" data-i18n="tabTaskSet">Task Set</button>
-    <button class="tab-btn" data-tab="smartmentor" data-i18n="tabSmartMentor">Smart Assistant</button>
-    <button class="tab-btn" data-tab="today" data-i18n="tabToday">To Do</button>
-    <button class="tab-btn" data-tab="dashboard" data-i18n="tabScores">Scores</button>
-    <button class="tab-btn" data-tab="feedback" data-i18n="tabFeedback">FeedBack</button>
-    <button class="tab-btn" data-tab="notes" data-i18n="tabNotes">Personal Notes</button>
-    <button class="tab-btn" data-tab="rules" data-i18n="tabRules">Rules</button>
-    <button class="tab-btn" data-tab="achievements" data-i18n="tabHonor">Honor Room</button>
-    <button class="tab-btn" data-tab="adminmsg"><span data-i18n="tabUpdates">Updates</span> <span class="badge-dot hidden" id="updatesBadgeMember"></span></button>
-    <button class="tab-btn" data-tab="qna" data-i18n="tabConnect">Connect To Team</button>
-    <button class="tab-btn" data-tab="status" data-i18n="tabStatus">Status</button>
-    <button class="tab-btn" data-tab="settings" data-i18n="tabSettings">Settings</button>
-  </div>
+  <div class="app-shell">
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+    <aside class="sidebar" id="mainSidebar">
+      <div class="tabs" id="mainTabs">
+        <button class="tab-btn active" data-tab="home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg><span data-i18n="tabHome">خانه</span></button>
+        <div class="sidebar-divider"></div>
+        <button class="tab-btn" data-tab="commitment"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18.5c1.8-1.3 3-1.3 4.5 0 1.8 1.6 3.2 1.6 5 0 1.5-1.3 2.7-1.3 4.5 0"/><path d="M13.5 12.5l6-6a1.7 1.7 0 00-2.4-2.4l-6 6-1 3.4z"/><path d="M2 21.5h20"/></svg><span data-i18n="tabCommitment">تعهدنامه</span></button>
+        <button class="tab-btn hidden" data-tab="planner" id="plannerTabBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="tabPlanner">برنامه‌ریز</span></button>
+        <button class="tab-btn" data-tab="tasks"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span data-i18n="tabTaskSet">دسته‌بندی تسک</span></button>
+        <button class="tab-btn" data-tab="smartmentor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7c.5.4.8 1 .8 1.6V17h6.4v-.7c0-.6.3-1.2.8-1.6A7 7 0 0012 2z"/></svg><span data-i18n="tabSmartMentor">دستیار هوشمند</span></button>
+        <button class="tab-btn" data-tab="today"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3L16 10"/></svg><span data-i18n="tabToday">کارهای امروز</span></button>
+        <button class="tab-btn" data-tab="dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span data-i18n="tabScores">امتیازات</span></button>
+        <button class="tab-btn" data-tab="feedback"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg><span data-i18n="tabFeedback">بازخورد</span></button>
+        <button class="tab-btn" data-tab="notes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg><span data-i18n="tabNotes">یادداشت شخصی</span></button>
+        <button class="tab-btn" data-tab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
+        <button class="tab-btn" data-tab="achievements"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
+        <button class="tab-btn" data-tab="adminmsg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h2l9 4V5L6 9H4a1 1 0 00-1 1z"/><path d="M17 9a3 3 0 010 6"/></svg><span data-i18n="tabUpdates">اطلاعیه‌ها</span> <span class="badge-dot hidden" id="updatesBadgeMember"></span></button>
+        <button class="tab-btn" data-tab="qna"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 113 11.5 8.38 8.38 0 0111.5 3a8.5 8.5 0 019.5 8.5z"/></svg><span data-i18n="tabConnect">ارتباط با تیم</span></button>
+        <button class="tab-btn" data-tab="status"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12a10 10 0 0120 0"/><path d="M6 12a6 6 0 0112 0"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg><span data-i18n="tabStatus">وضعیت</span></button>
+        <div class="sidebar-divider"></div>
+        <button class="tab-btn" data-tab="settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg><span data-i18n="tabSettings">تنظیمات</span></button>
+      </div>
+    </aside>
 
-  <div class="panel" id="panel-commitment"></div>
-  <div class="panel" id="panel-planner"></div>
-  <div class="panel active" id="panel-tasks"></div>
-  <div class="panel" id="panel-smartmentor"></div>
-  <div class="panel" id="panel-today"></div>
-  <div class="panel" id="panel-dashboard"></div>
-  <div class="panel" id="panel-feedback"></div>
-  <div class="panel" id="panel-notes"></div>
-  <div class="panel" id="panel-rules"></div>
-  <div class="panel" id="panel-achievements"></div>
-  <div class="panel" id="panel-adminmsg"></div>
-  <div class="panel" id="panel-qna"></div>
-  <div class="panel" id="panel-status"></div>
-  <div class="panel" id="panel-settings"></div>
+    <div class="app-content">
+      <div class="panel active" id="panel-home"></div>
+      <div class="panel" id="panel-commitment"></div>
+      <div class="panel" id="panel-planner"></div>
+      <div class="panel" id="panel-tasks"></div>
+      <div class="panel" id="panel-smartmentor"></div>
+      <div class="panel" id="panel-today"></div>
+      <div class="panel" id="panel-dashboard"></div>
+      <div class="panel" id="panel-feedback"></div>
+      <div class="panel" id="panel-notes"></div>
+      <div class="panel" id="panel-rules"></div>
+      <div class="panel" id="panel-achievements"></div>
+      <div class="panel" id="panel-adminmsg"></div>
+      <div class="panel" id="panel-qna"></div>
+      <div class="panel" id="panel-status"></div>
+      <div class="panel" id="panel-settings"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ===================== MENTOR HOME (member list) ===================== -->
@@ -1399,30 +1531,40 @@ function ensureSupabaseLib(){
       <div class="sub" id="mentorSub"></div>
     </div>
     <div class="member-box">
+      <button class="sidebar-toggle-btn" id="mentorSidebarToggleBtn" aria-label="منو" title="منو"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;">
         <button class="install-btn hidden" id="installBtn2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg> <span data-i18n="addToHome">افزودن به صفحه اصلی</span></button>
         <button class="logout-btn" id="mentorLogoutBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
       </div>
     </div>
   </div>
-  <div class="tabs">
-    <button class="tab-btn active" data-mtab="list" data-i18n="tabParticipants">Participants</button>
-    <button class="tab-btn" data-mtab="userq" data-i18n="tabParticipantMsg">Participant msg</button>
-    <button class="tab-btn" data-mtab="achv" data-i18n="tabHonor">Honor Room</button>
-    <button class="tab-btn" data-mtab="msg"><span data-i18n="tabUpdates">Updates</span> <span class="badge-dot hidden" id="updatesBadgeMentor"></span></button>
-    <button class="tab-btn" data-mtab="qna" data-i18n="tabConnect">Connect To Team</button>
-    <button class="tab-btn" data-mtab="status" data-i18n="tabStatus">Status</button>
-    <button class="tab-btn" data-mtab="rules" data-i18n="tabRules">Rules</button>
-    <button class="tab-btn" data-mtab="settings" data-i18n="tabSettings">Settings</button>
+
+  <div class="app-shell">
+    <div class="sidebar-backdrop" id="mentorSidebarBackdrop"></div>
+    <aside class="sidebar" id="mentorSidebar">
+      <div class="tabs" id="mentorTabs">
+        <button class="tab-btn active" data-mtab="list"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg><span data-i18n="tabParticipants">شرکت‌کننده‌ها</span></button>
+        <button class="tab-btn" data-mtab="userq"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 113 11.5 8.38 8.38 0 0111.5 3a8.5 8.5 0 019.5 8.5z"/></svg><span data-i18n="tabParticipantMsg">پیام شرکت‌کننده‌ها</span></button>
+        <button class="tab-btn" data-mtab="achv"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
+        <button class="tab-btn" data-mtab="msg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h2l9 4V5L6 9H4a1 1 0 00-1 1z"/><path d="M17 9a3 3 0 010 6"/></svg><span data-i18n="tabUpdates">اطلاعیه‌ها</span> <span class="badge-dot hidden" id="updatesBadgeMentor"></span></button>
+        <button class="tab-btn" data-mtab="qna"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 113 11.5 8.38 8.38 0 0111.5 3a8.5 8.5 0 019.5 8.5z"/></svg><span data-i18n="tabConnect">ارتباط با تیم</span></button>
+        <button class="tab-btn" data-mtab="status"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12a10 10 0 0120 0"/><path d="M6 12a6 6 0 0112 0"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg><span data-i18n="tabStatus">وضعیت</span></button>
+        <button class="tab-btn" data-mtab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
+        <div class="sidebar-divider"></div>
+        <button class="tab-btn" data-mtab="settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg><span data-i18n="tabSettings">تنظیمات</span></button>
+      </div>
+    </aside>
+    <div class="app-content">
+      <div class="panel active" id="mpanel-list"></div>
+      <div class="panel" id="mpanel-userq"></div>
+      <div class="panel" id="mpanel-achv"></div>
+      <div class="panel" id="mpanel-msg"></div>
+      <div class="panel" id="mpanel-qna"></div>
+      <div class="panel" id="mpanel-status"></div>
+      <div class="panel" id="mpanel-rules"></div>
+      <div class="panel" id="mpanel-settings"></div>
+    </div>
   </div>
-  <div class="panel active" id="mpanel-list"></div>
-  <div class="panel" id="mpanel-userq"></div>
-  <div class="panel" id="mpanel-achv"></div>
-  <div class="panel" id="mpanel-msg"></div>
-  <div class="panel" id="mpanel-qna"></div>
-  <div class="panel" id="mpanel-status"></div>
-  <div class="panel" id="mpanel-rules"></div>
-  <div class="panel" id="mpanel-settings"></div>
 </div>
 
 <!-- ===================== ADMIN PANEL ===================== -->
@@ -1433,32 +1575,42 @@ function ensureSupabaseLib(){
       <div class="sub" data-i18n="bossPanelSub">مدیریت کاربران، منتورها، افتخارات و پیام‌ها</div>
     </div>
     <div class="member-box">
+      <button class="sidebar-toggle-btn" id="adminSidebarToggleBtn" aria-label="منو" title="منو"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       <div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;">
         <button class="install-btn hidden" id="installBtn3"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg> <span data-i18n="addToHome">افزودن به صفحه اصلی</span></button>
         <button class="logout-btn" id="adminLogoutBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
       </div>
     </div>
   </div>
-  <div class="tabs">
-    <button class="tab-btn active" data-atab="members" data-i18n="tabParticipants">Participants</button>
-    <button class="tab-btn" data-atab="mentors" data-i18n="tabMentors">Mentors</button>
-    <button class="tab-btn" data-atab="medals" data-i18n="tabHonor">Honor Room</button>
-    <button class="tab-btn" data-atab="msgs" data-i18n="tabUpdates">Updates</button>
-    <button class="tab-btn" data-atab="qna" data-i18n="tabConnect">Connect To Team</button>
-    <button class="tab-btn" data-atab="status" data-i18n="tabStatus">Status</button>
-    <button class="tab-btn" data-atab="rules" data-i18n="tabRules">Rules</button>
-    <button class="tab-btn" data-atab="controls" data-i18n="tabControls">Controls</button>
-    <button class="tab-btn" data-atab="settings" data-i18n="tabSettings">Settings</button>
+
+  <div class="app-shell">
+    <div class="sidebar-backdrop" id="adminSidebarBackdrop"></div>
+    <aside class="sidebar" id="adminSidebar">
+      <div class="tabs" id="adminTabs">
+        <button class="tab-btn active" data-atab="members"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg><span data-i18n="tabParticipants">شرکت‌کننده‌ها</span></button>
+        <button class="tab-btn" data-atab="mentors"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg><span data-i18n="tabMentors">منتورها</span></button>
+        <button class="tab-btn" data-atab="medals"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
+        <button class="tab-btn" data-atab="msgs"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h2l9 4V5L6 9H4a1 1 0 00-1 1z"/><path d="M17 9a3 3 0 010 6"/></svg><span data-i18n="tabUpdates">اطلاعیه‌ها</span></button>
+        <button class="tab-btn" data-atab="qna"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 113 11.5 8.38 8.38 0 0111.5 3a8.5 8.5 0 019.5 8.5z"/></svg><span data-i18n="tabConnect">ارتباط با تیم</span></button>
+        <button class="tab-btn" data-atab="status"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12a10 10 0 0120 0"/><path d="M6 12a6 6 0 0112 0"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg><span data-i18n="tabStatus">وضعیت</span></button>
+        <button class="tab-btn" data-atab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
+        <button class="tab-btn" data-atab="controls"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg><span data-i18n="tabControls">کنترل‌ها</span></button>
+        <div class="sidebar-divider"></div>
+        <button class="tab-btn" data-atab="settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg><span data-i18n="tabSettings">تنظیمات</span></button>
+      </div>
+    </aside>
+    <div class="app-content">
+      <div class="panel active" id="apanel-members"></div>
+      <div class="panel" id="apanel-mentors"></div>
+      <div class="panel" id="apanel-medals"></div>
+      <div class="panel" id="apanel-msgs"></div>
+      <div class="panel" id="apanel-qna"></div>
+      <div class="panel" id="apanel-status"></div>
+      <div class="panel" id="apanel-rules"></div>
+      <div class="panel" id="apanel-controls"></div>
+      <div class="panel" id="apanel-settings"></div>
+    </div>
   </div>
-  <div class="panel active" id="apanel-members"></div>
-  <div class="panel" id="apanel-mentors"></div>
-  <div class="panel" id="apanel-medals"></div>
-  <div class="panel" id="apanel-msgs"></div>
-  <div class="panel" id="apanel-qna"></div>
-  <div class="panel" id="apanel-status"></div>
-  <div class="panel" id="apanel-rules"></div>
-  <div class="panel" id="apanel-controls"></div>
-  <div class="panel" id="apanel-settings"></div>
 </div>
 
 <!-- ===================== MENTOR PROFILE VIEW (برای رئیس) ===================== -->
@@ -1564,6 +1716,7 @@ const translations = {
     participantPanel:'پنل شرکت‌کننده', masSub:'۵ دسته تسک · امتیاز روزانه، هفتگی، ماهانه',
     daysRecorded:'{n} روز ثبت‌شده',
     viewOnly:'فقط نمایش', backToList:'↩ بازگشت به لیست', addToHome:'افزودن به صفحه اصلی',
+    tabHome:'خانه', tabCommitment:'تعهدنامه', tabPlanner:'برنامه‌ریز',
     tabTaskSet:'دسته‌بندی تسک', tabSmartMentor:'دستیار هوشمند', tabToday:'کارهای امروز', tabScores:'امتیازات', tabFeedback:'بازخورد',
     tabNotes:'یادداشت شخصی', tabRules:'قوانین', tabHonor:'افتخارات', tabUpdates:'اپدیت‌ها',
     tabConnect:'ارتباط با تیم', tabStatus:'وضعیت', tabSettings:'تنظیمات',
@@ -1595,6 +1748,7 @@ const translations = {
     participantPanel:'PARTICIPANT PANEL', masSub:'5 task categories · daily, weekly, monthly score',
     daysRecorded:'{n} days recorded',
     viewOnly:'View only', backToList:'↩ Back to list', addToHome:'Add to home screen',
+    tabHome:'Home', tabCommitment:'Commitment', tabPlanner:'Planner',
     tabTaskSet:'Task Set', tabSmartMentor:'Smart Assistant', tabToday:'To Do', tabScores:'Scores', tabFeedback:'FeedBack',
     tabNotes:'Personal Notes', tabRules:'Rules', tabHonor:'Honor Room', tabUpdates:'Updates',
     tabConnect:'Connect To Team', tabStatus:'Status', tabSettings:'Settings',
@@ -1626,6 +1780,7 @@ const translations = {
     participantPanel:'TEILNEHMERBEREICH', masSub:'5 Aufgabenkategorien · Tages-, Wochen-, Monatspunkte',
     daysRecorded:'{n} Tage erfasst',
     viewOnly:'Nur Ansicht', backToList:'↩ Zurück zur Liste', addToHome:'Zum Startbildschirm hinzufügen',
+    tabHome:'Start', tabCommitment:'Verpflichtung', tabPlanner:'Planer',
     tabTaskSet:'Aufgabenset', tabSmartMentor:'Intelligenter Assistent', tabToday:'To-Do', tabScores:'Punkte', tabFeedback:'Feedback',
     tabNotes:'Persönliche Notizen', tabRules:'Regeln', tabHonor:'Ehrenraum', tabUpdates:'Updates',
     tabConnect:'Team kontaktieren', tabStatus:'Status', tabSettings:'Einstellungen',
@@ -1657,6 +1812,7 @@ const translations = {
     participantPanel:'PANNELLO PARTECIPANTE', masSub:'5 categorie di attività · punteggio giornaliero, settimanale, mensile',
     daysRecorded:'{n} giorni registrati',
     viewOnly:'Sola visualizzazione', backToList:'↩ Torna alla lista', addToHome:'Aggiungi alla schermata home',
+    tabHome:'Home', tabCommitment:'Impegno', tabPlanner:'Pianificatore',
     tabTaskSet:'Set di attività', tabSmartMentor:'Assistente intelligente', tabToday:'Da fare', tabScores:'Punteggi', tabFeedback:'Feedback',
     tabNotes:'Note personali', tabRules:'Regole', tabHonor:'Sala d\u2019onore', tabUpdates:'Aggiornamenti',
     tabConnect:'Contatta il team', tabStatus:'Stato', tabSettings:'Impostazioni',
@@ -1688,6 +1844,7 @@ const translations = {
     participantPanel:'学员面板', masSub:'5 个任务分类 · 每日、每周、每月积分',
     daysRecorded:'已记录 {n} 天',
     viewOnly:'仅查看', backToList:'↩ 返回列表', addToHome:'添加到主屏幕',
+    tabHome:'主页', tabCommitment:'承诺书', tabPlanner:'计划',
     tabTaskSet:'任务集', tabSmartMentor:'智能助手', tabToday:'待办事项', tabScores:'积分', tabFeedback:'反馈',
     tabNotes:'个人笔记', tabRules:'规则', tabHonor:'荣誉室', tabUpdates:'更新',
     tabConnect:'联系团队', tabStatus:'状态', tabSettings:'设置',
@@ -1788,10 +1945,10 @@ window.storage = {
     try{
       const { data, error } = await withTimeout(sb.from(TABLE).select('value').eq('key', key).maybeSingle(), 10000);
       if(error) throw error;
-      if(!data){
-        // ممکنه قبلاً به‌خاطر یه خطای موقت روی Supabase، این کلید فقط لوکال ذخیره شده باشه؛ چک می‌کنیم که چیزی گم نشه
-        return localGet(key);
-      }
+      // اگه ابر با موفقیت جواب داد و ردیفی نبود، یعنی واقعاً حذف شده (یا هیچ‌وقت نبوده) — نباید بریم سراغ کش محلی،
+      // وگرنه کاربری که مستقیم از جدول پاک شده، از رو یه نسخه‌ی قدیمیِ همین مرورگر دوباره «زنده» میشه (باگ قبلی دقیقاً همین بود)
+      if(!data){ localDelete(key); return null; }
+      localSet(key, data.value); // کش محلی رو با آخرین نسخه‌ی ابری هماهنگ نگه می‌داریم، برای وقتی که واقعاً قطعی شد
       return { key, value: data.value, source:'cloud' };
     }catch(e){ console.error('supabase get failed → local fallback', e); return localGet(key); }
   },
@@ -1801,6 +1958,7 @@ window.storage = {
       const owner_code = extractOwnerCode(key);
       const { error } = await withTimeout(sb.from(TABLE).upsert({ key, value, owner_code, updated_at: new Date().toISOString() }, { onConflict: 'key' }), 10000);
       if(error) throw error;
+      localSet(key, value); // موفقیت رو فوراً تو کش محلی هم منعکس می‌کنیم تا لوکال و ابری از هم عقب نیفتن
       return { key, value, source:'cloud' };
     }catch(e){
       console.error('supabase set failed → local fallback', e);
@@ -1814,6 +1972,7 @@ window.storage = {
     try{
       const { error } = await withTimeout(sb.from(TABLE).delete().eq('key', key), 10000);
       if(error) throw error;
+      localDelete(key); // اینجا هم بلافاصله لوکال رو پاک می‌کنیم که یه کپیِ حذف‌شده باقی نمونه
       return { key, deleted:true };
     }catch(e){ console.error('supabase delete failed → local fallback', e); return localDelete(key); }
   },
@@ -1967,6 +2126,11 @@ const ICONS = {
   sun: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8L6 18M18 6l1.8-1.8"/></svg>',
   thumbsUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg>',
   refresh: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 10-2.9 6.2"/><path d="M20 6v6h-6"/></svg>',
+  image: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-5-9 9"/></svg>',
+  home: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>',
+  gear: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg>',
+  layers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>',
+  menu: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
 };
 function icon(name){ return `<span style="display:inline-flex;vertical-align:-2px;">${ICONS[name]||''}</span>`; }
 
@@ -2420,12 +2584,13 @@ async function enterMemberApp(code, viewOnly, memberInfo, preloadedStatePromise)
     document.getElementById('panel-adminmsg').innerHTML = '';
   }
   renderMessagesTab('panel-qna', currentCode, msgViewerRole);
+  renderHomePanel('panel-home', currentCode, memberInfo, msgViewerRole);
   updateHeaderStats();
 
   document.querySelectorAll('#mainTabs .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#mainApp .panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('#mainTabs .tab-btn[data-tab="tasks"]').classList.add('active');
-  document.getElementById('panel-tasks').classList.add('active');
+  document.querySelector('#mainTabs .tab-btn[data-tab="home"]').classList.add('active');
+  document.getElementById('panel-home').classList.add('active');
 
   if(viewOnly){
     document.querySelector('#mainTabs .tab-btn[data-tab="dashboard"]').click();
@@ -2611,6 +2776,34 @@ async function updateHeaderStats(){
   el.textContent = t('daysRecorded', {n: sortedDates().length});
   await renderCycleReminder();
 }
+// نسخه‌ی مشترک ریمایندر دوره (رینگ HUD) — چه تو نوار بالا (پروفایل-هیرو) چه تو کارت خونه، دقیقاً یه ظاهر واحد و خفن داره
+function buildCycleReminderHtml(cycleStart){
+  if(!cycleStart){
+    return `<div class="cycle-reminder cr-v2"><div class="cr-badge-glow">${icon('calendar')}</div><div><div class="cr-title2">دوره‌ی جدید</div><div class="cr-sub" style="margin-top:2px;">با اولین تسکی که ثبت کنی، شمارش ۲۰ روزه شروع میشه</div></div></div>`;
+  }
+  const info = computeCycle(cycleStart);
+  const pct = Math.min(100, Math.round((info.dayIndex/20)*100));
+  const R = 18, C = Math.round(2*Math.PI*R);
+  const dash = Math.round((pct/100)*C);
+  const gid = 'crRingGrad'+Math.random().toString(36).slice(2,8); // چون ممکنه چند رینگ هم‌زمان تو صفحه باشه، id ثابت باعث تداخل گرادینت می‌شد
+  return `<div class="cycle-reminder cr-v2">
+    <div class="cr-ring">
+      <svg viewBox="0 0 44 44">
+        <defs><linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#8C5CF0"/><stop offset="50%" stop-color="#6FA8DC"/><stop offset="100%" stop-color="#34D1B4"/>
+        </linearGradient></defs>
+        <circle class="cr-ring-bg" cx="22" cy="22" r="${R}"></circle>
+        <circle class="cr-ring-fill" cx="22" cy="22" r="${R}" stroke="url(#${gid})" stroke-dasharray="${dash} ${C}"></circle>
+      </svg>
+      <span class="cr-ring-num">${info.dayIndex}</span>
+    </div>
+    <div>
+      <div class="cr-title2">روز <b>${info.dayIndex}</b> از ۲۰</div>
+      <span class="cr-week-tag">هفته ${info.currentWeekIndex} از ۴</span>
+      <div class="cr-sub" style="margin-top:5px;">امتیاز این هفته پنجشنبه ساعت ۱۲:۱۰ بامداد اعلام میشه</div>
+    </div>
+  </div>`;
+}
 async function renderCycleReminder(){
   const box = document.getElementById('cycleReminder');
   if(!box) return;
@@ -2625,32 +2818,73 @@ async function renderCycleReminder(){
     const hist = await loadMonthHistory(currentCode);
     cycleStart = await healCycleOverlapIfNeeded(currentCode, cycleStart, hist);
   }
-  if(!cycleStart){
-    box.innerHTML = `<div class="cycle-reminder cr-v2"><div class="cr-badge-glow">${icon('calendar')}</div><div><div class="cr-title2">دوره‌ی جدید</div><div class="cr-sub" style="margin-top:2px;">با اولین تسکی که ثبت کنی، شمارش ۲۰ روزه شروع میشه</div></div></div>`;
-    return;
-  }
-  const info = computeCycle(cycleStart);
-  const pct = Math.min(100, Math.round((info.dayIndex/20)*100));
-  const R = 18, C = Math.round(2*Math.PI*R);
-  const dash = Math.round((pct/100)*C);
-  box.innerHTML = `<div class="cycle-reminder cr-v2">
-    <div class="cr-ring">
-      <svg viewBox="0 0 44 44">
-        <defs><linearGradient id="crRingGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#BFDCF5"/><stop offset="100%" stop-color="#6FA8DC"/>
-        </linearGradient></defs>
-        <circle class="cr-ring-bg" cx="22" cy="22" r="${R}"></circle>
-        <circle class="cr-ring-fill" cx="22" cy="22" r="${R}" stroke-dasharray="${dash} ${C}"></circle>
-      </svg>
-      <span class="cr-ring-num">${info.dayIndex}</span>
-    </div>
-    <div>
-      <div class="cr-title2">روز <b>${info.dayIndex}</b> از ۲۰</div>
-      <span class="cr-week-tag">هفته ${info.currentWeekIndex} از ۴</span>
-      <div class="cr-sub" style="margin-top:5px;">امتیاز این هفته پنجشنبه ساعت ۱۲:۱۰ بامداد اعلام میشه</div>
-    </div>
-  </div>`;
+  box.innerHTML = buildCycleReminderHtml(cycleStart);
 }
+
+// ================= صفحه‌ی خانه — اولین چیزی که کاربر با ورود به پنل می‌بینه: خلاصه‌ی پروفایل + ارتباط با تیم =================
+async function renderHomePanel(panelId, code, memberInfo, viewerRole){
+  const el = document.getElementById(panelId);
+  if(!el) return;
+  el.innerHTML = '';
+
+  const initial = escapeHtml((memberInfo && memberInfo.name || '?').trim()[0] || '?');
+  const profileCard = document.createElement('div');
+  profileCard.className = 'card home-profile-card';
+  profileCard.innerHTML = `
+    <div class="hp-left">
+      <span class="mc-avatar" style="width:52px;height:52px;font-size:20px;">${initial}</span>
+      <div>
+        <div class="mc-name" style="font-size:16.5px;">${escapeHtml((memberInfo && memberInfo.name) || '')}</div>
+        <div class="mc-code" style="font-size:11px;">کد ${escapeHtml(code)}</div>
+      </div>
+    </div>
+    <div id="homeCycleBox"></div>`;
+  el.appendChild(profileCard);
+
+  const cycleBox = profileCard.querySelector('#homeCycleBox');
+  try{
+    let cycleStart = await loadCycleStart(code);
+    cycleBox.innerHTML = buildCycleReminderHtml(cycleStart);
+  }catch(e){ cycleBox.innerHTML = ''; }
+
+  const sectionTitle = document.createElement('div');
+  sectionTitle.className = 'home-section-title';
+  sectionTitle.innerHTML = `${icon('chat')} <span>ارتباط با تیم</span>`;
+  el.appendChild(sectionTitle);
+
+  const connectWrap = document.createElement('div');
+  connectWrap.id = 'homeConnectWrap';
+  el.appendChild(connectWrap);
+  await renderMessagesTab('homeConnectWrap', code, viewerRole);
+}
+
+// ================= ساید‌بار: باز/بسته‌شدن روی موبایل =================
+const sidebarEl = document.getElementById('mainSidebar');
+const sidebarBackdropEl = document.getElementById('sidebarBackdrop');
+const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+function closeSidebar(){
+  if(sidebarEl) sidebarEl.classList.remove('open');
+  if(sidebarBackdropEl) sidebarBackdropEl.classList.remove('open');
+}
+function toggleSidebar(){
+  if(sidebarEl) sidebarEl.classList.toggle('open');
+  if(sidebarBackdropEl) sidebarBackdropEl.classList.toggle('open');
+}
+if(sidebarToggleBtn) sidebarToggleBtn.addEventListener('click', toggleSidebar);
+if(sidebarBackdropEl) sidebarBackdropEl.addEventListener('click', closeSidebar);
+
+function wireSidebar(sideId, backdropId, toggleId){
+  const side = document.getElementById(sideId);
+  const backdrop = document.getElementById(backdropId);
+  const toggle = document.getElementById(toggleId);
+  const close = ()=>{ side?.classList.remove('open'); backdrop?.classList.remove('open'); };
+  const toggleFn = ()=>{ side?.classList.toggle('open'); backdrop?.classList.toggle('open'); };
+  if(toggle) toggle.addEventListener('click', toggleFn);
+  if(backdrop) backdrop.addEventListener('click', close);
+  return close;
+}
+const closeMentorSidebar = wireSidebar('mentorSidebar','mentorSidebarBackdrop','mentorSidebarToggleBtn');
+const closeAdminSidebar = wireSidebar('adminSidebar','adminSidebarBackdrop','adminSidebarToggleBtn');
 
 // ================= main app tabs =================
 document.querySelectorAll('#mainTabs .tab-btn').forEach(btn=>{
@@ -2668,6 +2902,7 @@ document.querySelectorAll('#mainTabs .tab-btn').forEach(btn=>{
     if(btn.dataset.tab==='adminmsg'){ markUpdatesSeen(currentCode); document.getElementById('updatesBadgeMember').classList.add('hidden'); }
     if(btn.dataset.tab==='planner') renderPlannerPanel('panel-planner', currentCode);
     if(btn.dataset.tab==='settings') renderSettingsPanel('panel-settings');
+    closeSidebar();
   });
 });
 
@@ -2805,16 +3040,22 @@ async function analyzeSmartMentor(){
     insights.push({ type:'good', priority:1, text:`«${taskName}» (دسته‌ی ${catName}) رو ${g.streak} روز متوالیه بدون وقفه انجام دادی` });
   });
 
-  // ۲) روند بلندمدت: میانگین ۳ روز اخیر در مقابل میانگین روزهای قبل‌ترش
+  // ۲) روند دقیق: به‌جای مقایسه‌ی خام «۳ روز اخیر / بقیه»، شیب واقعی رگرسیون خطی رو رو آخرین روزهای نمره‌دار حساب می‌کنیم
+  // (دقیق‌تره چون به تک‌تک روزها وزن میده، نه فقط میانگین دو تیکه‌ی دلبخواهی) و بعد جدا نتیجه‌ی هفته‌به‌هفته رو هم می‌گیم
   const scored = dayInfo.filter(d=>d.score!==null).map(d=>d.score);
-  if(scored.length>=4){
-    const last3 = scored.slice(-3);
-    const prevRest = scored.slice(0,-3);
-    if(prevRest.length){
-      const avgLast3 = last3.reduce((a,b)=>a+b,0)/last3.length;
-      const avgPrev = prevRest.reduce((a,b)=>a+b,0)/prevRest.length;
-      if(avgLast3 < avgPrev - 8) insights.push({ type:'warn', priority:2, text:`روند کلی‌ت نزولیه — ۳ روز اخیرت ${Math.round(avgLast3)} بوده در مقابل ${Math.round(avgPrev)} روزای قبلش` });
-      else if(avgLast3 > avgPrev + 12) insights.push({ type:'good', priority:2, text:`روند کلی‌ت صعودیه — ۳ روز اخیرت ${Math.round(avgLast3)} در مقابل ${Math.round(avgPrev)} قبلش، همینطوری ادامه بده` });
+  if(scored.length>=5){
+    const win = scored.slice(-Math.min(10, scored.length));
+    const n = win.length;
+    const xs = win.map((_,i)=>i);
+    const xMean = xs.reduce((a,b)=>a+b,0)/n, yMean = win.reduce((a,b)=>a+b,0)/n;
+    let num=0, den=0;
+    for(let i=0;i<n;i++){ num += (xs[i]-xMean)*(win[i]-yMean); den += (xs[i]-xMean)**2; }
+    const slope = den ? num/den : 0; // تغییر امتیاز به‌ازای هر روز، رو بازه‌ی اخیر
+    const recentAvg = win.slice(-3).reduce((a,b)=>a+b,0)/Math.min(3,n);
+    if(slope <= -3.5){
+      insights.push({ type:'warn', priority:2, text:`شیب امتیازت تو ${n} روز اخیر نزولیه (هر روز حدود ${Math.abs(slope).toFixed(1)} امتیاز کمتر) — الان میانگینت حدود ${recentAvg.toFixed(1)}ه` });
+    } else if(slope >= 4){
+      insights.push({ type:'good', priority:2, text:`شیب امتیازت تو ${n} روز اخیر صعودیه (هر روز حدود ${slope.toFixed(1)} امتیاز بیشتر) — الان میانگینت حدود ${recentAvg.toFixed(1)}ه، همینطوری ادامه بده` });
     }
   }
 
@@ -2826,8 +3067,8 @@ async function analyzeSmartMentor(){
     if(prev7.length>=4){
       const avgL7 = last7.reduce((a,b)=>a+b,0)/last7.length;
       const avgP7 = prev7.reduce((a,b)=>a+b,0)/prev7.length;
-      if(avgL7 < avgP7 - 10) insights.push({ type:'warn', priority:2, text:`این هفته‌ت (میانگین ${Math.round(avgL7)}) نسبت به هفته‌ی قبل (${Math.round(avgP7)}) افت داشته` });
-      else if(avgL7 > avgP7 + 10) insights.push({ type:'good', priority:2, text:`این هفته‌ت (میانگین ${Math.round(avgL7)}) نسبت به هفته‌ی قبل (${Math.round(avgP7)}) بهتر شده` });
+      if(avgL7 < avgP7 - 10) insights.push({ type:'warn', priority:2, text:`این هفته‌ت (میانگین ${avgL7.toFixed(1)}) نسبت به هفته‌ی قبل (${avgP7.toFixed(1)}) افت داشته` });
+      else if(avgL7 > avgP7 + 10) insights.push({ type:'good', priority:2, text:`این هفته‌ت (میانگین ${avgL7.toFixed(1)}) نسبت به هفته‌ی قبل (${avgP7.toFixed(1)}) بهتر شده` });
     }
   }
 
@@ -2866,17 +3107,17 @@ async function analyzeSmartMentor(){
       });
     });
   });
-  const wdAverages = Object.entries(byWeekday).filter(([,arr])=>arr.length>=2).map(([wd,arr])=>({wd, avg:arr.reduce((a,b)=>a+b,0)/arr.length}));
+  const wdAverages = Object.entries(byWeekday).filter(([,arr])=>arr.length>=2).map(([wd,arr])=>({wd, avg:arr.reduce((a,b)=>a+b,0)/arr.length, n:arr.length}));
   if(wdAverages.length>=3){
     const overallAvg = wdAverages.reduce((a,c)=>a+c.avg,0)/wdAverages.length;
     wdAverages.sort((a,b)=>a.avg-b.avg);
     const weakestDay = wdAverages[0];
     const bestDay = wdAverages[wdAverages.length-1];
     if(weakestDay.avg < overallAvg - 10){
-      insights.push({ type:'warn', priority:1, text:`روزای ${weakestDay.wd} معمولاً امتیازت پایین‌تر از بقیه‌ی هفته‌ست — شاید بشه از قبل براش برنامه‌ریزی کرد` });
+      insights.push({ type:'warn', priority:1, text:`روزای ${weakestDay.wd} معمولاً امتیازت پایین‌تر از بقیه‌ی هفته‌ست (میانگین ${weakestDay.avg.toFixed(1)} رو ${weakestDay.n} نمونه‌ی اخیر) — شاید بشه از قبل براش برنامه‌ریزی کرد` });
     }
     if(bestDay.avg > overallAvg + 15 && bestDay.wd !== weakestDay.wd){
-      insights.push({ type:'good', priority:0, text:`روزای ${bestDay.wd} معمولاً بهترین عملکردت رو داری` });
+      insights.push({ type:'good', priority:0, text:`روزای ${bestDay.wd} معمولاً بهترین عملکردت رو داری (میانگین ${bestDay.avg.toFixed(1)} رو ${bestDay.n} نمونه‌ی اخیر)` });
     }
   }
 
@@ -2888,11 +3129,11 @@ async function analyzeSmartMentor(){
     if(zeroCount>=3 && zeroCount===scored.length){
       insights.push({ type:'warn', priority:4, text:`${scored.length} روز اخیری که ثبت کردی همش صفر بوده — هیچ تسکی انجام نشده، لازمه از یه‌جا شروع کنی` });
     } else if(avgAll < 35){
-      insights.push({ type:'warn', priority:4, text:`میانگین امتیازت تو ${scored.length} روز اخیر خیلی پایینه (${Math.round(avgAll)}) — صرفاً پایدار بودن کافی نیست، نمره‌ها واقعاً کمن` });
-    } else if(avgAll < 55){
-      insights.push({ type:'warn', priority:1, text:`میانگین امتیازت تو ${scored.length} روز اخیر ${Math.round(avgAll)}ه — زیر حد متوسطه، جای بهتر شدن داره` });
-    } else if(avgAll >= 85){
-      insights.push({ type:'good', priority:0, text:`میانگین امتیازت تو ${scored.length} روز اخیر ${Math.round(avgAll)}ه — عالیه` });
+      insights.push({ type:'warn', priority:4, text:`میانگین امتیازت تو ${scored.length} روز اخیر خیلی پایینه (${avgAll.toFixed(1)}) — صرفاً پایدار بودن کافی نیست، نمره‌ها واقعاً کمن` });
+    } else if(avgAll < 58){
+      insights.push({ type:'warn', priority:1, text:`میانگین امتیازت تو ${scored.length} روز اخیر ${avgAll.toFixed(1)}ه — زیر حد متوسطه، جای بهتر شدن داره` });
+    } else if(avgAll >= 88){
+      insights.push({ type:'good', priority:0, text:`میانگین امتیازت تو ${scored.length} روز اخیر ${avgAll.toFixed(1)}ه — عالیه` });
     }
   }
 
@@ -2901,8 +3142,8 @@ async function analyzeSmartMentor(){
     const avgAll2 = scored.reduce((a,b)=>a+b,0)/scored.length;
     const variance = scored.reduce((a,s)=>a+Math.pow(s-avgAll2,2),0)/scored.length;
     const stdev = Math.sqrt(variance);
-    if(stdev >= 28){
-      insights.push({ type:'warn', priority:1, text:`نوسان امتیازت روز‌به‌روز خیلی زیاده (بعضی روزا خیلی خوب، بعضی روزا خیلی افت) — سعی کن یه ریتم ثابت‌تر پیدا کنی` });
+    if(stdev >= 25){
+      insights.push({ type:'warn', priority:1, text:`نوسان امتیازت روز‌به‌روز خیلی زیاده (انحراف معیار ${stdev.toFixed(1)}؛ بعضی روزا خیلی خوب، بعضی روزا خیلی افت) — سعی کن یه ریتم ثابت‌تر پیدا کنی` });
     }
   }
 
@@ -3367,11 +3608,13 @@ function renderNativeDailyChart(canvas, labels, data, mode){
       const x1=xAt(i), y1=yAt(data[i]), x2=xAt(i+1), y2=yAt(data[i+1]);
       const up = Number(data[i+1]) > Number(data[i]);
       const down = Number(data[i+1]) < Number(data[i]);
-      const line = mode==='mono' ? "#2E7CE6" : (up ? "#0F7B3D" : down ? "#A81616" : "#9AA3B2");
+      const line = mode==='mono' ? "#2E7CE6" : mode==='emerald' ? "#065F46" : (up ? "#0F7B3D" : down ? "#A81616" : "#9AA3B2");
 
       const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ph);
       if(mode==='mono'){
         grad.addColorStop(0, "rgba(46,124,230,.30)");
+      }else if(mode==='emerald'){
+        grad.addColorStop(0, "rgba(6,95,70,.34)");
       }else{
         grad.addColorStop(0, up ? "rgba(15,123,61,.22)" : down ? "rgba(168,22,22,.22)" : "rgba(154,163,178,.08)");
       }
@@ -3408,14 +3651,23 @@ function renderNativeDailyChart(canvas, labels, data, mode){
     ctx.textBaseline="alphabetic";
     ctx.fillText(String(data[n-1]), lastX, lastY-pad.t<18 ? lastY+24 : lastY-12);
 
-    // X labels: keep them readable and avoid overlap.
+    // X labels: فاصله‌ی نمایش برچسب‌ها رو بر اساس عرض واقعیِ در دسترس حساب می‌کنیم (نه یه نسبت ثابت به تعداد روز)
+    // که روی موبایل/چاپ که عرض کمتره، تاریخ‌ها روی هم نیفتن و درست‌تر خونا باشن
     ctx.font='10px Vazirmatn, Tahoma, sans-serif';
     ctx.fillStyle=textColor;
     ctx.textAlign="center";
     ctx.textBaseline="top";
-    const step=Math.max(1,Math.ceil(n/8));
-    for(let i=0;i<n;i+=step) ctx.fillText(String(labels[i]||""),xAt(i),h-pad.b+10);
-    if((n-1)%step!==0) ctx.fillText(String(labels[n-1]||""),xAt(n-1),h-pad.b+10);
+    const stepPx = n>1 ? pw/(n-1) : pw;
+    const minLabelGap = 36; // حداقل فاصله‌ی پیکسلی بین دو برچسب تاریخ، برای جلوگیری از روی‌هم‌افتادن
+    const step = Math.max(1, Math.ceil(minLabelGap/Math.max(stepPx,1)));
+    const shownIdx = [];
+    for(let i=0;i<n;i+=step) shownIdx.push(i);
+    if(shownIdx[shownIdx.length-1] !== n-1){
+      const prevShown = shownIdx[shownIdx.length-1];
+      if((n-1-prevShown)*stepPx < minLabelGap*0.6) shownIdx.pop(); // اگه آخرین تاریخ خیلی نزدیکِ برچسب قبلیه، جاش رو عوض کن نه که کنارش بشینه
+      shownIdx.push(n-1);
+    }
+    shownIdx.forEach(i=>ctx.fillText(String(labels[i]||""),xAt(i),h-pad.b+10));
   };
 
   draw();
@@ -3430,7 +3682,45 @@ function renderNativeDailyChart(canvas, labels, data, mode){
 
 // ================= dashboard panel =================
 // ================= رزومه‌ی چاپی هر ماه — یه برگه‌ی خفن با نمره، حروف، جدول هفته‌ها و نمودار کشیده‌ی همون ماه =================
-function showMonthResume(m){
+// ================= نظر کوتاه دستیار هوشمند برای رزومه‌ی چاپی — یه رینگ ریز + یه جمله، جای خلوت، شلوغ نمیشه =================
+async function saveResumeAsImage(btn){
+  const ok = await ensureHtml2Canvas();
+  if(!ok){ showToast('اتصال به سرور تصویرسازی برقرار نشد — دوباره امتحان کن'); return; }
+  const sheet = document.querySelector('.resume-sheet');
+  if(!sheet) return;
+  const orig = btn.textContent;
+  btn.textContent = 'در حال ساخت عکس...';
+  btn.disabled = true;
+  try{
+    // scale:3 برای خروجی باکیفیت (شبیه رتینا) — وگرنه عکس خروجی محو/بی‌کیفیت میشه، مخصوصاً موقع زوم روی PDF/عکس
+    const canvas = await html2canvas(sheet, { scale:3, backgroundColor:'#161B2C', useCORS:true });
+    const dataUrl = canvas.toDataURL('image/png', 1.0);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `focus-mode-resume-${iranTodayISO()}.png`;
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){
+    console.error(e);
+    showToast('ساخت عکس با خطا مواجه شد');
+  }finally{
+    btn.textContent = orig; btn.disabled = false;
+  }
+}
+function resumeMentorNoteHtml(score){
+  const band = mentorScoreBand(Math.round(score));
+  const c = 2*Math.PI*24;
+  const offset = c * (1 - Math.max(4,Math.min(100,score))/100);
+  return `<div class="resume-mentor-note">
+    <svg viewBox="0 0 60 60" width="46" height="46">
+      <circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="5"></circle>
+      <circle cx="30" cy="30" r="24" fill="none" stroke="${band.color}" stroke-width="5" stroke-linecap="round"
+        stroke-dasharray="${c}" stroke-dashoffset="${offset}" transform="rotate(-90 30 30)"></circle>
+      <text x="30" y="30" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="800" fill="${band.color}" font-family="Vazirmatn, Tahoma, sans-serif">${Math.round(score)}</text>
+    </svg>
+    <div class="resume-mentor-text"><b>نظر دستیار هوشمند:</b> ${escapeHtml(band.headline)}</div>
+  </div>`;
+}
+function showMonthResume(m, detailed){
   const area = document.getElementById('resumePrintArea');
   if(!area) return;
   const gradeCls = m.grade==='A+' ? 'good' : (m.grade==='B+' ? 'mid' : 'bad');
@@ -3438,12 +3728,37 @@ function showMonthResume(m){
     const wCls = w.cls || (w.grade==='A+'?'good':(w.grade==='B+'?'mid':'bad'));
     return `<tr><td>هفته ${i+1}</td><td>${Math.round(w.score*10)/10}</td><td><span class="resume-grade-pill ${wCls}" style="font-size:11px;padding:2px 10px;">${w.grade||'-'}</span></td></tr>`;
   }).join('');
+  // این جدول همیشه هست (هم تو کلی هم تو جزئی) — امتیاز و حرفِ هر هفته
+  const weekSectionHtml = `
+      <div class="resume-section-title">ریز نمرات هفته‌ها</div>
+      <table class="resume-week-table">
+        <tr><th>هفته</th><th>امتیاز</th><th>رتبه</th></tr>
+        ${weekRows}
+      </table>`;
+  // فقط تو جزئی: ریز تک‌تک روزهای هر هفته، با امتیاز و حرفش
+  const dayRows = m.weeks.map(w=>{
+    return w.dates.map((d,i)=>{
+      const sc = w.scores[i];
+      const st = weeklyStatus(sc);
+      return `<tr><td>هفته ${w.index}</td><td>${iranWeekday(d)}</td><td>${iranJalaliShort(d)}</td><td>${sc}</td><td><span class="resume-grade-pill ${st.cls}" style="font-size:10.5px;padding:1px 8px;">${st.grade}</span></td></tr>`;
+    }).join('');
+  }).join('');
+  const daySectionHtml = detailed ? `
+      <div class="resume-section-title" style="margin-top:18px;">ریز تک‌تک روزها</div>
+      <table class="resume-week-table">
+        <tr><th>هفته</th><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr>
+        ${dayRows}
+      </table>` : '';
+  const chartSectionHtml = detailed ? `
+      <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزانه</div>
+      <div class="resume-chart-wrap"><canvas id="resumeChartCanvas"></canvas></div>` : '';
   const memberName = (currentMember && currentMember.name) || '';
   area.innerHTML = `
     <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
     <button type="button" class="resume-print-btn" id="resumePrintBtn">${icon('printer')} چاپ / ذخیره PDF</button>
+    <button type="button" class="resume-print-btn resume-img-btn" id="resumeImgBtn">${icon('image')} ذخیره به‌صورت عکس</button>
     <div class="resume-sheet">
-      <div class="resume-brand">FOCUS MODE BOOTCAMP</div>
+      <div class="resume-brand">FOCUS MODE BOOTCAMP${detailed ? ' · جزئی' : ' · کلی'}</div>
       <div class="resume-name">${escapeHtml(memberName)}</div>
       <div class="resume-code">کد ${escapeHtml(currentCode||'')} · ماه ${m.index}</div>
       <div class="resume-divider"></div>
@@ -3454,33 +3769,100 @@ function showMonthResume(m){
           <span class="resume-grade-label">${m.label}</span>
         </div>
       </div>
-      <div class="resume-section-title">ریز نمرات هفته‌ها</div>
-      <table class="resume-week-table">
-        <tr><th>هفته</th><th>امتیاز</th><th>رتبه</th></tr>
-        ${weekRows}
-      </table>
-      <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزانه</div>
-      <div class="resume-chart-wrap"><canvas id="resumeChartCanvas"></canvas></div>
+      ${resumeMentorNoteHtml(m.score)}
+      ${weekSectionHtml}
+      ${daySectionHtml}
+      ${chartSectionHtml}
       <div class="resume-footer">صادر شده در ${iranJalaliDate(iranTodayISO())} — Focus Mode Bootcamp™</div>
     </div>
   `;
   area.classList.remove('hidden');
   area.classList.add('show');
 
-  // نمودار رو یه‌کم کشیده و باز می‌کشیم (نه فشرده) که با اینکه فقط ۲۰ روزه، توهم نده و خونا باشه
-  const dates = m.weeks.flatMap(w=>w.dates);
-  const labels = dates.map(d=>iranJalaliShort(d));
-  const data = dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
-  const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
-  requestAnimationFrame(()=>{
-    renderNativeDailyChart(document.getElementById('resumeChartCanvas'), labels, data, chartMode);
-  });
+  if(detailed){
+    // نمودار رو یه‌کم کشیده و باز می‌کشیم (نه فشرده) که با اینکه فقط ۲۰ روزه، توهم نده و خونا باشه
+    const dates = m.weeks.flatMap(w=>w.dates);
+    const labels = dates.map(d=>iranJalaliShort(d));
+    const data = dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
+    const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
+    requestAnimationFrame(()=>{
+      renderNativeDailyChart(document.getElementById('resumeChartCanvas'), labels, data, chartMode);
+    });
+  }
 
   document.getElementById('resumeCloseBtn').addEventListener('click', ()=>{
     area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
   });
   document.getElementById('resumePrintBtn').addEventListener('click', ()=>{ window.print(); });
+  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{ saveResumeAsImage(e.currentTarget); });
 }
+// ================= رزومه‌ی چاپی یک هفته — همون طراحی، منتها ریز روزهای همون هفته =================
+function showWeekResume(w, detailed){
+  const area = document.getElementById('resumePrintArea');
+  if(!area) return;
+  const wCls = w.cls || (w.grade==='A+'?'good':(w.grade==='B+'?'mid':'bad'));
+  const dayRows = w.dates.map((d,i)=>{
+    const sc = w.scores[i];
+    const st = weeklyStatus(sc);
+    return `<tr><td>${iranWeekday(d)}</td><td>${iranJalaliShort(d)}</td><td>${sc}</td><td><span class="resume-grade-pill ${st.cls}" style="font-size:10.5px;padding:1px 8px;">${st.grade}</span></td></tr>`;
+  }).join('');
+  // این جدول همیشه هست (هم تو کلی هم تو جزئی) — امتیاز و حرفِ تک‌تک روزهای همین هفته
+  const daysSectionHtml = `
+      <div class="resume-section-title">ریز روزهای همین هفته</div>
+      <table class="resume-week-table">
+        <tr><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr>
+        ${dayRows}
+      </table>`;
+  const chartSectionHtml = detailed ? `
+      <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزهای هفته</div>
+      <div class="resume-chart-wrap"><canvas id="resumeChartCanvas"></canvas></div>` : '';
+  const memberName = (currentMember && currentMember.name) || '';
+  area.innerHTML = `
+    <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
+    <button type="button" class="resume-print-btn" id="resumePrintBtn">${icon('printer')} چاپ / ذخیره PDF</button>
+    <button type="button" class="resume-print-btn resume-img-btn" id="resumeImgBtn">${icon('image')} ذخیره به‌صورت عکس</button>
+    <div class="resume-sheet">
+      <div class="resume-brand">FOCUS MODE BOOTCAMP${detailed ? ' · جزئی' : ' · کلی'}</div>
+      <div class="resume-name">${escapeHtml(memberName)}</div>
+      <div class="resume-code">کد ${escapeHtml(currentCode||'')} · هفته ${w.index}</div>
+      <div class="resume-divider"></div>
+      <div class="resume-score-wrap">
+        <div class="resume-score-num">${Math.round(w.score*10)/10}</div>
+        <div class="resume-score-badge">
+          <span class="resume-grade-pill ${wCls}">${w.grade||'-'}</span>
+          <span class="resume-grade-label">${w.label||''}</span>
+        </div>
+      </div>
+      ${resumeMentorNoteHtml(w.score)}
+      ${daysSectionHtml}
+      ${chartSectionHtml}
+      <div class="resume-footer">صادر شده در ${iranJalaliDate(iranTodayISO())} — Focus Mode Bootcamp™</div>
+    </div>
+  `;
+  area.classList.remove('hidden');
+  area.classList.add('show');
+
+  if(detailed){
+    const labels = w.dates.map(d=>iranJalaliShort(d));
+    const data = w.dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
+    const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
+    requestAnimationFrame(()=>{
+      renderNativeDailyChart(document.getElementById('resumeChartCanvas'), labels, data, chartMode);
+    });
+  }
+
+  document.getElementById('resumeCloseBtn').addEventListener('click', ()=>{
+    area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
+  });
+  document.getElementById('resumePrintBtn').addEventListener('click', ()=>{ window.print(); });
+  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{ saveResumeAsImage(e.currentTarget); });
+}
+// چاپ رزومه فقط یک بار و با نمودار کامل انجام بشه: درست قبل از چاپ، نمودار رو دوباره متناسب با
+// اندازه‌ی واقعی برگه‌ی چاپی می‌کشیم (چون CSS چاپ ارتفاع باکس نمودار رو عوض می‌کنه)
+window.addEventListener('beforeprint', ()=>{
+  const c = document.getElementById('resumeChartCanvas');
+  if(c && c.__nativeChartResize) c.__nativeChartResize();
+});
 async function renderDashboard(){
   const el = document.getElementById('panel-dashboard');
   if(currentMentorCode && currentMember && currentMember.scoreHiddenFromMentor){
@@ -3499,7 +3881,7 @@ async function renderDashboard(){
   const cycle = cycleStart ? computeCycle(cycleStart) : null;
 
   el.innerHTML = `
-    <div class="card score-chart-card"><h2>${icon('trendUp')}روند امتیاز روزانه<span class="chart-mode-switch" id="chartModeSwitch"><button type="button" data-mode="duo" title="سبز برای پیشرفت، قرمز برای افت">دورنگ</button><button type="button" data-mode="mono" title="یک‌رنگ آبی، بدون قرمز/سبز">آبی</button></span></h2><div id="chartEmptyMsg" class="empty hidden">هنوز روزی ثبت نشده — بعد از اولین «ثبت امتیاز امروز» نمودار اینجا نشون داده میشه</div><div class="chart-wrap" id="chartWrap"><canvas id="dailyChart"></canvas></div></div>
+    <div class="card score-chart-card"><h2>${icon('trendUp')}روند امتیاز روزانه<span class="chart-mode-switch" id="chartModeSwitch"><button type="button" data-mode="duo" title="سبز برای پیشرفت، قرمز برای افت">دورنگ</button><button type="button" data-mode="mono" title="یک‌رنگ آبی، بدون قرمز/سبز">آبی</button><button type="button" data-mode="emerald" title="یک‌رنگ سبز زمرد تیره، بدون قرمز/سبز">زمردی</button></span></h2><div id="chartEmptyMsg" class="empty hidden">هنوز روزی ثبت نشده — بعد از اولین «ثبت امتیاز امروز» نمودار اینجا نشون داده میشه</div><div class="chart-wrap" id="chartWrap"><canvas id="dailyChart"></canvas></div></div>
     <div class="card score-week-card"><h2>${icon('calendarWeek')}امتیاز هفتگی</h2><div id="weeklyTable"></div></div>
     <div class="card score-month-card"><h2>${icon('calendarStar')}امتیاز ماهانه</h2><div id="monthlyTable"></div></div>
   `;
@@ -3513,8 +3895,7 @@ async function renderDashboard(){
   if(!cycle){ wWrap.innerHTML = prevMonthsCompactHtml + '<div class="empty">هنوز دوره‌ای شروع نشده — با اولین ثبت تسک شروع میشه</div>'; }
   else{
     let h = prevMonthsCompactHtml;
-    cycle.weeks.forEach(w=>{
-      const dayChips = w.dates.map((d,i)=>`<span class="week-day-chip">${iranWeekday(d)}: <b>${w.scores[i]}</b></span>`).join('');
+    cycle.weeks.forEach(w=>{      const dayChips = w.dates.map((d,i)=>`<span class="week-day-chip">${iranWeekday(d)}: <b>${w.scores[i]}</b></span>`).join('');
       if(w.revealed){
         h+=`<div class="week-row">
           <div class="week-row-head">
@@ -3523,6 +3904,14 @@ async function renderDashboard(){
             <span class="stamp ${w.cls}">${w.label} · ${w.grade}</span>
           </div>
           <div class="week-days">${dayChips}</div>
+          <div class="row-flex" style="gap:7px;margin-top:8px;">
+            <button type="button" class="month-resume-btn" style="margin-top:0;" data-resume-week-general="${w.index}">
+              ${icon('printer')} رزومه‌ی کلی
+            </button>
+            <button type="button" class="month-resume-btn" style="margin-top:0;" data-resume-week="${w.index}">
+              ${icon('printer')} رزومه‌ی جزئی
+            </button>
+          </div>
         </div>`;
       }else if(w.index===cycle.currentWeekIndex){
         h+=`<div class="week-row">
@@ -3535,6 +3924,18 @@ async function renderDashboard(){
       }
     });
     wWrap.innerHTML = h;
+    wWrap.querySelectorAll('[data-resume-week]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const w = cycle.weeks.find(x=>String(x.index)===btn.dataset.resumeWeek);
+        if(w) showWeekResume(w, true);
+      });
+    });
+    wWrap.querySelectorAll('[data-resume-week-general]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const w = cycle.weeks.find(x=>String(x.index)===btn.dataset.resumeWeekGeneral);
+        if(w) showWeekResume(w, false);
+      });
+    });
   }
   const mWrap = document.getElementById('monthlyTable');
   if(monthHistory.length===0){ mWrap.innerHTML = '<div class="empty">هنوز ماهی کامل نشده</div>'; }
@@ -3575,9 +3976,14 @@ async function renderDashboard(){
           نمایش نمودار دوره
         </button>
         <div class="month-mini-chart hidden" id="${chartId}"><canvas></canvas></div>
-        <button type="button" class="month-resume-btn" data-resume-month="${m.index}">
-          ${icon('printer')} ثبت / چاپ رزومه‌ی این ماه
-        </button>
+        <div class="row-flex" style="gap:7px;margin-top:8px;">
+          <button type="button" class="month-resume-btn" style="margin-top:0;" data-resume-month-general="${m.index}">
+            ${icon('printer')} رزومه‌ی کلی
+          </button>
+          <button type="button" class="month-resume-btn" style="margin-top:0;" data-resume-month="${m.index}">
+            ${icon('printer')} رزومه‌ی جزئی
+          </button>
+        </div>
       </div>`;
     });
     mWrap.innerHTML = h;
@@ -3601,7 +4007,13 @@ async function renderDashboard(){
     mWrap.querySelectorAll('[data-resume-month]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const m = monthHistory.find(x=>String(x.index)===btn.dataset.resumeMonth);
-        if(m) showMonthResume(m);
+        if(m) showMonthResume(m, true);
+      });
+    });
+    mWrap.querySelectorAll('[data-resume-month-general]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const m = monthHistory.find(x=>String(x.index)===btn.dataset.resumeMonthGeneral);
+        if(m) showMonthResume(m, false);
       });
     });
   }
@@ -3672,6 +4084,7 @@ async function renderDashboard(){
     if(typeof Chart === 'undefined') throw new Error('chartjs-not-loaded');
     const trendColor = (ctx)=>{
       if(chartMode==='mono') return '#2E7CE6'; // حالت آبی — همون آبی پررنگ یکدست سایت، فرقی نمی‌کنه صعودی باشه یا نزولی
+      if(chartMode==='emerald') return '#065F46'; // حالت سبز زمرد تیره — یکدست، بدون قرمز/سبز جدا برای افت/صعود
       const y0 = ctx.p0.parsed.y, y1 = ctx.p1.parsed.y;
       if(y1 > y0) return '#0F7B3D'; // صعودی → سبز تیره و پررنگ
       if(y1 < y0) return '#A81616'; // نزولی → قرمز تیره و پررنگ
@@ -3683,6 +4096,11 @@ async function renderDashboard(){
       if(chartMode==='mono'){
         const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
         g.addColorStop(0,'rgba(46,124,230,0.30)'); g.addColorStop(1,'rgba(46,124,230,0.01)');
+        return g;
+      }
+      if(chartMode==='emerald'){
+        const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        g.addColorStop(0,'rgba(6,95,70,0.34)'); g.addColorStop(1,'rgba(6,95,70,0.01)');
         return g;
       }
       const y0 = sctx.p0.parsed.y, y1 = sctx.p1.parsed.y;
@@ -4074,14 +4492,14 @@ async function renderCommitmentPanel(panelId, code, memberName, canReset){
   el.innerHTML = `<div class="card pledge-card">
     <h2>${icon('signature')} Commitment</h2>
     <div class="fb-line"><b>نام:</b> ${escapeHtml(rec.name||memberName||'')}</div>
-    <div class="fb-line"><b>تاریخ ثبت:</b> ${iranJalaliDate(rec.date)}${rec.time?` · ساعت ${rec.time}`:''}</div>
+    <div class="fb-line"><b>تاریخ ثبت:</b> ${iranJalaliDate(rec.date)}${rec.time?` · ساعت ${rec.time}`:''} <span style="color:var(--white-dim);">— انقضا: ${iranJalaliDate(addOneCalendarMonthISO(rec.date))}</span></div>
     <div class="fb-line" style="margin-top:8px;"><b>متن تعهد کاربر:</b></div>
     <div class="fb-line" style="white-space:pre-wrap;">${escapeHtml(rec.text)}</div>
     <div class="fb-line" style="margin-top:10px;"><b>امضا:</b></div>
     <div class="pledge-sig-frame">
       <img src="${rec.signature}">
     </div>
-    <div class="fb-line" style="margin-top:4px;font-size:11px;color:var(--white-dim);">تاریخ امضا: ${iranJalaliDate(rec.date)}</div>
+    <div class="fb-line" style="margin-top:4px;font-size:11px;color:var(--white-dim);">تاریخ امضا: ${iranJalaliDate(rec.date)} · انقضا: ${iranJalaliDate(addOneCalendarMonthISO(rec.date))}</div>
     ${commitmentExpired(rec, monthCountNow)?`<div class="err-msg" style="margin-top:10px;">${icon('warnTriangle')} این تعهدنامه منقضی شده (ماه جدید شروع شده) — دفعه‌ی بعد که وارد بشه ازش امضای دوباره خواسته میشه</div>`:''}
     ${canReset?`<div style="margin-top:10px;"><button class="btn ghost small" id="forceResignBtn_${panelId}">لغو تعهدنامه و اجبار به امضای دوباره</button></div>`:''}
   </div>`;
@@ -4800,10 +5218,23 @@ async function renderChatCard(containerEl, memberCode, threadKey, myRole, title,
 }
 
 // یه رنگ ثابت و مخصوص به هر کد/اسم می‌سازه (همیشه یه رنگ برای یه نفر، بدون نیاز به عکس یا دیتابیس)
+// پالت ثابت رنگ آواتار «ارتباط با تیم» — هر کاربر بر اساس کدش (ثابت، نه واقعاً رندوم هر بار) یکی از همینا رو می‌گیره
+// هر ورودی هم رنگ پس‌زمینه (گرادینت دو رنگه) هم رنگ متن مناسبشو داره تا رو پس‌زمینه‌های تیره (مشکی/سبز/زرد تیره) هم خونا بمونه
+const AVATAR_PALETTE = [
+  { a:'#AFD5F7', b:'#2E7CE6', text:'#0B1220' }, // آبی سیستم
+  { a:'#CBD5E1', b:'#6B7280', text:'#12151C' }, // طوسی
+  { a:'#3A3F4B', b:'#101318', text:'#F2F3F6' }, // مشکی
+  { a:'#FFFFFF', b:'#C9D2DC', text:'#12151C' }, // سفید
+  { a:'#22B27F', b:'#054E3B', text:'#EAFBF3' }, // سبز زمرد دارک
+  { a:'#D8A61B', b:'#8A6508', text:'#241A00' }, // زرد تیره
+  { a:'#E7EAEF', b:'#ADB4BD', text:'#12151C' }, // نقره‌ای
+  { a:'#DBEEFF', b:'#8FC1E8', text:'#0B1220' }, // آبی روشن
+];
 function hashColor(str){
   let h = 0;
   for(let i=0;i<str.length;i++){ h = str.charCodeAt(i) + ((h<<5)-h); }
-  return `hsl(${Math.abs(h)%360}, 62%, 58%)`;
+  const p = AVATAR_PALETTE[Math.abs(h) % AVATAR_PALETTE.length];
+  return `--tagc-a:${p.a};--tagc-b:${p.b};color:${p.text};`;
 }
 // یه UI مثل پیام‌رسان: لیست مخاطب‌ها، کلیک روی هرکدوم چت خصوصیِ همون‌ آدم رو با یه ترنزیشن قشنگ باز می‌کنه
 async function renderContactChatPicker(el, contacts, openChat){
@@ -4823,7 +5254,7 @@ async function renderContactChatPicker(el, contacts, openChat){
   listEl.innerHTML = contacts.map((c,i)=>`
     <div class="del-row contact-row" data-key="${c.key}" style="cursor:pointer;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div class="contact-avatar" style="--tagc:${hashColor(c.key)};">${escapeHtml((c.name||'?').trim()[0]||'?')}${onlineFlags[i]?'<span class="contact-online-dot"></span>':''}</div>
+        <div class="contact-avatar" style="${hashColor(c.key)}">${escapeHtml((c.name||'?').trim()[0]||'?')}${onlineFlags[i]?'<span class="contact-online-dot"></span>':''}</div>
         <div><b>${escapeHtml(c.name)}</b><div class="cd">${onlineFlags[i]?'آنلاین':(c.sub?escapeHtml(c.sub):'آفلاین')}</div></div>
       </div>
       <span style="color:var(--white-dim);font-size:16px;">‹</span>
@@ -4962,6 +5393,7 @@ document.querySelectorAll('#mentorHome [data-mtab]').forEach(btn=>{
     if(btn.dataset.mtab==='status') renderStatusPanel('mpanel-status', 'mentor');
     if(btn.dataset.mtab==='msg'){ markUpdatesSeen(currentMentorCode); document.getElementById('updatesBadgeMentor').classList.add('hidden'); }
     if(btn.dataset.mtab==='settings') renderSettingsPanel('mpanel-settings');
+    closeMentorSidebar();
   });
 });
 
@@ -5503,6 +5935,7 @@ document.querySelectorAll('#adminApp [data-atab]').forEach(btn=>{
     if(btn.dataset.atab==='controls') renderAdminControls();
     if(btn.dataset.atab==='members') renderAdminMembers(); // هر بار میای این تب، دوباره از دیتابیس تازه می‌خونه (مثلاً اگه از تب Controls منتور/مخفی‌بودن رو عوض کرده باشی، اینجا هم آپدیت شده نشون میده)
     if(btn.dataset.atab==='settings') renderSettingsPanel('apanel-settings');
+    closeAdminSidebar();
   });
 });
 // ---- تعویض حالت روشن/تاریک ----
