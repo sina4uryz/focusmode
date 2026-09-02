@@ -106,13 +106,14 @@ function ensureHtml2Canvas(){
     --black:#0B0D10; --navy:#1B2233; --navy-alt:#232C40; --line:#454E62;
     --gray:#4B5566; --gray-dim:#2C3340;
     --white:#F2F3F6; --white-dim:#ADB6C4;
-    --lightblue:#6FA8DC; --lightblue-dim:rgba(111,168,220,.16);
+    --lightblue:#4A87C2; --lightblue-dim:rgba(74,135,194,.16);
+    --accent-purple:#7C3AED; --accent-purple-glow:rgba(124,58,237,.55);
   }
   body.light{
     --black:#E9ECF1; --navy:#F7F8FA; --navy-alt:#EBEEF3; --line:#C3CCD8;
     --gray:#8A93A3; --gray-dim:#E1E5EB;
     --white:#1B2230; --white-dim:#525B6B;
-    --lightblue:#3E6FA8; --lightblue-dim:rgba(62,111,168,.12);
+    --lightblue:#2E5C8C; --lightblue-dim:rgba(46,92,140,.12);
   }
   body.light #loginScreen{
     background:
@@ -407,7 +408,7 @@ function ensureHtml2Canvas(){
   .profile-hero .member-chip{ background:none; border:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; padding:0; }
   .profile-hero .member-chip::before{ display:none; }
   .profile-hero .cycle-reminder{ background:none; border:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; padding:0; min-width:auto; }
-  .profile-hero .cycle-reminder.cr-v2::before{ display:none; }
+  .profile-hero .cycle-reminder.cr-v3::before{ display:none; }
   @media (max-width:560px){ .profile-hero{ padding:8px 12px 8px 8px; gap:10px; flex-wrap:wrap; } .ph-divider{ display:none; } }
   .profile-hero .cr-fill::after{ display:none; } /* اون درخشش متحرک روی نوار ریمایندر که شبیه مربع چرخان به‌نظر میومد، فقط داخل پروفایل غیرفعال شد */
   .member-chip{
@@ -422,8 +423,8 @@ function ensureHtml2Canvas(){
   .mc-avatar{
     position:relative;flex-shrink:0;width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;
     font-size:17px;font-weight:900;color:#12151C;
-    background:linear-gradient(155deg,#E7EAEF,#9AA3B2 55%,#525A68);
-    box-shadow:0 4px 10px rgba(20,25,35,.5), inset 0 1.5px 0 rgba(255,255,255,.55), inset 0 -3px 6px rgba(0,0,0,.2);
+    background:var(--member-avatar-bg, linear-gradient(135deg,#E7EAEF,#9AA3B2));
+    box-shadow:0 0 0 1px rgba(255,255,255,.15), 0 3px 8px rgba(0,0,0,.35), inset 0 1.5px 0 rgba(255,255,255,.5);
   }
   .mc-avatar::before{
     content:''; position:absolute; inset:-5px; border-radius:16px; z-index:-1; pointer-events:none;
@@ -550,12 +551,24 @@ function ensureHtml2Canvas(){
   }
   /* ============ کارت خانه — پروفایل کوچیک + ارتباط با تیم، اولین چیزی که کاربر می‌بینه ============ */
   .home-profile-card{
+    position:relative;overflow:hidden;
     display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between;
     background:linear-gradient(165deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03));
     border:1px solid rgba(255,255,255,0.18);
     backdrop-filter:blur(22px) saturate(200%);-webkit-backdrop-filter:blur(22px) saturate(200%);
     box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14), 0 8px 24px rgba(0,0,0,.28), 0 0 20px 1px rgba(111,168,220,.08);
   }
+  .home-profile-card::before{
+    content:''; position:absolute; top:0; right:0; left:0; height:2.5px; z-index:1;
+    background:linear-gradient(90deg, transparent, #8B5CF6, #2E7CE6, #8B5CF6, transparent);
+  }
+  .home-profile-card::after{
+    content:''; position:absolute; inset:-50%; z-index:0; pointer-events:none;
+    background:radial-gradient(circle at 15% 25%, rgba(139,92,246,.14), transparent 45%),
+               radial-gradient(circle at 85% 75%, rgba(46,124,230,.14), transparent 45%);
+    animation:mentorBgDrift 11s ease-in-out infinite alternate;
+  }
+  .home-profile-card > *{position:relative; z-index:1;}
   body.light .home-profile-card{
     background:rgba(20,30,50,0.05);border:1px solid rgba(20,30,50,0.14);
     box-shadow:inset 0 1px 0 rgba(255,255,255,.6), 0 6px 18px rgba(30,40,60,.1);
@@ -563,6 +576,27 @@ function ensureHtml2Canvas(){
   .home-profile-card .hp-left{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
   .home-section-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--white-dim);margin:22px 2px 10px;}
   .home-section-title svg{opacity:.85;}
+  /* ============ مودال انتخاب رنگ شخصی — یه‌بار موقع اولین ورود ============ */
+  .color-pick-overlay{
+    position:fixed;inset:0;z-index:900;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:rgba(0,0,0,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .color-pick-card{
+    max-width:340px;width:100%;padding:26px 22px;border-radius:22px;text-align:center;
+    background:linear-gradient(165deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.18);
+    backdrop-filter:blur(20px) saturate(200%);-webkit-backdrop-filter:blur(20px) saturate(200%);
+    box-shadow:0 30px 70px rgba(0,0,0,.5);
+  }
+  .color-pick-title{font-size:17px;font-weight:900;margin-bottom:4px;}
+  .color-pick-sub{font-size:12px;color:var(--white-dim);margin-bottom:18px;}
+  .color-pick-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;}
+  .color-pick-swatch{
+    width:100%;aspect-ratio:1;border-radius:14px;border:2px solid rgba(255,255,255,.25);cursor:pointer;
+    box-shadow:0 4px 12px rgba(0,0,0,.35), inset 0 1.5px 0 rgba(255,255,255,.3);
+    transition:transform .15s ease;
+  }
+  .color-pick-swatch:active{transform:scale(.88);}
   .panel{display:none;}
   @keyframes glassSwitchIn{
     0%{ opacity:0; transform:scale(.97) translateY(6px); }
@@ -579,13 +613,13 @@ function ensureHtml2Canvas(){
   }
   .card h2{font-size:15px;font-weight:700;margin:0 0 12px;color:var(--white);}
   /* ============ سه بخش خاص: تعهدنامه / بازخورد / یادداشت شخصی ============ */
-  .pledge-card{position:relative;overflow:hidden;border-color:rgba(230,196,102,.38);background:linear-gradient(160deg, rgba(230,196,102,.08), var(--navy-alt));}
-  .pledge-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #E6C466, transparent);}
-  .pledge-card h2{display:flex;align-items:center;gap:8px;color:#E6C466;}
+  .pledge-card{position:relative;overflow:hidden;border-color:rgba(124,58,237,.4);background:linear-gradient(160deg, rgba(124,58,237,.09), var(--navy-alt));}
+  .pledge-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
+  .pledge-card h2{display:flex;align-items:center;gap:8px;color:#C4A3F5;}
   .pledge-sig-frame{border:1px solid rgba(230,196,102,.4);border-radius:10px;background:var(--navy-alt);padding:8px;display:inline-block;box-shadow:0 4px 14px rgba(0,0,0,.25);}
-  .pledge-sig-frame img{max-width:280px;display:block;background:#F4F6F9;border:2px solid #E6C466;border-radius:8px;padding:4px;}
-  .feedback-card{position:relative;border-color:rgba(124,196,169,.35);background:linear-gradient(160deg, rgba(124,196,169,.07), var(--navy-alt));}
-  .feedback-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #7CC4A9, transparent);}
+  .pledge-sig-frame img{max-width:280px;display:block;background:#F4F6F9;border:2px solid var(--accent-purple);border-radius:8px;padding:4px;}
+  .feedback-card{position:relative;border-color:rgba(124,58,237,.35);background:linear-gradient(160deg, rgba(124,58,237,.07), var(--navy-alt));}
+  .feedback-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
   .feedback-card h2{color:#8FD6BA;}
   .notes-card{position:relative;border-color:rgba(157,140,230,.35);background:linear-gradient(160deg, rgba(157,140,230,.07), var(--navy-alt));}
   /* ============ دستیار هوشمند — بخش جداگانه و متمایز، درست قبل از چک‌لیست کارهای روزانه ============ */
@@ -693,8 +727,8 @@ function ensureHtml2Canvas(){
   .notes-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #9D8CE6, transparent);}
   .notes-card h2{color:#B9ACF2;}
   /* ============ بخش پروژه (بعد از تعهدنامه) — فقط وقتی مدیریت برای این کاربر فعالش کرده باشه نشون داده میشه ============ */
-  .project-card{position:relative;border-color:rgba(217,108,130,.35);background:linear-gradient(160deg, rgba(217,108,130,.07), var(--navy-alt));}
-  .project-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #D96C82, transparent);}
+  .project-card{position:relative;border-color:rgba(124,58,237,.35);background:linear-gradient(160deg, rgba(124,58,237,.07), var(--navy-alt));}
+  .project-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
   .project-card h2{display:flex;align-items:center;gap:8px;color:#E79AAC;font-size:13px;}
   .project-card textarea, .project-card input[type=text]{width:100%;resize:vertical;}
   .sq-grid{
@@ -726,20 +760,20 @@ function ensureHtml2Canvas(){
      رندر/رنگ‌آمیزیشون رو مرورگر به تعویق می‌ندازه — همین لگ اسکرول رو حل می‌کنه */
   .project-card{content-visibility:auto; contain-intrinsic-size:0 420px;}
   /* ============ بخش‌های قوانین/اپدیت/افتخارات/وضعیت — همون خانواده‌ی طراحی، بدون انیمیشن (سبک و بی‌لگ) ============ */
-  .rules-card{position:relative;overflow:hidden;border-color:rgba(93,201,217,.4);background:linear-gradient(160deg, rgba(93,201,217,.08), var(--navy-alt));}
-  .rules-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #5DC9D9, transparent);}
-  .rules-card h2{display:flex;align-items:center;gap:8px;color:#8FE0EC;}
-  .updates-card{position:relative;overflow:hidden;border-color:rgba(230,124,92,.4);background:linear-gradient(160deg, rgba(230,124,92,.08), var(--navy-alt));}
-  .updates-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #E67C5C, transparent);}
+  .rules-card{position:relative;overflow:hidden;border-color:rgba(124,58,237,.4);background:linear-gradient(160deg, rgba(124,58,237,.08), var(--navy-alt));}
+  .rules-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
+  .rules-card h2{display:flex;align-items:center;gap:8px;color:#C4A3F5;}
+  .updates-card{position:relative;overflow:hidden;border-color:rgba(124,58,237,.4);background:linear-gradient(160deg, rgba(124,58,237,.08), var(--navy-alt));}
+  .updates-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
   .updates-card h2{display:flex;align-items:center;gap:8px;color:#F0A488;}
-  .honor-card{position:relative;overflow:hidden;border-color:rgba(230,184,77,.4);background:linear-gradient(160deg, rgba(230,184,77,.08), var(--navy-alt));}
-  .honor-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #E6B84D, transparent);}
+  .honor-card{position:relative;overflow:hidden;border-color:rgba(124,58,237,.4);background:linear-gradient(160deg, rgba(124,58,237,.08), var(--navy-alt));}
+  .honor-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
   .honor-card h2{display:flex;align-items:center;gap:8px;color:#F0CD7C;}
   .medal-summary{display:flex;gap:6px;margin-inline-start:auto;flex-wrap:wrap;}
   .medal-count-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.06);border:1px solid color-mix(in srgb, var(--mc) 45%, transparent);border-radius:20px;padding:2px 9px;font-size:12px;font-weight:800;color:var(--mc);}
   .medal-count-chip svg{width:13px;height:13px;flex-shrink:0;}
-  .status-card{position:relative;overflow:hidden;border-color:rgba(92,217,160,.4);background:linear-gradient(160deg, rgba(92,217,160,.08), var(--navy-alt));}
-  .status-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #5CD9A0, transparent);}
+  .status-card{position:relative;overflow:hidden;border-color:rgba(124,58,237,.4);background:linear-gradient(160deg, rgba(124,58,237,.08), var(--navy-alt));}
+  .status-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, var(--accent-purple), transparent);box-shadow:0 0 12px 1px var(--accent-purple-glow);}
   .status-card h2{display:flex;align-items:center;gap:8px;color:#8DEBC0;}
   /* ============ قاب رتبه دور آواتار — بر اساس بهترین مدالی که گرفته ============ */
   .mc-avatar.rank-tier-1{ box-shadow:0 0 0 2px rgba(176,141,87,.9), 0 0 10px rgba(176,141,87,.65), inset 0 1px 0 rgba(255,255,255,.5); }
@@ -782,7 +816,7 @@ function ensureHtml2Canvas(){
   }
   .chart-mode-switch button.active{color:#fff;background:linear-gradient(135deg, #2E7CE6, #1D4ED8);box-shadow:0 4px 14px rgba(37,99,235,.45), inset 0 1px 0 rgba(255,255,255,.25);}
   .chart-mode-switch button[data-mode="duo"].active{background:linear-gradient(135deg, #0F7B3D, #A81616);box-shadow:0 4px 14px rgba(15,123,61,.4), inset 0 1px 0 rgba(255,255,255,.25);}
-  .chart-mode-switch button[data-mode="emerald"].active{background:linear-gradient(135deg, #0F9D6E, #054E3B);box-shadow:0 4px 14px rgba(6,95,70,.55), inset 0 1px 0 rgba(255,255,255,.25);}
+  .chart-mode-switch button[data-mode="purple"].active{background:linear-gradient(135deg, #9B5DE5, #4A1D96);box-shadow:0 4px 14px rgba(108,43,217,.55), inset 0 1px 0 rgba(255,255,255,.25);}
   .score-chart-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #6FA8DC, #BFDCF5, #6FA8DC, transparent);box-shadow:0 0 10px 1px rgba(111,168,220,.4);}
   .score-chart-card h2{display:flex;align-items:center;gap:8px;color:#9CC5EE;}
   .score-week-card{position:relative;overflow:hidden;border-color:rgba(255,163,92,.4);background:linear-gradient(160deg, rgba(255,163,92,.08), var(--navy-alt));}
@@ -792,9 +826,9 @@ function ensureHtml2Canvas(){
   .score-month-card::before{content:'';position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg, transparent, #E67CB0, #F4B8D6, #E67CB0, transparent);box-shadow:0 0 10px 1px rgba(230,124,176,.4);}
   .score-month-card h2{display:flex;align-items:center;gap:8px;color:#F0A0CC;}
   /* ---------- حالت روشن: رنگ‌های پاستلیِ روشنِ بالا برای پس‌زمینه‌ی تاریک طراحی شده بودن، تو روشن محو می‌شدن — نسخه‌ی تیره‌تر ---------- */
-  body.light .pledge-card h2{color:#8A6A1C;}
+  body.light .pledge-card h2{color:#5B21B6;}
   body.light .project-card h2{color:#B84D68;}
-  body.light .rules-card h2{color:#1B7A8C;}
+  body.light .rules-card h2{color:#5B21B6;}
   body.light .updates-card h2{color:#C25A32;}
   body.light .honor-card h2{color:#8A6B1C;}
   body.light .status-card h2{color:#1B8A5A;}
@@ -935,7 +969,7 @@ function ensureHtml2Canvas(){
     box-shadow:inset 0 1.5px 0 rgba(255,255,255,.14), 0 4px 16px rgba(0,0,0,.25), 0 0 16px 1px rgba(111,168,220,.1);
     min-width:210px;
   }
-  .member-chip::before, .cycle-reminder.cr-v2::before{
+  .member-chip::before, .cycle-reminder.cr-v3::before{
     content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
     background:linear-gradient(120deg, rgba(191,220,245,.55), rgba(111,168,220,0) 30%, rgba(111,168,220,0) 70%, rgba(191,220,245,.55));
     -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -955,34 +989,36 @@ function ensureHtml2Canvas(){
   .cr-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg, transparent, rgba(255,255,255,.5), transparent);animation:crShine 2.6s ease-in-out infinite;}
   @keyframes crShine{0%{transform:translateX(-100%);}100%{transform:translateX(100%);}}
   .cr-sub{font-size:10.5px;color:var(--white-dim);line-height:1.5;margin-top:6px;}
-  /* ---------- نسخه‌ی جدید ریمایندر دوره: گیج دایره‌ای HUD-وار ---------- */
-  .cycle-reminder.cr-v2{ display:flex;align-items:center;gap:13px;padding:9px 17px 9px 11px;min-width:auto; }
-  .cr-ring{position:relative;width:50px;height:50px;flex-shrink:0;}
+  /* ---------- نسخه‌ی سوم ریمایندر دوره: حلقه‌ی دندونه‌ای (استریک-وار) + ردیف پیشرفت هفته‌ها ---------- */
+  .cycle-reminder.cr-v3{ display:flex;align-items:center;gap:14px;padding:10px 18px 10px 12px;min-width:auto; }
+  .cr-ring{position:relative;width:58px;height:58px;flex-shrink:0;}
   .cr-ring::before{
-    content:''; position:absolute; inset:-6px; border-radius:50%; z-index:-1;
-    background:radial-gradient(circle, rgba(108,92,231,.35), transparent 70%);
+    content:''; position:absolute; inset:-7px; border-radius:50%; z-index:-1;
+    background:radial-gradient(circle, rgba(139,92,246,.45), transparent 70%);
     animation:mcAvatarPulse 2.6s ease-out infinite;
   }
-  .cr-ring svg{width:100%;height:100%;transform:rotate(-90deg);shape-rendering:geometricPrecision;}
-  .cr-ring-bg{fill:none;stroke:rgba(255,255,255,.14);stroke-width:4.5;}
-  .cr-ring-fill{fill:none;stroke:url(#crRingGrad);stroke-width:4.5;stroke-linecap:round;filter:drop-shadow(0 0 2.5px rgba(111,168,220,.9));transition:stroke-dasharray .6s cubic-bezier(.22,1,.36,1);}
-  .cr-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;color:var(--white);font-variant-numeric:tabular-nums;text-shadow:0 0 6px rgba(0,0,0,.4);}
+  .cr-ring svg{width:100%;height:100%;shape-rendering:geometricPrecision;overflow:visible;}
+  @keyframes crTickPop{from{opacity:0;transform:scale(.4);transform-origin:22px 22px;}to{opacity:1;transform:scale(1);}}
+  .cr-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .cr-ring-num{font-size:13px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 10px rgba(139,92,246,.8);}
+  .cr-ring-of{font-size:6px;font-weight:700;color:#C4A3F5;letter-spacing:.2px;line-height:1;margin-top:2px;}
   .cr-badge-glow{
     flex-shrink:0;width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
-    background:linear-gradient(155deg, rgba(150,197,238,.35), rgba(78,124,200,.35));
-    color:#BFDCF5;box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 0 12px rgba(111,168,220,.45);
+    background:linear-gradient(155deg, rgba(155,93,229,.35), rgba(74,29,150,.35));
+    color:#C4A3F5;box-shadow:inset 0 1px 0 rgba(255,255,255,.3), 0 0 12px rgba(124,58,237,.45);
   }
   .cr-title2{font-size:12px;font-weight:800;color:var(--white);letter-spacing:.2px;}
-  .cr-title2 b{color:var(--lightblue);font-size:14px;}
-  .cr-week-tag{
-    display:inline-block;font-size:10px;font-weight:800;color:#BFDCF5;background:rgba(111,168,220,.14);
-    border:1px solid rgba(111,168,220,.3);border-radius:20px;padding:1px 9px;margin-top:4px;
-  }
+  .cr-title2 b{color:#B794F6;font-size:14px;}
+  .cr-wk-track{display:flex;align-items:center;gap:5px;margin-top:6px;}
+  .cr-wk-dot{width:14px;height:5px;border-radius:3px;background:rgba(124,58,237,.18);flex-shrink:0;transition:background .3s;}
+  .cr-wk-dot.done{background:linear-gradient(90deg,#8B5CF6,#C9A6FF);box-shadow:0 0 6px rgba(139,92,246,.7);}
+  .cr-wk-dot.live{background:rgba(139,92,246,.5);animation:crLiveDotPulse 1.3s ease-in-out infinite;}
+  @keyframes crLiveDotPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+  .cr-wk-label{font-size:9.5px;font-weight:800;color:#C4A3F5;margin-right:4px;white-space:nowrap;}
   /* ---------- حالت روشن: رنگ‌های پاستلی/سفیدِ نیمه‌شفاف بالا تو پس‌زمینه‌ی روشن محو می‌شدن، اینجا جایگزین می‌شن ---------- */
   body.light .cr-bar{background:rgba(20,30,50,.10);}
-  body.light .cr-ring-bg{stroke:rgba(20,30,50,.14);}
   body.light .cr-badge, body.light .cr-badge-glow{color:#2E5C94;}
-  body.light .cr-week-tag{color:#2E5C94;}
+  body.light .cr-wk-label{color:#6B3FA0;}
   body.light .cr-num{background:linear-gradient(135deg,#3E6FA8,#1D4ED8);-webkit-background-clip:text;background-clip:text;}
   /* ============ چک‌باکس‌ها — دایره‌ای، آبی پررنگ یکدست با بقیه‌ی سلکتورهای سایت، تیک سفید ============ */
   input[type=checkbox]{
@@ -1159,7 +1195,7 @@ function ensureHtml2Canvas(){
   .resume-week-table th{ text-align:center; padding:7px 4px; color:#8B95A6; font-weight:700; font-size:10.5px; border-bottom:1px solid rgba(111,168,220,.18); }
   .resume-week-table td{ text-align:center; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:700; }
   .resume-week-table tr:last-child td{ border-bottom:none; }
-  .resume-chart-wrap{ height:190px; margin:16px 0 4px; background:rgba(255,255,255,.03); border:1px solid rgba(111,168,220,.14); border-radius:12px; padding:10px 6px; }
+  .resume-chart-wrap{ height:190px; margin:16px 0 4px; background:rgba(255,255,255,.03); border:1px solid rgba(111,168,220,.14); border-radius:12px; padding:10px 6px; overflow:hidden; box-sizing:border-box; }
   .resume-footer{ text-align:center; margin-top:22px; font-size:10px; color:#5B6472; letter-spacing:.5px; }
   @media print{
     body > *:not(#resumePrintArea){ display:none !important; }
@@ -1173,9 +1209,18 @@ function ensureHtml2Canvas(){
     .resume-section-title{ margin:10px 0 6px !important; }
     .resume-week-table td, .resume-week-table th{ padding:4px !important; }
     .resume-week-table{ page-break-inside:avoid; break-inside:avoid; }
+    /* باگ قبلی: جدول ریز روزها (تا ۳۱ ردیف برای یه ماه کامل) هم همین «avoid» رو داشت — ولی وقتی یه بلاک
+       اصلاً از یه صفحه بزرگ‌تره، مرورگر نمی‌تونه «نشکوندنش» رو رعایت کنه و به‌جاش معمولاً همون‌جا قطعش می‌کنه
+       (دقیقاً همون «حتی کامل هم کات میشه»). این جدول باید بین صفحه‌ها بشکنه؛ فقط نمی‌خوایم وسط یه ردیف ببره. */
+    .resume-day-table{ page-break-inside:auto !important; break-inside:auto !important; }
+    .resume-day-table tr{ page-break-inside:avoid; break-inside:avoid; }
     .resume-mentor-note{ page-break-inside:avoid; break-inside:avoid; }
     .resume-score-wrap{ page-break-inside:avoid; break-inside:avoid; }
     .resume-chart-wrap{ height:170px !important; margin:8px 0 0 !important; page-break-inside:avoid; break-inside:avoid; }
+    .resume-chart-section{ page-break-inside:avoid; break-inside:avoid; display:inline-block; width:100%; }
+    /* overflow:hidden رو موقع چاپ برمی‌داریم — بعضی موتورهای چاپ موبایل، وقتی یه المنت overflow:hidden داره، به‌جای
+       این‌که کل بلاک رو (طبق break-inside:avoid) ببرن صفحه‌ی بعد، محتواش رو درست از وسط صفحه می‌بُرن (نصفه چاپ می‌کردن) */
+    .resume-sheet{ overflow:visible !important; }
     .resume-footer{ margin-top:10px !important; }
     @page{ size:auto; margin:8mm; }
   }
@@ -1486,14 +1531,14 @@ function ensureHtml2Canvas(){
         <button class="tab-btn active" data-tab="home"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg><span data-i18n="tabHome">خانه</span></button>
         <div class="sidebar-divider"></div>
         <button class="tab-btn" data-tab="commitment"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18.5c1.8-1.3 3-1.3 4.5 0 1.8 1.6 3.2 1.6 5 0 1.5-1.3 2.7-1.3 4.5 0"/><path d="M13.5 12.5l6-6a1.7 1.7 0 00-2.4-2.4l-6 6-1 3.4z"/><path d="M2 21.5h20"/></svg><span data-i18n="tabCommitment">تعهدنامه</span></button>
+        <button class="tab-btn" data-tab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
         <button class="tab-btn hidden" data-tab="planner" id="plannerTabBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span data-i18n="tabPlanner">برنامه‌ریز</span></button>
         <button class="tab-btn" data-tab="tasks"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg><span data-i18n="tabTaskSet">دسته‌بندی تسک</span></button>
         <button class="tab-btn" data-tab="smartmentor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7c.5.4.8 1 .8 1.6V17h6.4v-.7c0-.6.3-1.2.8-1.6A7 7 0 0012 2z"/></svg><span data-i18n="tabSmartMentor">دستیار هوشمند</span></button>
         <button class="tab-btn" data-tab="today"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3L16 10"/></svg><span data-i18n="tabToday">کارهای امروز</span></button>
-        <button class="tab-btn" data-tab="dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span data-i18n="tabScores">امتیازات</span></button>
+        <button class="tab-btn" data-tab="dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span data-i18n="tabScores">روند پیشرفت</span></button>
         <button class="tab-btn" data-tab="feedback"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg><span data-i18n="tabFeedback">بازخورد</span></button>
         <button class="tab-btn" data-tab="notes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg><span data-i18n="tabNotes">یادداشت شخصی</span></button>
-        <button class="tab-btn" data-tab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
         <button class="tab-btn" data-tab="achievements"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
         <button class="tab-btn" data-tab="adminmsg"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v4a1 1 0 001 1h2l9 4V5L6 9H4a1 1 0 00-1 1z"/><path d="M17 9a3 3 0 010 6"/></svg><span data-i18n="tabUpdates">اطلاعیه‌ها</span> <span class="badge-dot hidden" id="updatesBadgeMember"></span></button>
         <button class="tab-btn" data-tab="qna"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 01-9 8.4A8.5 8.5 0 113 11.5 8.38 8.38 0 0111.5 3a8.5 8.5 0 019.5 8.5z"/></svg><span data-i18n="tabConnect">ارتباط با تیم</span></button>
@@ -1717,7 +1762,7 @@ const translations = {
     daysRecorded:'{n} روز ثبت‌شده',
     viewOnly:'فقط نمایش', backToList:'↩ بازگشت به لیست', addToHome:'افزودن به صفحه اصلی',
     tabHome:'خانه', tabCommitment:'تعهدنامه', tabPlanner:'برنامه‌ریز',
-    tabTaskSet:'دسته‌بندی تسک', tabSmartMentor:'دستیار هوشمند', tabToday:'کارهای امروز', tabScores:'امتیازات', tabFeedback:'بازخورد',
+    tabTaskSet:'دسته‌بندی تسک', tabSmartMentor:'دستیار هوشمند', tabToday:'کارهای امروز', tabScores:'روند پیشرفت', tabFeedback:'بازخورد',
     tabNotes:'یادداشت شخصی', tabRules:'قوانین', tabHonor:'افتخارات', tabUpdates:'اپدیت‌ها',
     tabConnect:'ارتباط با تیم', tabStatus:'وضعیت', tabSettings:'تنظیمات',
     mentorPanelTitle:'پنل منتور', tabParticipants:'شرکت‌کننده‌ها', tabParticipantMsg:'پیام شرکت‌کننده‌ها',
@@ -1749,7 +1794,7 @@ const translations = {
     daysRecorded:'{n} days recorded',
     viewOnly:'View only', backToList:'↩ Back to list', addToHome:'Add to home screen',
     tabHome:'Home', tabCommitment:'Commitment', tabPlanner:'Planner',
-    tabTaskSet:'Task Set', tabSmartMentor:'Smart Assistant', tabToday:'To Do', tabScores:'Scores', tabFeedback:'FeedBack',
+    tabTaskSet:'Task Set', tabSmartMentor:'Smart Assistant', tabToday:'To Do', tabScores:'Progress', tabFeedback:'FeedBack',
     tabNotes:'Personal Notes', tabRules:'Rules', tabHonor:'Honor Room', tabUpdates:'Updates',
     tabConnect:'Connect To Team', tabStatus:'Status', tabSettings:'Settings',
     mentorPanelTitle:'MENTOR PANEL', tabParticipants:'Participants', tabParticipantMsg:'Participant msg',
@@ -1781,7 +1826,7 @@ const translations = {
     daysRecorded:'{n} Tage erfasst',
     viewOnly:'Nur Ansicht', backToList:'↩ Zurück zur Liste', addToHome:'Zum Startbildschirm hinzufügen',
     tabHome:'Start', tabCommitment:'Verpflichtung', tabPlanner:'Planer',
-    tabTaskSet:'Aufgabenset', tabSmartMentor:'Intelligenter Assistent', tabToday:'To-Do', tabScores:'Punkte', tabFeedback:'Feedback',
+    tabTaskSet:'Aufgabenset', tabSmartMentor:'Intelligenter Assistent', tabToday:'To-Do', tabScores:'Fortschritt', tabFeedback:'Feedback',
     tabNotes:'Persönliche Notizen', tabRules:'Regeln', tabHonor:'Ehrenraum', tabUpdates:'Updates',
     tabConnect:'Team kontaktieren', tabStatus:'Status', tabSettings:'Einstellungen',
     mentorPanelTitle:'MENTORBEREICH', tabParticipants:'Teilnehmer', tabParticipantMsg:'Teilnehmernachrichten',
@@ -1813,7 +1858,7 @@ const translations = {
     daysRecorded:'{n} giorni registrati',
     viewOnly:'Sola visualizzazione', backToList:'↩ Torna alla lista', addToHome:'Aggiungi alla schermata home',
     tabHome:'Home', tabCommitment:'Impegno', tabPlanner:'Pianificatore',
-    tabTaskSet:'Set di attività', tabSmartMentor:'Assistente intelligente', tabToday:'Da fare', tabScores:'Punteggi', tabFeedback:'Feedback',
+    tabTaskSet:'Set di attività', tabSmartMentor:'Assistente intelligente', tabToday:'Da fare', tabScores:'Progressi', tabFeedback:'Feedback',
     tabNotes:'Note personali', tabRules:'Regole', tabHonor:'Sala d\u2019onore', tabUpdates:'Aggiornamenti',
     tabConnect:'Contatta il team', tabStatus:'Stato', tabSettings:'Impostazioni',
     mentorPanelTitle:'PANNELLO MENTOR', tabParticipants:'Partecipanti', tabParticipantMsg:'Messaggi partecipanti',
@@ -1845,7 +1890,7 @@ const translations = {
     daysRecorded:'已记录 {n} 天',
     viewOnly:'仅查看', backToList:'↩ 返回列表', addToHome:'添加到主屏幕',
     tabHome:'主页', tabCommitment:'承诺书', tabPlanner:'计划',
-    tabTaskSet:'任务集', tabSmartMentor:'智能助手', tabToday:'待办事项', tabScores:'积分', tabFeedback:'反馈',
+    tabTaskSet:'任务集', tabSmartMentor:'智能助手', tabToday:'待办事项', tabScores:'进度', tabFeedback:'反馈',
     tabNotes:'个人笔记', tabRules:'规则', tabHonor:'荣誉室', tabUpdates:'更新',
     tabConnect:'联系团队', tabStatus:'状态', tabSettings:'设置',
     mentorPanelTitle:'导师面板', tabParticipants:'学员', tabParticipantMsg:'学员消息',
@@ -2512,6 +2557,35 @@ document.getElementById('backToListBtn').addEventListener('click', ()=>{
 });
 
 // ================= enter member app (self login OR viewed by mentor/admin) =================
+// ================= انتخاب رنگ شخصی — یه‌بار، همون اول ورود به پنل (اگه قبلاً انتخاب نکرده) =================
+function showColorPickerModal(code, memberInfo){
+  const colors = ['#2E7CE6','#6C4FE0','#9B5DE5','#34D1B4','#3ECF6E','#F2A93B','#F2637A','#E85D9C','#6FA8DC','#B08D57'];
+  const wrap = document.createElement('div');
+  wrap.className = 'color-pick-overlay';
+  wrap.innerHTML = `
+    <div class="color-pick-card">
+      <div class="color-pick-title">🎨 رنگ خودتو انتخاب کن</div>
+      <div class="color-pick-sub">این رنگ آواتار توئه، همه‌جا با همینه</div>
+      <div class="color-pick-grid">
+        ${colors.map(c=>`<button type="button" class="color-pick-swatch" data-color="${c}" style="background:${c};"></button>`).join('')}
+      </div>
+    </div>`;
+  document.body.appendChild(wrap);
+  wrap.querySelectorAll('[data-color]').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const chosen = btn.dataset.color;
+      document.documentElement.style.setProperty('--member-avatar-bg', chosen);
+      memberInfo.color = chosen;
+      wrap.remove();
+      try{
+        const reg = await loadMemberRegistry();
+        const target = reg.find(m=>m.code===code);
+        if(target) target.color = chosen;
+        await saveMemberRegistry(reg);
+      }catch(e){}
+    });
+  });
+}
 async function enterMemberApp(code, viewOnly, memberInfo, preloadedStatePromise){
   currentCode = code;
   currentMember = memberInfo;
@@ -2527,6 +2601,12 @@ async function enterMemberApp(code, viewOnly, memberInfo, preloadedStatePromise)
   document.getElementById('viewOnlyBadge').classList.toggle('hidden', !viewOnly);
   document.getElementById('backToListBtn').classList.toggle('hidden', !viaMentorList);
   document.getElementById('memberChip').innerHTML = `<span class="mc-avatar" id="mcAvatarSpan">${escapeHtml((memberInfo.name||'?').trim()[0]||'?')}</span><span class="mc-info"><span class="mc-name">${escapeHtml(memberInfo.name||'')}</span><span class="mc-code">کد ${escapeHtml(code)}</span></span>`;
+  // رنگ شخصی‌سازی‌شده‌ی هر کاربر — اگه قبلاً انتخاب کرده، همه‌جای پنل خودش همینو می‌بینه (آواتار و ...)
+  if(memberInfo.color){
+    document.documentElement.style.setProperty('--member-avatar-bg', memberInfo.color);
+  } else if(!viewOnly){
+    showColorPickerModal(code, memberInfo);
+  }
   // رنگِ قابِ آواتار (بر اساس بهترین مدال) دیگه چیز دیگه‌ای رو معطل نمی‌کنه — جدا و در پس‌زمینه میاد
   loadAchievements(code).then(list=>{
     const tier = list.length ? Math.max(...list.map(a=>medalInfo(a.name||a.text).tier)) : 0;
@@ -2779,28 +2859,44 @@ async function updateHeaderStats(){
 // نسخه‌ی مشترک ریمایندر دوره (رینگ HUD) — چه تو نوار بالا (پروفایل-هیرو) چه تو کارت خونه، دقیقاً یه ظاهر واحد و خفن داره
 function buildCycleReminderHtml(cycleStart){
   if(!cycleStart){
-    return `<div class="cycle-reminder cr-v2"><div class="cr-badge-glow">${icon('calendar')}</div><div><div class="cr-title2">دوره‌ی جدید</div><div class="cr-sub" style="margin-top:2px;">با اولین تسکی که ثبت کنی، شمارش ۲۰ روزه شروع میشه</div></div></div>`;
+    return `<div class="cycle-reminder cr-v3"><div class="cr-badge-glow">${icon('calendar')}</div><div><div class="cr-title2">دوره‌ی جدید</div><div class="cr-sub" style="margin-top:2px;">با اولین تسکی که ثبت کنی، شمارش ۲۰ روزه شروع میشه</div></div></div>`;
   }
   const info = computeCycle(cycleStart);
-  const pct = Math.min(100, Math.round((info.dayIndex/20)*100));
-  const R = 18, C = Math.round(2*Math.PI*R);
-  const dash = Math.round((pct/100)*C);
   const gid = 'crRingGrad'+Math.random().toString(36).slice(2,8); // چون ممکنه چند رینگ هم‌زمان تو صفحه باشه، id ثابت باعث تداخل گرادینت می‌شد
-  return `<div class="cycle-reminder cr-v2">
+  // به‌جای یه کمان یکدست، ۲۰ تا «دندونه»‌ی جدا — هر روز یه دندونه‌ی خودش، دقیقاً مثل حلقه‌ی روزه‌های اپ‌های ورزشی/استریک
+  const cx=22, cy=22, rIn=13.4, rOut=18.6, N=20;
+  let ticks = '';
+  for(let i=0;i<N;i++){
+    const angle = (-90 + i*(360/N)) * Math.PI/180;
+    const x1 = (cx + rIn*Math.cos(angle)).toFixed(2), y1 = (cy + rIn*Math.sin(angle)).toFixed(2);
+    const x2 = (cx + rOut*Math.cos(angle)).toFixed(2), y2 = (cy + rOut*Math.sin(angle)).toFixed(2);
+    const filled = i < info.dayIndex;
+    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${filled?`url(#${gid})`:'rgba(124,58,237,.2)'}" stroke-width="3.4" stroke-linecap="round" filter="${filled?'url(#crTickGlow)':''}" style="${filled?`animation:crTickPop .35s ease backwards; animation-delay:${i*22}ms;`:''}"/>`;
+  }
+  const weekDots = Array.from({length:4}).map((_,i)=>{
+    const done = i < info.currentWeekIndex-1, live = i === info.currentWeekIndex-1;
+    return `<span class="cr-wk-dot ${done?'done':''} ${live?'live':''}"></span>`;
+  }).join('');
+  return `<div class="cycle-reminder cr-v3">
     <div class="cr-ring">
       <svg viewBox="0 0 44 44">
-        <defs><linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#8C5CF0"/><stop offset="50%" stop-color="#6FA8DC"/><stop offset="100%" stop-color="#34D1B4"/>
-        </linearGradient></defs>
-        <circle class="cr-ring-bg" cx="22" cy="22" r="${R}"></circle>
-        <circle class="cr-ring-fill" cx="22" cy="22" r="${R}" stroke="url(#${gid})" stroke-dasharray="${dash} ${C}"></circle>
+        <defs>
+          <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#C9A6FF"/><stop offset="55%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#4A1D96"/>
+          </linearGradient>
+          <filter id="crTickGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="0.6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        ${ticks}
       </svg>
-      <span class="cr-ring-num">${info.dayIndex}</span>
+      <div class="cr-ring-center"><span class="cr-ring-num">${info.dayIndex}</span><span class="cr-ring-of">از ۲۰</span></div>
     </div>
-    <div>
-      <div class="cr-title2">روز <b>${info.dayIndex}</b> از ۲۰</div>
-      <span class="cr-week-tag">هفته ${info.currentWeekIndex} از ۴</span>
-      <div class="cr-sub" style="margin-top:5px;">امتیاز این هفته پنجشنبه ساعت ۱۲:۱۰ بامداد اعلام میشه</div>
+    <div class="cr-body">
+      <div class="cr-title2">روز <b>${info.dayIndex}</b> از دوره</div>
+      <div class="cr-wk-track">${weekDots}<span class="cr-wk-label">هفته ${info.currentWeekIndex} از ۴</span></div>
+      <div class="cr-sub" style="margin-top:6px;">امتیاز این هفته پنجشنبه ساعت ۱۲:۱۰ بامداد اعلام میشه</div>
     </div>
   </div>`;
 }
@@ -3052,24 +3148,26 @@ async function analyzeSmartMentor(){
     for(let i=0;i<n;i++){ num += (xs[i]-xMean)*(win[i]-yMean); den += (xs[i]-xMean)**2; }
     const slope = den ? num/den : 0; // تغییر امتیاز به‌ازای هر روز، رو بازه‌ی اخیر
     const recentAvg = win.slice(-3).reduce((a,b)=>a+b,0)/Math.min(3,n);
+    const last3Count = Math.min(3,n);
     if(slope <= -3.5){
-      insights.push({ type:'warn', priority:2, text:`شیب امتیازت تو ${n} روز اخیر نزولیه (هر روز حدود ${Math.abs(slope).toFixed(1)} امتیاز کمتر) — الان میانگینت حدود ${recentAvg.toFixed(1)}ه` });
+      insights.push({ type:'warn', priority:2, text:`شیب امتیازت تو ${n} روز اخیر نزولیه (هر روز حدود ${Math.abs(slope).toFixed(1)} امتیاز کمتر) — میانگین همین ${last3Count} روز آخرت حدود ${recentAvg.toFixed(1)}ه` });
     } else if(slope >= 4){
-      insights.push({ type:'good', priority:2, text:`شیب امتیازت تو ${n} روز اخیر صعودیه (هر روز حدود ${slope.toFixed(1)} امتیاز بیشتر) — الان میانگینت حدود ${recentAvg.toFixed(1)}ه، همینطوری ادامه بده` });
+      insights.push({ type:'good', priority:2, text:`شیب امتیازت تو ${n} روز اخیر صعودیه (هر روز حدود ${slope.toFixed(1)} امتیاز بیشتر) — میانگین همین ${last3Count} روز آخرت حدود ${recentAvg.toFixed(1)}ه، همینطوری ادامه بده` });
     }
   }
 
-  // ۲.۱) این هفته در مقابل هفته‌ی قبل (دقیق‌تر از ۳روز، مقیاس هفتگی)
-  const datesScored = dayInfo.filter(d=>d.score!==null);
-  if(datesScored.length>=10){
-    const last7 = datesScored.slice(-7).map(d=>d.score);
-    const prev7 = datesScored.slice(-14,-7).map(d=>d.score);
-    if(prev7.length>=4){
-      const avgL7 = last7.reduce((a,b)=>a+b,0)/last7.length;
-      const avgP7 = prev7.reduce((a,b)=>a+b,0)/prev7.length;
-      if(avgL7 < avgP7 - 10) insights.push({ type:'warn', priority:2, text:`این هفته‌ت (میانگین ${avgL7.toFixed(1)}) نسبت به هفته‌ی قبل (${avgP7.toFixed(1)}) افت داشته` });
-      else if(avgL7 > avgP7 + 10) insights.push({ type:'good', priority:2, text:`این هفته‌ت (میانگین ${avgL7.toFixed(1)}) نسبت به هفته‌ی قبل (${avgP7.toFixed(1)}) بهتر شده` });
-    }
+  // ۲.۱) این هفته در مقابل هفته‌ی قبل — دقیقاً بر اساس ۷ روز تقویمی واقعیِ اخیر، نه هر چند‌تا روزی که توش رکورد بوده
+  // (باگ قبلی: اگه بین این وسط یه روز جا افتاده بود، «۷ تای آخر که رکورد داشتن» دیگه با «۷ روز تقویمی اخیر» یکی نبود
+  // و میانگینی که گفته می‌شد با چیزی که کاربر با چشم خودش رو تاریخ‌ها می‌شمرد فرق می‌کرد)
+  const last7Days = dayInfo.slice(-7);
+  const prev7Days = dayInfo.slice(-14,-7);
+  const last7Scored = last7Days.filter(d=>d.score!==null).map(d=>d.score);
+  const prev7Scored = prev7Days.filter(d=>d.score!==null).map(d=>d.score);
+  if(last7Days.length===7 && prev7Days.length===7 && last7Scored.length>=4 && prev7Scored.length>=4){
+    const avgL7 = last7Scored.reduce((a,b)=>a+b,0)/last7Scored.length;
+    const avgP7 = prev7Scored.reduce((a,b)=>a+b,0)/prev7Scored.length;
+    if(avgL7 < avgP7 - 10) insights.push({ type:'warn', priority:2, text:`۷ روز اخیرت (میانگین ${avgL7.toFixed(1)}، از ${last7Scored.length} روز ثبت‌شده) نسبت به ۷ روز قبلش (${avgP7.toFixed(1)}) افت داشته` });
+    else if(avgL7 > avgP7 + 10) insights.push({ type:'good', priority:2, text:`۷ روز اخیرت (میانگین ${avgL7.toFixed(1)}، از ${last7Scored.length} روز ثبت‌شده) نسبت به ۷ روز قبلش (${avgP7.toFixed(1)}) بهتر شده` });
   }
 
   // ۳) ضعیف‌ترین و قوی‌ترین دسته نسبت به بقیه (بر اساس درصد تکمیل تو کل بازه)
@@ -3168,7 +3266,10 @@ async function analyzeSmartMentor(){
     return weeks;
   }
   function inRange(dateStr, datesArr){ return dateStr && datesArr.includes(dateStr); }
-  const completedWeeks = lastNCompletedWeeks(3);
+  // نکته‌ی مهم: هفته‌هایی که قبل از شروعِ خودِ دوره‌ی این کاربر بودن رو حساب نمی‌کنیم — وگرنه یه کاربر تازه‌وارد
+  // که همین چند روز پیش شروع کرده، به‌خاطر هفته‌های قبل از وجودش «ژورنال ننوشتی» می‌شنفت (باگ قبلی دقیقاً همین بود)
+  const completedWeeksAll = lastNCompletedWeeks(3);
+  const completedWeeks = completedWeeksAll.filter(wk => wk.start >= cycleStart);
   const missedJournalWeeks = completedWeeks.filter(wk => !journalList.some(j=>inRange(j.date, wk.dates)));
   const missedFeedbackWeeks = completedWeeks.filter(wk => !feedbackList.some(f=>inRange(f.date, wk.dates)));
   if(missedJournalWeeks.length){
@@ -3183,6 +3284,19 @@ async function analyzeSmartMentor(){
       insights.push({ type:'warn', priority:3, text:`${missedFeedbackWeeks.length} هفته‌ی اخیر رو بازخورد ثبت نکردی (آخرین هفته‌ی کامل‌شده هم جزوشونه) — بازخورد هفتگی باید چهارشنبه‌ها ثبت بشه` });
     } else if(missedFeedbackWeeks[0].start===completedWeeks[0].start){
       insights.push({ type:'warn', priority:2, text:`هفته‌ی قبل بازخورد ثبت نکردی — قرار بود آخر هفته (چهارشنبه) ثبت بشه` });
+    }
+  }
+  // یادآوریِ ملایمِ رو-به-جلو برای همین هفته‌ی در حال انجام — نه سرزنش («ننوشتی»)، فقط یادآوری که تا کِی وقت داره
+  // (برای کاربر تازه‌وارد هم همینه، چون هنوز هفته‌ش تموم نشده که بشه گفت «ننوشتی»)
+  {
+    const thisWeekStart = mostRecentSaturday(today);
+    const thisWeekDates0 = [0,1,2,3,4].map(k=>addDays(thisWeekStart,k));
+    const journalDoneThisWk = journalList.some(j=>inRange(j.date, thisWeekDates0));
+    const feedbackDoneThisWk = feedbackList.some(f=>inRange(f.date, thisWeekDates0));
+    const wdIdx = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه'].indexOf(iranWeekday(today));
+    if(wdIdx>=0 && wdIdx<=3 && (!journalDoneThisWk || !feedbackDoneThisWk)){
+      const missing = !journalDoneThisWk && !feedbackDoneThisWk ? 'ژورنال و بازخورد' : (!journalDoneThisWk ? 'ژورنال' : 'بازخورد');
+      insights.push({ type:'warn', priority:0, text:`${missing}ِ این هفته رو هنوز ثبت نکردی — یادت باشه تا چهارشنبه شب وقت داری` });
     }
   }
   // یادآوری فوری همون روز: اگه امروز چهارشنبه‌ست و به مهلت (حدود ساعت ۲۱ به بعد) نزدیک شدیم ولی هنوز تو همین هفته چیزی ثبت نشده
@@ -3213,6 +3327,46 @@ async function analyzeSmartMentor(){
       const daysLeft = Math.round((new Date(expiryDate+'T00:00:00').getTime() - new Date(today+'T00:00:00').getTime()) / 86400000);
       if(daysLeft>=0 && daysLeft<=3){
         insights.push({ type:'warn', priority:2, text: daysLeft===0 ? 'تعهدنامه‌ت امروز منقضی میشه — دفعه‌ی بعد که وارد بشی باید دوباره امضا کنی (نگران نباش، هیچ‌کدوم از تسک‌ها/ژورنال/سابقه‌ت پاک نمیشه، فقط خودِ امضا آپدیت میشه)' : `${daysLeft} روز دیگه تا انقضای تعهدنامه‌ت مونده — بعدش باید دوباره امضا کنی` });
+      }
+    }
+  }catch(e){}
+
+  // ۱۰) نگاه مدیریتی به تاریخچه‌ی ماه‌های قبل — نه فقط همین دوره، بلکه روند واقعی چند ماه اخیرت
+  // (این بخشه که باعث میشه دستیار واقعاً مثل یه مدیر که سابقه‌ت رو می‌شناسه حرف بزنه، نه فقط یه چک‌لیست روزانه)
+  try{
+    const monthHistory = await loadMonthHistory(currentCode);
+    if(monthHistory.length>0 && scored.length>=3){
+      const avgSoFar = scored.reduce((a,b)=>a+b,0)/scored.length;
+      const lastMonth = monthHistory[monthHistory.length-1];
+      const diffVsLast = avgSoFar - lastMonth.score;
+      if(diffVsLast <= -10){
+        insights.push({ type:'warn', priority:3, text:`نسبت به ماه قبلت (میانگین ${lastMonth.score.toFixed(1)}) الان تا همینجای این ماه ${avgSoFar.toFixed(1)}ی — یه افت جدیه، وقتشه یه تجدیدنظر تو برنامه‌ت بکنی` });
+      } else if(diffVsLast >= 10){
+        insights.push({ type:'good', priority:2, text:`نسبت به ماه قبلت (میانگین ${lastMonth.score.toFixed(1)}) الان ${avgSoFar.toFixed(1)}ی — پیشرفت واقعی و محسوسه` });
+      }
+
+      // روند چند ماه اخیر (حداکثر ۳ ماه کامل‌شده‌ی آخر) — اگه پشت‌سرهم داره افت می‌کنه، این یه هشدار جدی‌تره
+      if(monthHistory.length>=2){
+        const lastFew = monthHistory.slice(-3);
+        let declining = true, improving = true;
+        for(let i=1;i<lastFew.length;i++){
+          if(lastFew[i].score >= lastFew[i-1].score - 2) declining = false;
+          if(lastFew[i].score <= lastFew[i-1].score + 2) improving = false;
+        }
+        if(declining && lastFew.length>=2){
+          insights.push({ type:'warn', priority:3, text:`${lastFew.length} ماه اخیرت پشت‌سرهم داره افت می‌کنه (${lastFew.map(m=>m.score.toFixed(1)).join(' ← ')}) — این دیگه نوسان یه‌روزه نیست، یه روند نگران‌کننده‌ست` });
+        } else if(improving && lastFew.length>=2){
+          insights.push({ type:'good', priority:2, text:`${lastFew.length} ماه اخیرت پشت‌سرهم داره بهتر می‌شه (${lastFew.map(m=>m.score.toFixed(1)).join(' ← ')}) — این یه روند واقعیه، همینطوری ادامه بده` });
+        }
+      }
+
+      // مقایسه با بهترین و بدترین ماهِ خودت تا حالا — برای اینکه بدونی الان کجای مسیر خودتی
+      const bestMonth = monthHistory.reduce((a,b)=>a.score>=b.score?a:b);
+      const worstMonth = monthHistory.reduce((a,b)=>a.score<=b.score?a:b);
+      if(monthHistory.length>=3 && avgSoFar >= bestMonth.score + 5){
+        insights.push({ type:'good', priority:2, text:`داری از بهترین ماه قبلی‌ت (ماه ${bestMonth.index}، میانگین ${bestMonth.score.toFixed(1)}) هم بهتر عمل می‌کنی — این بهترین دوره‌ی توئه تا الان` });
+      } else if(monthHistory.length>=3 && avgSoFar <= worstMonth.score - 5 && avgSoFar < 50){
+        insights.push({ type:'warn', priority:4, text:`این داره بدترین ماهت تا الان می‌شه (بدتر از ماه ${worstMonth.index} با میانگین ${worstMonth.score.toFixed(1)}) — نیاز به یه تصمیم جدیه، نه فقط یه یادآوری` });
       }
     }
   }catch(e){}
@@ -3541,6 +3695,38 @@ async function renderRecordedDays(){
 // ================= robust native chart fallback =================
 // If Chart.js cannot be downloaded (blocked CDN/offline), draw the same daily chart
 // directly on canvas so the dashboard never shows a blank chart.
+// نمودار رزومه‌ی چاپی — عمداً SVG خالص (نه canvas). چون canvas با پیکسل ثابت رسم میشه، وقتی صفحه واسه چاپ
+// سایز/عرضش عوض میشه (که خیلی وقتا رویداد beforeprint هم رو مرورگر/اسپولر چاپ موبایل قابل‌اعتماد فایر نمیشه)
+// نموداره یا بیرون از کادرش میزنه، یا اندازه‌ش با چیزی که رو صفحه دیدی فرق می‌کنه. SVG با viewBox خودش رو با
+// هر سایزی از قاب (چه رو گوشی چه رو کاغذ چاپ) دقیق و بدون نیاز به هیچ کد جاوااسکریپتِ resize، تطبیق میده.
+function buildResumeChartSvg(labels, data, chartMode){
+  const w = 560, h = 210, padL = 34, padR = 10, padT = 14, padB = 26;
+  const n = data.length;
+  if(n<2) return '<div class="empty" style="padding:30px 0;">داده‌ی کافی برای نمودار نیست</div>';
+  const xAt = i => padL + (i/(n-1))*(w-padL-padR);
+  const yAt = v => (h-padB) - (Math.max(0,Math.min(100,Number(v)||0))/100)*(h-padB-padT);
+  const gridLines = [0,25,50,75,100].map(v=>`
+    <line x1="${padL}" y1="${yAt(v).toFixed(1)}" x2="${w-padR}" y2="${yAt(v).toFixed(1)}" stroke="rgba(255,255,255,.08)" stroke-width="1"/>
+    <text x="${padL-8}" y="${(yAt(v)+3).toFixed(1)}" text-anchor="end" font-size="9" fill="#8892A3" font-family="Vazirmatn,Tahoma,sans-serif">${v}</text>
+  `).join('');
+  const step = Math.max(1, Math.ceil(n/7)); // فقط چند تا از تاریخ‌ها رو لیبل می‌زنیم که شلوغ نشه
+  const xLabels = labels.map((lb,i)=> (i%step===0 || i===n-1) ? `<text x="${xAt(i).toFixed(1)}" y="${h-6}" text-anchor="middle" font-size="8.5" fill="#8892A3" font-family="Vazirmatn,Tahoma,sans-serif">${escapeHtml(lb)}</text>` : '').join('');
+  const colorFor = (v0,v1) => {
+    if(chartMode==='mono') return '#2E7CE6';
+    if(chartMode==='purple') return '#6C2BD9'; // باگ قبلی: این تابع فقط mono/emerald رو می‌شناخت؛ حالت بنفشِ داشبورد اینجا اصلاً لحاظ نمی‌شد
+    if(v1>v0) return '#0F7B3D';
+    if(v1<v0) return '#C23B3B';
+    return '#9AA3B2';
+  };
+  let segments = '';
+  for(let i=0;i<n-1;i++){
+    segments += `<line x1="${xAt(i).toFixed(1)}" y1="${yAt(data[i]).toFixed(1)}" x2="${xAt(i+1).toFixed(1)}" y2="${yAt(data[i+1]).toFixed(1)}" stroke="${colorFor(data[i],data[i+1])}" stroke-width="3" stroke-linecap="round"/>`;
+  }
+  const dots = data.map((v,i)=>`<circle cx="${xAt(i).toFixed(1)}" cy="${yAt(v).toFixed(1)}" r="${i===n-1?3.6:2.2}" fill="${i===n-1?(chartMode==='mono'?'#2E7CE6':chartMode==='purple'?'#6C2BD9':'#BFC6D1'):'#8892A3'}"/>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:100%;display:block;" preserveAspectRatio="none">
+    ${gridLines}${xLabels}${segments}${dots}
+  </svg>`;
+}
 function renderNativeDailyChart(canvas, labels, data, mode){
   mode = mode || 'duo';
   if(!canvas) return;
@@ -3608,13 +3794,13 @@ function renderNativeDailyChart(canvas, labels, data, mode){
       const x1=xAt(i), y1=yAt(data[i]), x2=xAt(i+1), y2=yAt(data[i+1]);
       const up = Number(data[i+1]) > Number(data[i]);
       const down = Number(data[i+1]) < Number(data[i]);
-      const line = mode==='mono' ? "#2E7CE6" : mode==='emerald' ? "#065F46" : (up ? "#0F7B3D" : down ? "#A81616" : "#9AA3B2");
+      const line = mode==='mono' ? "#2E7CE6" : mode==='purple' ? "#6C2BD9" : (up ? "#0F7B3D" : down ? "#A81616" : "#9AA3B2");
 
       const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ph);
       if(mode==='mono'){
         grad.addColorStop(0, "rgba(46,124,230,.30)");
-      }else if(mode==='emerald'){
-        grad.addColorStop(0, "rgba(6,95,70,.34)");
+      }else if(mode==='purple'){
+        grad.addColorStop(0, "rgba(108,43,217,.34)");
       }else{
         grad.addColorStop(0, up ? "rgba(15,123,61,.22)" : down ? "rgba(168,22,22,.22)" : "rgba(154,163,178,.08)");
       }
@@ -3688,22 +3874,53 @@ async function saveResumeAsImage(btn){
   if(!ok){ showToast('اتصال به سرور تصویرسازی برقرار نشد — دوباره امتحان کن'); return; }
   const sheet = document.querySelector('.resume-sheet');
   if(!sheet) return;
-  const orig = btn.textContent;
-  btn.textContent = 'در حال ساخت عکس...';
+  // این پنجره روی گوشی معمولاً داخلش اسکرول می‌خوره (چون گزارش جزئی خیلی بلنده) — اگه لحظه‌ی گرفتن عکس
+  // وسط اسکرول باشه، محاسبه‌ی موقعیت‌دهی html2canvas به‌هم می‌ریزه و ممکنه ناقص/جابه‌جا دربیاد
+  const scrollHost = document.getElementById('resumePrintArea');
+  if(scrollHost) scrollHost.scrollTop = 0;
+  // باگ قبلی: اینجا از textContent استفاده شده بود که کل محتوای دکمه (شامل آیکون SVG داخلش) رو پاک می‌کرد
+  // و چون فقط متن (نه HTML) رو برای برگردوندن ذخیره کرده بودیم، آیکون بعد از اولین کلیک برای همیشه گم می‌شد.
+  const origHtml = btn.innerHTML;
+  btn.innerHTML = 'در حال ساخت عکس...';
   btn.disabled = true;
   try{
-    // scale:3 برای خروجی باکیفیت (شبیه رتینا) — وگرنه عکس خروجی محو/بی‌کیفیت میشه، مخصوصاً موقع زوم روی PDF/عکس
-    const canvas = await html2canvas(sheet, { scale:3, backgroundColor:'#161B2C', useCORS:true });
-    const dataUrl = canvas.toDataURL('image/png', 1.0);
+    // مطمئن می‌شیم فونت‌ها قبل از عکس گرفتن کامل لود شدن — وگرنه متن‌ها تو عکس خروجی جابه‌جا/بی‌فونت درمیان
+    if(document.fonts && document.fonts.ready){ await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,2000))]); }
+    // باگ قبلی: scale ثابت ۳ بود؛ برای گزارش «جزئی» که خیلی بلندتره (کلی ردیف روز + جدول‌ها + نمودار)، این یعنی
+    // یه canvas خیلی بزرگ (مثلاً ۳۰۰۰px ارتفاع × ۳ = ۹۰۰۰px). خیلی از گوشی‌های متوسط/قدیمی محدودیت واقعی سخت‌افزاری
+    // رو حداکثر اندازه‌ی یه canvas/texture دارن (معمولاً ۴۰۹۶ یا ۸۱۹۲ پیکسل) — رد شدن از این مرز باعث می‌شد
+    // ساخت عکس بی‌صدا گیر کنه (نه خطا بده، نه چیزی سیو کنه). الان scale رو متناسب با ارتفاع واقعی صفحه محدود می‌کنیم.
+    const naturalH = sheet.scrollHeight || sheet.offsetHeight || 800;
+    const SAFE_MAX_DIM = 4200;
+    let scale = 3;
+    if(naturalH * scale > SAFE_MAX_DIM) scale = Math.max(1, Math.floor((SAFE_MAX_DIM / naturalH) * 10) / 10);
+    // scale:3 (یا هرچی امن باشه) برای خروجی باکیفیت (شبیه رتینا) — وگرنه عکس خروجی محو/بی‌کیفیت میشه
+    // یه سقف زمانی هم گذاشتیم — اگه یه منبع خارجی (فونت/آیکون) قابل‌دسترس نبود (مثلاً تحت فیلترینگ)، دکمه برای همیشه گیر نکنه
+    const canvasPromise = html2canvas(sheet, { scale, backgroundColor:'#161B2C', useCORS:true, logging:false, imageTimeout:8000 });
+    const canvas = await Promise.race([
+      canvasPromise,
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('image-timeout')), 20000))
+    ]);
+    let dataUrl;
+    try{
+      dataUrl = canvas.toDataURL('image/png', 1.0);
+    }catch(secErr){
+      // اگه یه منبع خارجیِ بدون CORS رو کانواس نقاشی شده باشه، مرورگر canvas رو "آلوده" علامت می‌زنه و
+      // اجازه‌ی خروجی گرفتن نمی‌ده — این دقیقاً همون حالتیه که قبلاً بی‌صدا شکست می‌خورد
+      console.error('toDataURL blocked (tainted canvas)', secErr);
+      showToast('ساخت عکس به‌خاطر یه منبع خارجی مسدود شد — دوباره امتحان کن یا از PDF استفاده کن');
+      return;
+    }
     const a = document.createElement('a');
     a.href = dataUrl;
     a.download = `focus-mode-resume-${iranTodayISO()}.png`;
     document.body.appendChild(a); a.click(); a.remove();
+    showToast('عکس ذخیره شد');
   }catch(e){
     console.error(e);
-    showToast('ساخت عکس با خطا مواجه شد');
+    showToast(e && e.message==='image-timeout' ? 'ساخت عکس خیلی طول کشید — دوباره امتحان کن' : 'ساخت عکس با خطا مواجه شد');
   }finally{
-    btn.textContent = orig; btn.disabled = false;
+    btn.innerHTML = origHtml; btn.disabled = false;
   }
 }
 function resumeMentorNoteHtml(score){
@@ -3745,13 +3962,15 @@ function showMonthResume(m, detailed){
   }).join('');
   const daySectionHtml = detailed ? `
       <div class="resume-section-title" style="margin-top:18px;">ریز تک‌تک روزها</div>
-      <table class="resume-week-table">
-        <tr><th>هفته</th><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr>
-        ${dayRows}
+      <table class="resume-week-table resume-day-table">
+        <thead><tr><th>هفته</th><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr></thead>
+        <tbody>${dayRows}</tbody>
       </table>` : '';
-  const chartSectionHtml = detailed ? `
-      <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزانه</div>
-      <div class="resume-chart-wrap"><canvas id="resumeChartCanvas"></canvas></div>` : '';
+  const chartSectionHtml = `
+      <div class="resume-chart-section">
+        <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزانه</div>
+        <div class="resume-chart-wrap" id="resumeChartWrap"></div>
+      </div>`;
   const memberName = (currentMember && currentMember.name) || '';
   area.innerHTML = `
     <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
@@ -3779,16 +3998,12 @@ function showMonthResume(m, detailed){
   area.classList.remove('hidden');
   area.classList.add('show');
 
-  if(detailed){
-    // نمودار رو یه‌کم کشیده و باز می‌کشیم (نه فشرده) که با اینکه فقط ۲۰ روزه، توهم نده و خونا باشه
-    const dates = m.weeks.flatMap(w=>w.dates);
-    const labels = dates.map(d=>iranJalaliShort(d));
-    const data = dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
-    const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
-    requestAnimationFrame(()=>{
-      renderNativeDailyChart(document.getElementById('resumeChartCanvas'), labels, data, chartMode);
-    });
-  }
+  // نمودار رو یه‌کم کشیده و باز می‌کشیم (نه فشرده) که با اینکه فقط ۲۰ روزه، توهم نده و خونا باشه
+  const dates = m.weeks.flatMap(w=>w.dates);
+  const labels = dates.map(d=>iranJalaliShort(d));
+  const data = dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
+  const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
+  document.getElementById('resumeChartWrap').innerHTML = buildResumeChartSvg(labels, data, chartMode);
 
   document.getElementById('resumeCloseBtn').addEventListener('click', ()=>{
     area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
@@ -3813,9 +4028,11 @@ function showWeekResume(w, detailed){
         <tr><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr>
         ${dayRows}
       </table>`;
-  const chartSectionHtml = detailed ? `
-      <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزهای هفته</div>
-      <div class="resume-chart-wrap"><canvas id="resumeChartCanvas"></canvas></div>` : '';
+  const chartSectionHtml = `
+      <div class="resume-chart-section">
+        <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزهای هفته</div>
+        <div class="resume-chart-wrap" id="resumeChartWrap"></div>
+      </div>`;
   const memberName = (currentMember && currentMember.name) || '';
   area.innerHTML = `
     <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
@@ -3842,14 +4059,10 @@ function showWeekResume(w, detailed){
   area.classList.remove('hidden');
   area.classList.add('show');
 
-  if(detailed){
-    const labels = w.dates.map(d=>iranJalaliShort(d));
-    const data = w.dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
-    const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
-    requestAnimationFrame(()=>{
-      renderNativeDailyChart(document.getElementById('resumeChartCanvas'), labels, data, chartMode);
-    });
-  }
+  const labels = w.dates.map(d=>iranJalaliShort(d));
+  const data = w.dates.map(d=>dailyRecords[d] ? dailyRecords[d].dailyScore : 0);
+  const chartMode = localStorage.getItem('fm_chartMode') || 'duo';
+  document.getElementById('resumeChartWrap').innerHTML = buildResumeChartSvg(labels, data, chartMode);
 
   document.getElementById('resumeCloseBtn').addEventListener('click', ()=>{
     area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
@@ -3859,10 +4072,10 @@ function showWeekResume(w, detailed){
 }
 // چاپ رزومه فقط یک بار و با نمودار کامل انجام بشه: درست قبل از چاپ، نمودار رو دوباره متناسب با
 // اندازه‌ی واقعی برگه‌ی چاپی می‌کشیم (چون CSS چاپ ارتفاع باکس نمودار رو عوض می‌کنه)
-window.addEventListener('beforeprint', ()=>{
-  const c = document.getElementById('resumeChartCanvas');
-  if(c && c.__nativeChartResize) c.__nativeChartResize();
-});
+// باگ قبلی: چون نمودار رزومه canvas بود، لازم بود موقع چاپ دوباره resize بشه؛ ولی رویداد beforeprint
+// رو خیلی از اسپولرهای چاپ موبایل (دقیقاً همینی که باعث خالی/کج شدن صفحه‌ی اول می‌شد) قابل‌اعتماد فایر نمی‌شد.
+// الان که نمودار SVG خالصه (بالا)، خودش با هر سایز قاب (چه رو صفحه چه رو کاغذ) تطبیق پیدا می‌کنه و اصلاً نیازی
+// به این listener نیست.
 async function renderDashboard(){
   const el = document.getElementById('panel-dashboard');
   if(currentMentorCode && currentMember && currentMember.scoreHiddenFromMentor){
@@ -3881,7 +4094,7 @@ async function renderDashboard(){
   const cycle = cycleStart ? computeCycle(cycleStart) : null;
 
   el.innerHTML = `
-    <div class="card score-chart-card"><h2>${icon('trendUp')}روند امتیاز روزانه<span class="chart-mode-switch" id="chartModeSwitch"><button type="button" data-mode="duo" title="سبز برای پیشرفت، قرمز برای افت">دورنگ</button><button type="button" data-mode="mono" title="یک‌رنگ آبی، بدون قرمز/سبز">آبی</button><button type="button" data-mode="emerald" title="یک‌رنگ سبز زمرد تیره، بدون قرمز/سبز">زمردی</button></span></h2><div id="chartEmptyMsg" class="empty hidden">هنوز روزی ثبت نشده — بعد از اولین «ثبت امتیاز امروز» نمودار اینجا نشون داده میشه</div><div class="chart-wrap" id="chartWrap"><canvas id="dailyChart"></canvas></div></div>
+    <div class="card score-chart-card"><h2>${icon('trendUp')}روند امتیاز روزانه<span class="chart-mode-switch" id="chartModeSwitch"><button type="button" data-mode="duo" title="سبز برای پیشرفت، قرمز برای افت">دورنگ</button><button type="button" data-mode="mono" title="یک‌رنگ آبی، بدون قرمز/سبز">آبی</button><button type="button" data-mode="purple" title="یک‌رنگ بنفش تیره نئونی، بدون قرمز/سبز">بنفش</button></span></h2><div id="chartEmptyMsg" class="empty hidden">هنوز روزی ثبت نشده — بعد از اولین «ثبت امتیاز امروز» نمودار اینجا نشون داده میشه</div><div class="chart-wrap" id="chartWrap"><canvas id="dailyChart"></canvas></div></div>
     <div class="card score-week-card"><h2>${icon('calendarWeek')}امتیاز هفتگی</h2><div id="weeklyTable"></div></div>
     <div class="card score-month-card"><h2>${icon('calendarStar')}امتیاز ماهانه</h2><div id="monthlyTable"></div></div>
   `;
@@ -4084,7 +4297,7 @@ async function renderDashboard(){
     if(typeof Chart === 'undefined') throw new Error('chartjs-not-loaded');
     const trendColor = (ctx)=>{
       if(chartMode==='mono') return '#2E7CE6'; // حالت آبی — همون آبی پررنگ یکدست سایت، فرقی نمی‌کنه صعودی باشه یا نزولی
-      if(chartMode==='emerald') return '#065F46'; // حالت سبز زمرد تیره — یکدست، بدون قرمز/سبز جدا برای افت/صعود
+      if(chartMode==='purple') return '#6C2BD9'; // حالت بنفش تیره نئونی — یکدست، بدون قرمز/سبز جدا برای افت/صعود
       const y0 = ctx.p0.parsed.y, y1 = ctx.p1.parsed.y;
       if(y1 > y0) return '#0F7B3D'; // صعودی → سبز تیره و پررنگ
       if(y1 < y0) return '#A81616'; // نزولی → قرمز تیره و پررنگ
@@ -4098,9 +4311,9 @@ async function renderDashboard(){
         g.addColorStop(0,'rgba(46,124,230,0.30)'); g.addColorStop(1,'rgba(46,124,230,0.01)');
         return g;
       }
-      if(chartMode==='emerald'){
+      if(chartMode==='purple'){
         const g = chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
-        g.addColorStop(0,'rgba(6,95,70,0.34)'); g.addColorStop(1,'rgba(6,95,70,0.01)');
+        g.addColorStop(0,'rgba(108,43,217,0.34)'); g.addColorStop(1,'rgba(108,43,217,0.01)');
         return g;
       }
       const y0 = sctx.p0.parsed.y, y1 = sctx.p1.parsed.y;
@@ -5366,7 +5579,10 @@ async function renderMentorMemberList(){
   let html = '<div class="card"><h2>کاربران بوت‌کمپ</h2>';
   registry.forEach(m=>{
     html += `<div class="member-list-row" data-open="${m.code}">
-      <div><div class="nm">${escapeHtml(m.name)} ${m.isNew?'<span class="new-tag">جدید</span>':''}</div><div class="cd">کد ${m.code}</div></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="mc-avatar" style="width:30px;height:30px;font-size:13px;border-radius:9px;${m.color?`background:${m.color};`:''}">${escapeHtml((m.name||'?').trim()[0]||'?')}</span>
+        <div><div class="nm">${escapeHtml(m.name)} ${m.isNew?'<span class="new-tag">جدید</span>':''}</div><div class="cd">کد ${m.code}</div></div>
+      </div>
       <button class="icon-btn" title="مشاهده پروفایل">◉</button>
     </div>`;
   });
@@ -5458,12 +5674,15 @@ async function renderAdminMembers(){
     active.slice().reverse().forEach(m=>{
       const mentorOptions = `<option value="">بدون منتور</option>` + mentorsForAssign.map(mn=>`<option value="${mn.code}" ${m.mentorCode===mn.code?'selected':''}>${escapeHtml(mn.name)}</option>`).join('');
       html += `<div class="del-row" style="flex-wrap:wrap;gap:8px;${m.archived?'opacity:.55;':''}">
-        <div style="flex:1;min-width:170px;">
+        <div style="flex:1;min-width:170px;display:flex;gap:10px;align-items:flex-start;">
+          <span class="mc-avatar" style="width:32px;height:32px;font-size:14px;border-radius:10px;flex-shrink:0;${m.color?`background:${m.color};`:''}">${escapeHtml((m.name||'?').trim()[0]||'?')}</span>
+          <div style="flex:1;min-width:0;">
           <b>${escapeHtml(m.name)}</b> ${m.isNew?'<span class="new-tag">جدید</span>':''}${m.archived?'<span class="new-tag" style="background:var(--gray);">آرشیو</span>':''}${m.hideFromMentor?'<span class="new-tag" style="background:#C94F4F;">مخفی از منتور</span>':''}
           <div class="cd" style="font-size:11px;color:var(--white-dim);">کد ${m.code} · ${escapeHtml(m.phone||'')}</div>
           <div style="margin-top:6px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
             <span class="field-label" style="margin:0;">منتور این کاربر:</span>
             <select data-assign-mem="${m.code}" style="max-width:160px;font-size:11px;padding:5px 8px;">${mentorOptions}</select>
+          </div>
           </div>
         </div>
         <div class="icon-row" style="flex-wrap:wrap;">
@@ -5779,7 +5998,7 @@ async function renderAdminControls(){
         <label class="switch-toggle"><input type="checkbox" id="ctrlHideTodos" ${m.todosHiddenFromMentor?'checked':''}><span></span></label></div>
       <div class="del-row"><div><b>مخفی‌کردن بازخورد از منتور</b><div class="cd">منتور بخش بازخورد این کاربر رو نمی‌بینه</div></div>
         <label class="switch-toggle"><input type="checkbox" id="ctrlHideFeedback" ${m.feedbackHiddenFromMentor?'checked':''}><span></span></label></div>
-      <div class="del-row"><div><b>مخفی‌کردن بخش امتیازات /Scores از منتور</b><div class="cd">منتور نمودار، امتیاز هفتگی و ماهانه‌ی این کاربر رو نمی‌بینه</div></div>
+      <div class="del-row"><div><b>مخفی‌کردن بخش روند پیشرفت از منتور</b><div class="cd">منتور نمودار، امتیاز هفتگی و ماهانه‌ی این کاربر رو نمی‌بینه</div></div>
         <label class="switch-toggle"><input type="checkbox" id="ctrlHideScore" ${m.scoreHiddenFromMentor?'checked':''}><span></span></label></div>
       <div class="del-row"><div><b>مخفی‌کردن تعهدنامه از منتور</b><div class="cd">منتور بخش تعهدنامه‌ی این کاربر رو نمی‌بینه</div></div>
         <label class="switch-toggle"><input type="checkbox" id="ctrlHideCommitment" ${m.commitmentHiddenFromMentor?'checked':''}><span></span></label></div>
@@ -5790,7 +6009,7 @@ async function renderAdminControls(){
       <div class="del-row"><div><b>محدودسازی کاربر</b><div class="cd">امکانات کاربر محدود میشه (رزرو شده برای بعد)</div></div>
         <label class="switch-toggle"><input type="checkbox" id="ctrlRestrict" ${m.restricted?'checked':''}><span></span></label></div>
       <div style="margin-top:14px;border-top:1px solid var(--line);padding-top:12px;">
-        <b style="font-size:13px;color:#E07A7A;">ریست دوره‌ی امتیازات</b>
+        <b style="font-size:13px;color:#E07A7A;">ریست دوره‌ی روند پیشرفت</b>
         <div class="cd" style="margin-top:4px;">اگه دوره‌ی فعلی این کاربر با ماه قبلی تداخل/تکرار داره (باگ قدیمی)، با این دکمه دوره‌ی جاریش پاک میشه — دفعه‌ی بعد که تسک ثبت کنه، از اول و درست (بدون تداخل با تاریخچه) شروع میشه. تاریخچه‌ی ماه‌های قبلی و امتیازهای روزانه‌ی ثبت‌شده پاک نمیشه.</div>
         <button type="button" class="btn small" id="ctrlResetCycle" style="margin-top:8px;background:#7A2E2E;">ریست دوره‌ی فعلی این کاربر</button>
       </div>
