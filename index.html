@@ -704,6 +704,67 @@ function ensureHtml2Canvas(){
   .mentor-loading{display:flex; align-items:center; gap:8px; font-size:12.5px; color:#9AA3B2; padding:6px 2px;}
   .mentor-loading-dot{width:6px; height:6px; border-radius:50%; background:#8C7CF0; animation:mentorDotBounce 1s ease-in-out infinite;}
   .mentor-loading-dot:nth-child(2){animation-delay:.15s;} .mentor-loading-dot:nth-child(3){animation-delay:.3s;}
+
+  /* ================= مسیر ۲۰ روزه (Journey Map) ================= */
+  .journey-card{position:relative;overflow:hidden;}
+  .journey-sub{font-size:11.5px;color:var(--white-dim);margin:2px 0 12px;}
+  .journey-scroll{max-height:440px;overflow-y:auto;overflow-x:hidden;border-radius:14px;background:rgba(0,0,0,.15);padding:4px 0;position:relative;}
+  body.light .journey-scroll{background:rgba(20,30,50,.05);}
+  .journey-stage{position:relative;margin:0 auto;}
+  .journey-svg{display:block;}
+  .journey-active-path{opacity:0;animation:journeyDraw .9s ease forwards .2s;filter:drop-shadow(0 0 3px rgba(139,92,246,.7));animation-fill-mode:forwards;}
+  @keyframes journeyDraw{from{opacity:0;}to{opacity:1;}}
+  .journey-station{opacity:0;animation:journeyStationIn .4s ease forwards;transform-origin:center;}
+  @keyframes journeyStationIn{from{opacity:0;transform:scale(.4);}to{opacity:1;transform:scale(1);}}
+  .journey-station.future{opacity:.55;animation:journeyStationInDim .4s ease forwards;}
+  @keyframes journeyStationInDim{from{opacity:0;}to{opacity:.55;}}
+  .journey-today-pulse{animation:journeyPulse 1.8s ease-out infinite;transform-origin:center;}
+  @keyframes journeyPulse{0%{opacity:.9;transform:scale(.8);}100%{opacity:0;transform:scale(1.7);}}
+  .journey-avatar{
+    position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;color:#12151C;
+    background:linear-gradient(155deg,#E7EAEF,#9AA3B2 55%,#525A68);
+    box-shadow:0 4px 12px rgba(139,92,246,.55), inset 0 1.5px 0 rgba(255,255,255,.55);
+    border:2px solid rgba(201,166,255,.7);
+    animation:journeyAvatarBob 2.2s ease-in-out infinite;
+    z-index:3;
+  }
+  @keyframes journeyAvatarBob{0%,100%{margin-top:0;}50%{margin-top:-5px;}}
+  /* ---------- آدمکِ درحال بالارفتن — جایگزین نشان اولیه‌ی اسمی، حرکت واقعی رو زمین شیب‌دار شبیه‌سازی می‌کنه ---------- */
+  .journey-climber{position:absolute;transform:translate(-50%,0) rotate(var(--tilt,0deg));z-index:4;transition:top .5s ease, left .5s ease;animation:climberBob 1.4s ease-in-out infinite;transform-origin:12px 22px;}
+  @keyframes climberBob{0%,100%{margin-top:0;}50%{margin-top:-4px;}}
+  .journey-climber .climber-body{animation:climberStep .6s ease-in-out infinite alternate;}
+  @keyframes climberStep{from{stroke-dasharray:0 40;}to{stroke-dasharray:40 0;}}
+  .journey-climber.up svg circle{filter:drop-shadow(0 0 4px rgba(34,197,143,.8));}
+  .journey-climber.down svg circle{filter:drop-shadow(0 0 4px rgba(232,86,79,.8));}
+  /* ---------- آب‌وهوای کوه: برف/باران/برگ پاییزی، بر اساس میانگین امتیاز واقعیِ همین دوره ---------- */
+  .journey-weather{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2;}
+  .wp{position:absolute;top:-5%;width:var(--size);height:var(--size);border-radius:50%;animation:wpFall var(--dur) linear var(--delay) infinite;}
+  .wp-snow{background:#fff;box-shadow:0 0 4px rgba(255,255,255,.8);opacity:.85;}
+  .wp-rain{width:1.6px !important;height:14px !important;border-radius:2px;background:linear-gradient(180deg, rgba(180,210,235,0), rgba(180,210,235,.75));animation-name:wpFallRain;animation-timing-function:linear;}
+  .wp-autumn{background:radial-gradient(circle at 35% 35%, #F0B24B, #B5772B);border-radius:2px 8px 2px 8px;box-shadow:0 0 3px rgba(240,178,75,.6);}
+  @keyframes wpFall{0%{transform:translateY(-10px) translateX(0) rotate(0deg);opacity:0;}10%{opacity:1;}100%{transform:translateY(460px) translateX(14px) rotate(140deg);opacity:.2;}}
+  @keyframes wpFallRain{0%{transform:translateY(-10px);opacity:0;}10%{opacity:1;}100%{transform:translateY(460px);opacity:.3;}}
+  .journey-climate-autumn{background:linear-gradient(180deg, rgba(138,90,43,.08), transparent 40%);}
+  .journey-climate-rain{background:linear-gradient(180deg, rgba(74,85,104,.1), transparent 40%);}
+  .journey-climate-snow{background:linear-gradient(180deg, rgba(199,212,227,.14), transparent 40%);}
+  .journey-peak{
+    position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;
+    padding:10px 16px;border-radius:14px;background:linear-gradient(155deg, rgba(155,93,229,.28), rgba(74,29,150,.28));
+    border:1px solid rgba(201,166,255,.4);box-shadow:0 0 20px rgba(139,92,246,.35);
+  }
+  .journey-peak svg{color:#F0D68A;width:18px;height:18px;}
+  .journey-peak-grade{font-size:15px;font-weight:900;color:#fff;margin-top:2px;}
+  .journey-peak-label{font-size:9.5px;color:#C4A3F5;font-weight:700;}
+  .journey-scene-card{position:relative;overflow:hidden;padding:14px 14px 0;}
+  .journey-scene-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:10px;}
+  .journey-scene-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
+  .journey-scene-tag-clear{background:rgba(111,168,220,.15);color:#8FAEC7;}
+  .journey-scene-tag-autumn{background:rgba(240,178,75,.18);color:#F0B24B;}
+  .journey-scene-tag-rain{background:rgba(143,174,199,.18);color:#8FAEC7;}
+  .journey-scene-tag-snow{background:rgba(234,242,255,.18);color:#EAF2FF;}
+  .journey-scene-wrap{position:relative;border-radius:14px 14px 0 0;overflow:hidden;margin:0 -14px;}
+  .journey-scene-svg{display:block;width:100%;height:auto;}
   @keyframes mentorDotBounce{0%,80%,100%{transform:scale(.6); opacity:.4;}40%{transform:scale(1); opacity:1;}}
   .mentor-hero{
     display:flex; align-items:center; gap:14px; padding:18px 16px 20px; margin-bottom:2px;
@@ -997,7 +1058,7 @@ function ensureHtml2Canvas(){
     background:radial-gradient(circle, rgba(139,92,246,.45), transparent 70%);
     animation:mcAvatarPulse 2.6s ease-out infinite;
   }
-  .cr-ring svg{width:100%;height:100%;shape-rendering:geometricPrecision;overflow:visible;}
+  .cr-ring svg{width:100%;height:100%;shape-rendering:geometricPrecision;overflow:visible;filter:drop-shadow(0 0 2px rgba(139,92,246,.8));}
   @keyframes crTickPop{from{opacity:0;transform:scale(.4);transform-origin:22px 22px;}to{opacity:1;transform:scale(1);}}
   .cr-ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
   .cr-ring-num{font-size:13px;font-weight:900;color:#fff;font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 10px rgba(139,92,246,.8);}
@@ -1191,6 +1252,8 @@ function ensureHtml2Canvas(){
   .resume-mentor-text{font-size:11.5px;line-height:1.7;color:#C7CDD8;}
   .resume-mentor-text b{color:#8FC1EE;}
   .resume-section-title{ font-size:12px; font-weight:800; color:#6FA8DC; margin:4px 0 10px; letter-spacing:.3px; text-shadow:0 0 10px rgba(111,168,220,.4); }
+  .resume-week-block-title{ font-size:10.5px; font-weight:800; color:#B794F6; margin:12px 0 4px; }
+  .resume-week-block:first-of-type .resume-week-block-title{ margin-top:2px; }
   .resume-week-table{ width:100%; border-collapse:collapse; font-size:12px; }
   .resume-week-table th{ text-align:center; padding:7px 4px; color:#8B95A6; font-weight:700; font-size:10.5px; border-bottom:1px solid rgba(111,168,220,.18); }
   .resume-week-table td{ text-align:center; padding:8px 4px; border-bottom:1px solid rgba(255,255,255,.06); font-weight:700; }
@@ -1214,10 +1277,17 @@ function ensureHtml2Canvas(){
        (دقیقاً همون «حتی کامل هم کات میشه»). این جدول باید بین صفحه‌ها بشکنه؛ فقط نمی‌خوایم وسط یه ردیف ببره. */
     .resume-day-table{ page-break-inside:auto !important; break-inside:auto !important; }
     .resume-day-table tr{ page-break-inside:avoid; break-inside:avoid; }
+    /* هر هفته یه بلوکِ خودشو داره (عنوان + جدولِ کوچیک ۵ روزه) — این «نشکن» فقط رو همین بلوکِ کوچیک اعمال میشه،
+       نه کل جدول بزرگ. یعنی یا کل هفته با هم میره صفحه‌ی بعد، یا کامل همون‌جا می‌مونه؛ هیچ‌وقت وسط هفته بریده نمیشه. */
+    .resume-week-block{ page-break-inside:avoid; break-inside:avoid; display:inline-block; width:100%; margin-top:14px; }
     .resume-mentor-note{ page-break-inside:avoid; break-inside:avoid; }
-    .resume-score-wrap{ page-break-inside:avoid; break-inside:avoid; }
-    .resume-chart-wrap{ height:170px !important; margin:8px 0 0 !important; page-break-inside:avoid; break-inside:avoid; }
-    .resume-chart-section{ page-break-inside:avoid; break-inside:avoid; display:inline-block; width:100%; }
+    /* باگ قبلی: هم بخش امتیاز/گرید بالا (.resume-score-wrap) هم بخش نمودار (.resume-chart-section) «avoid» داشتن.
+       چون جدول ریز روزها حالا آزادانه جریان پیدا می‌کنه (اصلاح بالا)، این دو تا بلوکِ صلب اگه با هم تو باقی‌مونده‌ی
+       صفحه‌ی فعلی جا نمی‌شدن، هردوشون یهو می‌رفتن صفحه‌ی بعد و یه صفحه‌ی نصفه‌خالی + یه صفحه‌ی آخر خلوت می‌ساختن.
+       الان اجازه دارن طبیعی جریان پیدا کنن؛ چون هیچ‌کدوم جدولِ چندردیفه نیستن، شکستنشون مشکلی درست نمی‌کنه. */
+    .resume-score-wrap{ page-break-inside:auto; break-inside:auto; }
+    .resume-chart-wrap{ height:170px !important; margin:8px 0 0 !important; }
+    .resume-chart-section{ page-break-inside:auto; break-inside:auto; display:inline-block; width:100%; }
     /* overflow:hidden رو موقع چاپ برمی‌داریم — بعضی موتورهای چاپ موبایل، وقتی یه المنت overflow:hidden داره، به‌جای
        این‌که کل بلاک رو (طبق break-inside:avoid) ببرن صفحه‌ی بعد، محتواش رو درست از وسط صفحه می‌بُرن (نصفه چاپ می‌کردن) */
     .resume-sheet{ overflow:visible !important; }
@@ -1537,6 +1607,7 @@ function ensureHtml2Canvas(){
         <button class="tab-btn" data-tab="smartmentor"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 00-4 12.7c.5.4.8 1 .8 1.6V17h6.4v-.7c0-.6.3-1.2.8-1.6A7 7 0 0012 2z"/></svg><span data-i18n="tabSmartMentor">دستیار هوشمند</span></button>
         <button class="tab-btn" data-tab="today"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3L16 10"/></svg><span data-i18n="tabToday">کارهای امروز</span></button>
         <button class="tab-btn" data-tab="dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span data-i18n="tabScores">روند پیشرفت</span></button>
+        <button class="tab-btn" data-tab="journey"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-6 5-9 9-9s6 3 9 9"/><circle cx="12" cy="6" r="3.2"/></svg><span data-i18n="tabJourney">مسیر ۲۰ روزه</span></button>
         <button class="tab-btn" data-tab="feedback"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg><span data-i18n="tabFeedback">بازخورد</span></button>
         <button class="tab-btn" data-tab="notes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg><span data-i18n="tabNotes">یادداشت شخصی</span></button>
         <button class="tab-btn" data-tab="achievements"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
@@ -1556,6 +1627,7 @@ function ensureHtml2Canvas(){
       <div class="panel" id="panel-smartmentor"></div>
       <div class="panel" id="panel-today"></div>
       <div class="panel" id="panel-dashboard"></div>
+      <div class="panel" id="panel-journey"></div>
       <div class="panel" id="panel-feedback"></div>
       <div class="panel" id="panel-notes"></div>
       <div class="panel" id="panel-rules"></div>
@@ -1762,7 +1834,7 @@ const translations = {
     daysRecorded:'{n} روز ثبت‌شده',
     viewOnly:'فقط نمایش', backToList:'↩ بازگشت به لیست', addToHome:'افزودن به صفحه اصلی',
     tabHome:'خانه', tabCommitment:'تعهدنامه', tabPlanner:'برنامه‌ریز',
-    tabTaskSet:'دسته‌بندی تسک', tabSmartMentor:'دستیار هوشمند', tabToday:'کارهای امروز', tabScores:'روند پیشرفت', tabFeedback:'بازخورد',
+    tabTaskSet:'دسته‌بندی تسک', tabSmartMentor:'دستیار هوشمند', tabToday:'کارهای امروز', tabScores:'روند پیشرفت', tabJourney:'مسیر ۲۰ روزه', tabFeedback:'بازخورد',
     tabNotes:'یادداشت شخصی', tabRules:'قوانین', tabHonor:'افتخارات', tabUpdates:'اپدیت‌ها',
     tabConnect:'ارتباط با تیم', tabStatus:'وضعیت', tabSettings:'تنظیمات',
     mentorPanelTitle:'پنل منتور', tabParticipants:'شرکت‌کننده‌ها', tabParticipantMsg:'پیام شرکت‌کننده‌ها',
@@ -2804,6 +2876,259 @@ function computeCycle(cycleStart){
 function weeklyStatus(s){ if(s<=49) return {label:'افتضاح',grade:'D+',cls:'bad'}; if(s<=69) return {label:'متوسط',grade:'C+',cls:'bad'}; if(s<=79) return {label:'خوب',grade:'B+',cls:'mid'}; return {label:'عالی',grade:'A+',cls:'good'}; }
 function monthlyStatus(s){ if(s<=49) return {label:'افتضاح',grade:'D+',cls:'bad'}; if(s<=69) return {label:'متوسط',grade:'C+',cls:'bad'}; if(s<=79) return {label:'خوب',grade:'B+',cls:'mid'}; return {label:'عالی',grade:'A+',cls:'good'}; }
 
+// ================= مسیر ۲۰ روزه — نقشه‌ی سفر بصری، جایگزین/مکمل رینگ ساده =================
+// صحنه‌ی طبیعیِ مستقلِ کوه — یه تصویر ایستا و اتمسفریک، جدا از نقشه‌ی روزهای بالا
+function buildMountainSceneSvg(climate){
+  const W=320, H=190;
+  const sky = {clear:['#2A3652','#161C2E'],autumn:['#D98A4B','#5A3A20'],rain:['#4A5568','#262E38'],snow:['#C7D4E3','#7C90AC']}[climate];
+  const layers = {
+    clear:  ['#4A5A82','#333F5C','#1E2740'],
+    autumn: ['#B97A3E','#7A4F27','#3E2A18'],
+    rain:   ['#5C6B7D','#414D5C','#262E38'],
+    snow:   ['#D7E3F0','#A9BBD1','#6E85A0'],
+  }[climate];
+  function peakLayer(baseY, amp, n, phase){
+    const p=[]; for(let i=0;i<=n;i++){ const x=(i/n)*W; const y=baseY-amp*(0.4+0.6*Math.sin(i*1.7+phase)); p.push({x,y}); }
+    let d=`M 0,${H} L ${p[0].x.toFixed(1)},${p[0].y.toFixed(1)}`;
+    for(let i=1;i<p.length-1;i++){ const mx=(p[i].x+p[i+1].x)/2, my=(p[i].y+p[i+1].y)/2; d+=` Q ${p[i].x.toFixed(1)},${p[i].y.toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`; }
+    d+=` L ${p[p.length-1].x.toFixed(1)},${p[p.length-1].y.toFixed(1)} L ${W},${H} Z`;
+    return {d, peakPt: p.reduce((m,c)=>c.y<m.y?c:m, p[0])};
+  }
+  const back = peakLayer(H*0.60, 26, 5, 0.3);
+  const mid  = peakLayer(H*0.72, 40, 4, 1.8);
+  const front= peakLayer(H*0.90, 62, 3, 3.2);
+  const capD = `M ${(front.peakPt.x-16).toFixed(1)},${(front.peakPt.y+10).toFixed(1)} L ${front.peakPt.x.toFixed(1)},${front.peakPt.y.toFixed(1)} L ${(front.peakPt.x+16).toFixed(1)},${(front.peakPt.y+10).toFixed(1)} L ${(front.peakPt.x+8).toFixed(1)},${(front.peakPt.y+16).toFixed(1)} L ${(front.peakPt.x-8).toFixed(1)},${(front.peakPt.y+16).toFixed(1)} Z`;
+  const showCap = climate==='snow' || climate==='clear';
+  const sunMoon = climate!=='rain' ? `<circle cx="${W-56}" cy="42" r="20" fill="${climate==='snow'?'#EAF2FF':'#F5D98A'}" opacity="${climate==='snow'?0.9:0.85}"/>` : `<ellipse cx="${W-70}" cy="40" rx="34" ry="14" fill="rgba(255,255,255,.18)"/><ellipse cx="${W-40}" cy="55" rx="28" ry="12" fill="rgba(255,255,255,.14)"/>`;
+  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="journey-scene-svg">
+    <defs><linearGradient id="jsSky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="${sky[0]}"/><stop offset="100%" stop-color="${sky[1]}"/></linearGradient></defs>
+    <rect x="0" y="0" width="${W}" height="${H}" fill="url(#jsSky)"/>
+    ${sunMoon}
+    <path d="${back.d}" fill="${layers[0]}" opacity="0.55"/>
+    <path d="${mid.d}" fill="${layers[1]}" opacity="0.8"/>
+    <path d="${front.d}" fill="${layers[2]}"/>
+    ${showCap ? `<path d="${capD}" fill="rgba(255,255,255,.92)"/>` : ''}
+  </svg>`;
+}
+async function renderJourneyMap(){
+  const el = document.getElementById('panel-journey');
+  if(!el) return;
+  if(currentMentorCode && currentMember && currentMember.scoreHiddenFromMentor){
+    el.innerHTML = `<div class="card"><div class="empty">${t('mentorHiddenSection')}</div></div>`;
+    return;
+  }
+  el.innerHTML = `<div class="card"><div class="empty">در حال ساخت مسیر...</div></div>`;
+  const cycleStart = await loadCycleStart(currentCode);
+  if(!cycleStart){
+    el.innerHTML = `<div class="card journey-card"><div class="empty">${icon('calendar')}<div style="margin-top:8px;">هنوز دوره‌ای شروع نشده — با اولین تسکی که ثبت کنی، مسیر ۲۰ روزه‌ت اینجا ساخته میشه</div></div></div>`;
+    return;
+  }
+  const info = computeCycle(cycleStart);
+  const allDates = info.weeks.flatMap(w=>w.dates);
+  const scores = allDates.map(d=> dailyRecords[d] ? dailyRecords[d].dailyScore : null);
+  const N = 20, spacingY = 62, padTop = 46, padBottom = 70, W = 280, amp = 82;
+  const H = padTop + (N-1)*spacingY + padBottom;
+  // روز ۱ پایین (دامنه‌ی کوه)، روز ۲۰ بالا (قله) — یعنی واقعاً «داره میره بالا»، نه از بالا به پایین
+  const pts = Array.from({length:N}).map((_,i)=>({ x: W/2 + amp*Math.sin(i*0.85), y: H - padBottom - i*spacingY }));
+  function smoothPath(points){
+    if(points.length<2) return '';
+    let d = `M ${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
+    for(let i=1;i<points.length-1;i++){
+      const mx = (points[i].x+points[i+1].x)/2, my = (points[i].y+points[i+1].y)/2;
+      d += ` Q ${points[i].x.toFixed(1)},${points[i].y.toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`;
+    }
+    d += ` L ${points[points.length-1].x.toFixed(1)},${points[points.length-1].y.toFixed(1)}`;
+    return d;
+  }
+  const fullPathD = smoothPath(pts);
+  const activePts = pts.slice(0, Math.max(1,info.dayIndex));
+  const activePathD = smoothPath(activePts);
+
+  // ---------- آب‌وهوا، بر اساس میانگین تلاش واقعیِ همین دوره ----------
+  const validScores = scores.filter(s=>s!==null);
+  const avgScore = validScores.length ? validScores.reduce((a,b)=>a+b,0)/validScores.length : null;
+  let climate = 'clear';
+  if(avgScore!==null){
+    if(avgScore < 40) climate = 'snow';
+    else if(avgScore < 70) climate = 'rain';
+    else climate = 'autumn';
+  }
+  const weatherCount = climate==='clear' ? 0 : 26;
+  const weatherParticles = Array.from({length:weatherCount}).map((_,i)=>{
+    const left = (i*37)%100; // پخش شبه‌تصادفی ولی همیشه یکسان (بدون Math.random که هر رندر جابه‌جا نشه)
+    const dur = 3 + (i%5)*0.9;
+    const delay = (i%10)*0.4;
+    const size = climate==='snow' ? 3+(i%3) : (climate==='autumn'?5+(i%3):1.6);
+    return `<span class="wp wp-${climate}" style="left:${left}%;--dur:${dur}s;--delay:${delay}s;--size:${size}px;"></span>`;
+  }).join('');
+
+  // ---------- جاده‌ی ساده‌ولی‌خفن: دو لبه‌ی نرم با پرشدگی گرادینتی + خط‌چین وسط به سبک جاده‌ی واقعی ----------
+  const roadLeftPts  = pts.map(p=>({x:p.x-10, y:p.y}));
+  const roadRightPts = pts.map(p=>({x:p.x+10, y:p.y}));
+  function roadFillPath(){
+    let d = `M ${roadLeftPts[0].x.toFixed(1)},${roadLeftPts[0].y.toFixed(1)}`;
+    for(let i=1;i<roadLeftPts.length-1;i++){
+      const mx=(roadLeftPts[i].x+roadLeftPts[i+1].x)/2, my=(roadLeftPts[i].y+roadLeftPts[i+1].y)/2;
+      d += ` Q ${roadLeftPts[i].x.toFixed(1)},${roadLeftPts[i].y.toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`;
+    }
+    d += ` L ${roadLeftPts[roadLeftPts.length-1].x.toFixed(1)},${roadLeftPts[roadLeftPts.length-1].y.toFixed(1)}`;
+    const rev = roadRightPts.slice().reverse();
+    d += ` L ${rev[0].x.toFixed(1)},${rev[0].y.toFixed(1)}`;
+    for(let i=1;i<rev.length-1;i++){
+      const mx=(rev[i].x+rev[i+1].x)/2, my=(rev[i].y+rev[i+1].y)/2;
+      d += ` Q ${rev[i].x.toFixed(1)},${rev[i].y.toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`;
+    }
+    d += ` L ${rev[rev.length-1].x.toFixed(1)},${rev[rev.length-1].y.toFixed(1)} Z`;
+    return d;
+  }
+  const roadFillD = roadFillPath();
+  const roadEdgeLeftD = smoothPath(roadLeftPts), roadEdgeRightD = smoothPath(roadRightPts);
+
+  function treeSvg(cx, topY, health){
+    // health: 'good' (کاج پرپشت سبز) | 'mid' (درخت معمولی، برگ کم‌رنگ‌تر) | 'bad' (شاخه‌ی خشک، بی‌برگ) | 'none' (بوته‌ی کوچیک خاکستری، برای آینده)
+    if(health==='none') return `<g opacity="0.5"><line x1="${cx}" y1="${topY+14}" x2="${cx}" y2="${topY+20}" stroke="#5B6472" stroke-width="1.6"/><circle cx="${cx}" cy="${topY+10}" r="5" fill="#4A5262"/></g>`;
+    if(health==='bad') return `<g><line x1="${cx}" y1="${topY+4}" x2="${cx}" y2="${topY+22}" stroke="#6B4A38" stroke-width="2"/><line x1="${cx}" y1="${topY+8}" x2="${cx-6}" y2="${topY+3}" stroke="#6B4A38" stroke-width="1.4"/><line x1="${cx}" y1="${topY+12}" x2="${cx+6}" y2="${topY+7}" stroke="#6B4A38" stroke-width="1.4"/></g>`;
+    const leafColor = health==='good' ? '#2FA968' : '#7A9A4E';
+    return `<g><line x1="${cx}" y1="${topY+16}" x2="${cx}" y2="${topY+24}" stroke="#6B4A38" stroke-width="2.2"/>
+      <path d="M ${cx},${topY} L ${cx+9},${topY+13} L ${cx+3},${topY+13} L ${cx+10},${topY+22} L ${cx-10},${topY+22} L ${cx-3},${topY+13} L ${cx-9},${topY+13} Z" fill="${leafColor}"/></g>`;
+  }
+  function tentSvg(cx, topY){
+    return `<g><path d="M ${cx-13},${topY+20} L ${cx},${topY+3} L ${cx+13},${topY+20} Z" fill="#E8564F"/><path d="M ${cx},${topY+3} L ${cx},${topY+20}" stroke="#B5372F" stroke-width="1.2"/><path d="M ${cx-5},${topY+20} L ${cx},${topY+11} L ${cx+5},${topY+20} Z" fill="#3A2A1C"/></g>`;
+  }
+  function campfireSvg(cx, topY){
+    return `<g><path d="M ${cx-7},${topY+20} L ${cx+7},${topY+20} L ${cx+4},${topY+13} L ${cx-4},${topY+13} Z" fill="#8A6432"/>
+      <path d="M ${cx},${topY+2} C ${cx+5},${topY+8} ${cx+3},${topY+11} ${cx},${topY+13} C ${cx-3},${topY+11} ${cx-5},${topY+8} ${cx},${topY+2} Z" fill="#F0B24B"/>
+      <path d="M ${cx},${topY+6} C ${cx+2},${topY+9} ${cx+1},${topY+11} ${cx},${topY+12} C ${cx-1},${topY+11} ${cx-2},${topY+9} ${cx},${topY+6} Z" fill="#E8564F"/></g>`;
+  }
+  function carSvg(cx, topY, color){
+    return `<g transform="translate(${cx-13},${topY+8})"><rect x="0" y="6" width="26" height="9" rx="2.5" fill="${color}"/><path d="M 5,6 L 8,0 L 18,0 L 21,6 Z" fill="${color}"/><circle cx="7" cy="16" r="3" fill="#20242E"/><circle cx="19" cy="16" r="3" fill="#20242E"/></g>`;
+  }
+  const roadsideSvg = pts.map((p,i)=>{
+    const day = i+1;
+    const isCheckpoint = day%5===0;
+    const isFuture = day>info.dayIndex;
+    const score = scores[i];
+    const side = i%2===0 ? -1 : 1;
+    const offX = p.x + side*30;
+    const topY = p.y - 12;
+    if(isCheckpoint){
+      // چک‌پوینت پایان هفته: اگه اون هفته میانگین خوبی داشته، چادر/کمپ (استراحتگاهِ بعد از یه هفته‌ی خوب)؛ وگرنه فقط آتیش کوچیک
+      const wkScores = scores.slice(Math.max(0,day-5), day).filter(s=>s!==null);
+      const wkAvg = wkScores.length ? wkScores.reduce((a,b)=>a+b,0)/wkScores.length : 0;
+      if(isFuture) return '';
+      return wkAvg>=60 ? tentSvg(offX, topY) : campfireSvg(offX, topY);
+    }
+    const health = isFuture ? 'none' : (score===null||score===undefined ? 'none' : score>=70?'good':score>=40?'mid':'bad');
+    return treeSvg(offX, topY, health);
+  }).join('');
+  // یه ماشین کوچیک تزئینی، فقط رو مسیرِ طی‌شده (نه آینده) — صرفاً برای حس زنده بودن جاده
+  const carPt = info.dayIndex>=3 ? pts[Math.max(0, info.dayIndex-3)] : null;
+  const carSvgOut = carPt ? carSvg(carPt.x, carPt.y-26, '#6FA8DC') : '';
+
+  const stationsSvg = pts.map((p,i)=>{
+    const day = i+1;
+    const isToday = day===info.dayIndex;
+    const isPast = day<info.dayIndex;
+    const isFuture = day>info.dayIndex;
+    const isCheckpoint = day%5===0;
+    const score = scores[i];
+    let fill = '#3A3F55';
+    if(isPast || isToday){
+      if(score===null || score===undefined) fill = '#9AA3B2';
+      else if(score>=70) fill = '#22C58F';
+      else if(score>=40) fill = '#F0C24B';
+      else fill = '#E8564F';
+    }
+    const r = isCheckpoint ? 9 : (isToday ? 8.5 : 6.5);
+    let node = '';
+    if(isCheckpoint){
+      // چک‌پوینت پایان هر هفته — یه پرچمِ کوچیک به‌جای شکل ساده، حس «رسیدن به مرحله» بده
+      node += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r+2}" fill="${fill}" stroke="rgba(255,255,255,.5)" stroke-width="1.4"/>`;
+      node += `<line x1="${p.x.toFixed(1)}" y1="${(p.y-r-2).toFixed(1)}" x2="${p.x.toFixed(1)}" y2="${(p.y-r-14).toFixed(1)}" stroke="rgba(255,255,255,.7)" stroke-width="1.4"/>`;
+      node += `<path d="M ${p.x.toFixed(1)},${(p.y-r-14).toFixed(1)} l 10,3 l -10,3 Z" fill="#C9A6FF"/>`;
+    }else{
+      node += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${fill}" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>`;
+    }
+    if(isToday){
+      node += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r+5}" fill="none" stroke="#B794F6" stroke-width="1.6" class="journey-today-pulse"/>`;
+    }
+    node += `<text x="${p.x.toFixed(1)}" y="${(p.y+r+13).toFixed(1)}" text-anchor="middle" font-size="8.5" font-weight="700" fill="${isFuture?'#5B6472':'#C4A3F5'}" font-family="Vazirmatn,Tahoma,sans-serif">${day}</text>`;
+    return `<g class="journey-station ${isFuture?'future':''}" style="animation-delay:${i*28}ms;">${node}</g>`;
+  }).join('');
+
+  // ---------- آدمک درحال بالارفتن — جاش دقیقاً «امروز»ه، ولی بر اساس نوسان چند روز اخیر یه‌کم جلوتر/عقب‌تر رو شیب می‌لغزه ----------
+  const recentPast = scores.slice(0, info.dayIndex).filter(s=>s!==null);
+  let momentum = 0; // مثبت = این چند روز رو به بهبود، منفی = رو به افت
+  if(recentPast.length>=2){
+    const last = recentPast[recentPast.length-1], prev = recentPast[recentPast.length-2];
+    momentum = last - prev;
+  }
+  const slip = Math.max(-14, Math.min(14, momentum===0?0: (momentum>0? 10 : -10)));
+  const todayPt = pts[Math.min(info.dayIndex-1, N-1)];
+  const climberY = todayPt.y - slip; // مثبت (پیشرفت) = کمی جلوتر/بالاتر از نقطه‌ی واقعی، منفی (افت) = کمی عقب‌تر
+  const climberTilt = momentum>0 ? -8 : (momentum<0 ? 8 : 0);
+  const climberMarker = `<div class="journey-climber ${momentum>0?'up':momentum<0?'down':''}" style="top:${climberY-34}px;left:${todayPt.x}px;--tilt:${climberTilt}deg;">
+    <svg viewBox="0 0 24 32" width="26" height="34">
+      <circle cx="12" cy="5" r="4" fill="#F2D8B8"/>
+      <path class="climber-body" d="M12 9v9M12 12l-6 5M12 12l6 3M12 18l-4 10M12 18l5 9" stroke="#2E3A52" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>`;
+
+  const peakBadge = info.monthComplete ? `
+    <div class="journey-peak">
+      ${icon('star')}
+      <div class="journey-peak-grade">${info.monthInfo.grade}</div>
+      <div class="journey-peak-label">${info.monthInfo.label}</div>
+    </div>` : '';
+
+  const climateLabel = {clear:'هوای معتدل',autumn:'پاییزِ طلایی — عملکردت خوبه',rain:'بارونیه — یه‌کم بیشتر تلاش کن',snow:'برف‌وبوران — این دوره خیلی ضعیف بودی'}[climate];
+
+  el.innerHTML = `
+    <div class="card journey-card">
+      <h2>${icon('trendUp')}مسیر ۲۰ روزه‌ت</h2>
+      <div class="journey-sub">روز ${info.dayIndex} از ۲۰ — هر پرچم یعنی پایان یه هفته</div>
+      <div class="journey-scroll" id="journeyScroll">
+        <div class="journey-stage" style="width:${W}px;height:${H}px;">
+          <svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" class="journey-svg">
+            <defs>
+              <linearGradient id="journeyActiveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#C9A6FF"/><stop offset="100%" stop-color="#6C2BD9"/>
+              </linearGradient>
+              <linearGradient id="journeyRoadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#332B47"/><stop offset="100%" stop-color="#211B30"/>
+              </linearGradient>
+            </defs>
+            <path d="${roadFillD}" fill="url(#journeyRoadGrad)"/>
+            <path d="${roadEdgeLeftD}" fill="none" stroke="rgba(201,166,255,.28)" stroke-width="1.3"/>
+            <path d="${roadEdgeRightD}" fill="none" stroke="rgba(201,166,255,.28)" stroke-width="1.3"/>
+            ${roadsideSvg}
+            <path d="${fullPathD}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1.6" stroke-dasharray="5 7" stroke-linecap="round"/>
+            <path d="${activePathD}" fill="none" stroke="url(#journeyActiveGrad)" stroke-width="2.4" stroke-dasharray="5 7" stroke-linecap="round" class="journey-active-path"/>
+            ${carSvgOut}
+            ${stationsSvg}
+          </svg>
+          ${climberMarker}
+          ${peakBadge}
+        </div>
+      </div>
+    </div>
+    <div class="card journey-scene-card">
+      <div class="journey-scene-head">
+        <span>${icon('calendar')}آب‌وهوای این دوره</span>
+        <span class="journey-scene-tag journey-scene-tag-${climate}">${climateLabel}</span>
+      </div>
+      <div class="journey-scene-wrap">
+        <div class="journey-weather">${weatherParticles}</div>
+        ${buildMountainSceneSvg(climate)}
+      </div>
+    </div>`;
+  // اسکرول خودکار تا نقطه‌ی «امروز» — کاربر مجبور نباشه خودش دنبال موقعیتش تو مسیر بگرده
+  requestAnimationFrame(()=>{
+    const scrollEl = document.getElementById('journeyScroll');
+    if(scrollEl) scrollEl.scrollTop = Math.max(0, todayPt.y - scrollEl.clientHeight/2);
+  });
+}
+
 let _monthHistoryCache = {};
 // اگه دو تا ماهِ آرشیوشده تو تاریخچه، تاریخ‌هاشون تداخل/هم‌پوشانی داشته باشن (به‌خاطر باگ قدیمی)، اینجا خودکار پاکسازی میشه.
 // ماهِ بعدیِ خراب/تکراری حذف میشه (فقط رکورد خلاصه‌ی تاریخچه، نه امتیازهای روزانه‌ی خودِ کاربر که دست‌نخورده می‌مونه)
@@ -2871,7 +3196,7 @@ function buildCycleReminderHtml(cycleStart){
     const x1 = (cx + rIn*Math.cos(angle)).toFixed(2), y1 = (cy + rIn*Math.sin(angle)).toFixed(2);
     const x2 = (cx + rOut*Math.cos(angle)).toFixed(2), y2 = (cy + rOut*Math.sin(angle)).toFixed(2);
     const filled = i < info.dayIndex;
-    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${filled?`url(#${gid})`:'rgba(124,58,237,.2)'}" stroke-width="3.4" stroke-linecap="round" filter="${filled?'url(#crTickGlow)':''}" style="${filled?`animation:crTickPop .35s ease backwards; animation-delay:${i*22}ms;`:''}"/>`;
+    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${filled?`url(#${gid})`:'rgba(124,58,237,.2)'}" stroke-width="3.4" stroke-linecap="round" style="${filled?`animation:crTickPop .35s ease backwards; animation-delay:${i*22}ms;`:''}"/>`;
   }
   const weekDots = Array.from({length:4}).map((_,i)=>{
     const done = i < info.currentWeekIndex-1, live = i === info.currentWeekIndex-1;
@@ -2884,10 +3209,6 @@ function buildCycleReminderHtml(cycleStart){
           <linearGradient id="${gid}" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#C9A6FF"/><stop offset="55%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#4A1D96"/>
           </linearGradient>
-          <filter id="crTickGlow" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="0.6" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
         </defs>
         ${ticks}
       </svg>
@@ -2992,6 +3313,7 @@ document.querySelectorAll('#mainTabs .tab-btn').forEach(btn=>{
     targetPanel.classList.add('active');
     glassSwitchIn(targetPanel);
     if(btn.dataset.tab==='dashboard') renderDashboard();
+    if(btn.dataset.tab==='journey') renderJourneyMap();
     if(btn.dataset.tab==='smartmentor') renderSmartMentorTab();
     if(btn.dataset.tab==='today') renderToday();
     if(btn.dataset.tab==='status') renderStatusPanel('panel-status', 'member');
@@ -3869,48 +4191,201 @@ function renderNativeDailyChart(canvas, labels, data, mode){
 // ================= dashboard panel =================
 // ================= رزومه‌ی چاپی هر ماه — یه برگه‌ی خفن با نمره، حروف، جدول هفته‌ها و نمودار کشیده‌ی همون ماه =================
 // ================= نظر کوتاه دستیار هوشمند برای رزومه‌ی چاپی — یه رینگ ریز + یه جمله، جای خلوت، شلوغ نمیشه =================
-async function saveResumeAsImage(btn){
-  const ok = await ensureHtml2Canvas();
-  if(!ok){ showToast('اتصال به سرور تصویرسازی برقرار نشد — دوباره امتحان کن'); return; }
-  const sheet = document.querySelector('.resume-sheet');
-  if(!sheet) return;
-  // این پنجره روی گوشی معمولاً داخلش اسکرول می‌خوره (چون گزارش جزئی خیلی بلنده) — اگه لحظه‌ی گرفتن عکس
-  // وسط اسکرول باشه، محاسبه‌ی موقعیت‌دهی html2canvas به‌هم می‌ریزه و ممکنه ناقص/جابه‌جا دربیاد
-  const scrollHost = document.getElementById('resumePrintArea');
-  if(scrollHost) scrollHost.scrollTop = 0;
-  // باگ قبلی: اینجا از textContent استفاده شده بود که کل محتوای دکمه (شامل آیکون SVG داخلش) رو پاک می‌کرد
-  // و چون فقط متن (نه HTML) رو برای برگردوندن ذخیره کرده بودیم، آیکون بعد از اولین کلیک برای همیشه گم می‌شد.
+// ================= ساخت عکس رزومه — رسم مستقیم رو canvas (نه html2canvas) =================
+// چرا این تغییر: html2canvas به یه کتابخونه‌ی خارجی از CDN وابسته‌ست و با CSS پیچیده (backdrop-filter,
+// گرادینت‌های تودرتو) مدام شکست می‌خورد یا گیر می‌کرد. رسم مستقیم رو canvas هیچ وابستگی بیرونی نداره،
+// همیشه کار می‌کنه (حتی موقع قطعی نت)، و کاملاً تحت کنترل خودمونه.
+async function drawResumeCanvas(reportData){
+  await (document.fonts && document.fonts.ready ? Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,1500))]) : Promise.resolve());
+  const FONT = 'Vazirmatn, Tahoma, sans-serif';
+  // باگ قبلی: ابعاد پایه ۶۴۰px با scale:2.5 بود که خروجی نسبتاً کوچیک و فشرده به‌نظر می‌رسید.
+  // الان هم ابعاد پایه هم مقیاس کیفیت رو بزرگ‌تر کردیم — خروجی واقعاً باکیفیت و بزرگ (نه ریز) میشه.
+  const scale = 3.2;
+  const W = 780;
+  const rowH = 36, dayRowH = 29, padX = 48;
+  let y = 0;
+  y += 56;  // brand
+  y += 42;  // name
+  y += 30;  // code line
+  y += 30;  // divider gap
+  y += 108; // score row
+  y += 78;  // mentor note
+  if(reportData.weekRows.length){
+    y += 40;  // week section title
+    y += rowH * (reportData.weekRows.length + 1); // +1 header
+    y += 28;
+  }
+  if(reportData.dayRows){
+    y += 40; // day section title
+    y += dayRowH * (reportData.dayRows.length + 1);
+    y += 28;
+  }
+  y += 40;  // chart title
+  y += 250; // chart area
+  y += 54;  // footer
+  const H = y;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(W*scale); canvas.height = Math.round(H*scale);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+  ctx.direction = 'rtl';
+  ctx.textBaseline = 'alphabetic';
+
+  // پس‌زمینه
+  const bg = ctx.createLinearGradient(0,0,0,H);
+  bg.addColorStop(0,'#1B2233'); bg.addColorStop(1,'#12151F');
+  ctx.fillStyle = bg; ctx.fillRect(0,0,W,H);
+  // نوار رنگی بالا
+  const topGrad = ctx.createLinearGradient(0,0,W,0);
+  topGrad.addColorStop(0,'#6C2BD9'); topGrad.addColorStop(0.5,'#2E7CE6'); topGrad.addColorStop(1,'#6C2BD9');
+  ctx.fillStyle = topGrad; ctx.fillRect(0,0,W,5);
+
+  const rightX = W-padX, leftX = padX;
+  let cy = 48;
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(180,190,205,.7)';
+  ctx.font = `700 13px ${FONT}`;
+  ctx.fillText(reportData.brand, rightX, cy);
+  cy += 40;
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 27px ${FONT}`;
+  ctx.fillText(reportData.name || '—', rightX, cy);
+  cy += 30;
+  ctx.fillStyle = 'rgba(180,190,205,.8)';
+  ctx.font = `700 14px ${FONT}`;
+  ctx.fillText(reportData.codeLine, rightX, cy);
+  cy += 22;
+  ctx.strokeStyle = 'rgba(255,255,255,.12)';
+  ctx.beginPath(); ctx.moveTo(leftX,cy); ctx.lineTo(rightX,cy); ctx.stroke();
+  cy += 56;
+
+  // امتیاز + گرید
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#fff';
+  ctx.font = `900 48px ${FONT}`;
+  ctx.fillText(String(reportData.score), rightX, cy);
+  const gradeColor = reportData.gradeCls==='good' ? '#22C58F' : reportData.gradeCls==='mid' ? '#F0C24B' : '#E8564F';
+  ctx.fillStyle = gradeColor;
+  ctx.font = `900 24px ${FONT}`;
+  ctx.textAlign = 'left';
+  ctx.fillText(reportData.grade, leftX, cy-16);
+  ctx.fillStyle = 'rgba(200,205,215,.8)';
+  ctx.font = `700 14px ${FONT}`;
+  ctx.fillText(reportData.label||'', leftX, cy+10);
+  cy += 54;
+
+  // نظر دستیار هوشمند (به‌جای رینگ SVG، یه دایره‌ی رنگی ساده با درصد)
+  const mScore = Math.round(reportData.mentorScore);
+  const mColor = mScore>=80?'#22C58F':mScore>=55?'#F0C24B':mScore>=35?'#F08A4B':'#E8564F';
+  ctx.beginPath(); ctx.arc(rightX-22, cy+2, 22, 0, Math.PI*2); ctx.strokeStyle='rgba(255,255,255,.15)'; ctx.lineWidth=5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(rightX-22, cy+2, 22, -Math.PI/2, -Math.PI/2 + (mScore/100)*Math.PI*2); ctx.strokeStyle=mColor; ctx.lineWidth=5; ctx.stroke();
+  ctx.fillStyle = '#fff'; ctx.font = `900 14px ${FONT}`; ctx.textAlign='center';
+  ctx.fillText(String(mScore), rightX-22, cy+7);
+  ctx.textAlign = 'right';
+  ctx.fillStyle = 'rgba(210,215,225,.9)';
+  ctx.font = `700 13.5px ${FONT}`;
+  wrapText(ctx, `نظر دستیار هوشمند: ${reportData.mentorHeadline}`, rightX-54, cy-2, W-padX*2-66, 18);
+  cy += 70;
+
+  function sectionTitle(text){
+    ctx.fillStyle = '#B794F6'; ctx.font = `800 15px ${FONT}`; ctx.textAlign='right';
+    ctx.fillText(text, rightX, cy); cy += 26;
+  }
+  function tableHeader(cols){
+    ctx.fillStyle = 'rgba(160,170,185,.7)'; ctx.font = `700 12px ${FONT}`;
+    let x = rightX;
+    cols.forEach(c=>{ ctx.textAlign='center'; ctx.fillText(c.label, x - c.w/2, cy); x -= c.w; });
+    cy += 10;
+    ctx.strokeStyle='rgba(255,255,255,.08)'; ctx.beginPath(); ctx.moveTo(leftX,cy); ctx.lineTo(rightX,cy); ctx.stroke();
+    cy += 22;
+  }
+  function tableRow(cols, rh){
+    let x = rightX;
+    cols.forEach(c=>{
+      ctx.fillStyle = c.color || '#E7E9EE'; ctx.font = c.bold ? `800 13.5px ${FONT}` : `700 13px ${FONT}`;
+      ctx.textAlign='center'; ctx.fillText(String(c.v), x - c.w/2, cy);
+      x -= c.w;
+    });
+    cy += rh;
+  }
+
+  if(reportData.weekRows.length){
+    sectionTitle('ریز نمرات هفته‌ها');
+    const weekCols = [{label:'هفته',w:155},{label:'امتیاز',w:155},{label:'رتبه',w:155}];
+    tableHeader(weekCols);
+    reportData.weekRows.forEach(w=>{
+      tableRow([
+        {v:w.name, w:155},
+        {v:w.score, w:155},
+        {v:w.grade, w:155, color:w.cls==='good'?'#22C58F':w.cls==='mid'?'#F0C24B':'#E8564F', bold:true},
+      ], rowH);
+    });
+    cy += 24;
+  }
+
+  if(reportData.dayRows){
+    sectionTitle('ریز تک‌تک روزها');
+    const dayCols = [{label:'هفته',w:120},{label:'روز',w:120},{label:'تاریخ',w:130},{label:'امتیاز',w:120},{label:'حرف',w:120}];
+    tableHeader(dayCols);
+    reportData.dayRows.forEach(r=>{
+      tableRow([
+        {v:r.week, w:120},{v:r.weekday, w:120},{v:r.date, w:130},{v:r.score, w:120},
+        {v:r.grade, w:120, color:r.cls==='good'?'#22C58F':r.cls==='mid'?'#F0C24B':'#E8564F', bold:true},
+      ], dayRowH);
+    });
+    cy += 24;
+  }
+
+  sectionTitle(reportData.chart.title);
+  const chartTop = cy, chartH = 210, chartLeft = leftX+12, chartRight = rightX-12;
+  ctx.fillStyle = 'rgba(255,255,255,.03)'; ctx.strokeStyle='rgba(111,168,220,.14)';
+  ctx.beginPath(); ctx.roundRect ? ctx.roundRect(leftX,chartTop,rightX-leftX,chartH,12) : ctx.rect(leftX,chartTop,rightX-leftX,chartH);
+  ctx.fill(); ctx.stroke();
+  const {labels, data, mode} = reportData.chart;
+  const n = data.length;
+  if(n>=2){
+    const gx = i => chartRight - (i/(n-1))*(chartRight-chartLeft);
+    const gy = v => chartTop+chartH-18 - (Math.max(0,Math.min(100,v))/100)*(chartH-34);
+    ctx.fillStyle = 'rgba(255,255,255,.06)'; ctx.font = `700 10px ${FONT}`; ctx.textAlign='left';
+    [0,50,100].forEach(v=>{
+      ctx.strokeStyle='rgba(255,255,255,.06)'; ctx.beginPath(); ctx.moveTo(chartLeft,gy(v)); ctx.lineTo(chartRight,gy(v)); ctx.stroke();
+      ctx.fillStyle='#8892A3'; ctx.fillText(String(v), chartLeft-6, gy(v)+3);
+    });
+    const colorFor = (v0,v1) => mode==='mono' ? '#2E7CE6' : mode==='purple' ? '#6C2BD9' : (v1>v0?'#0F7B3D':v1<v0?'#C23B3B':'#9AA3B2');
+    for(let i=0;i<n-1;i++){
+      ctx.strokeStyle = colorFor(data[i],data[i+1]); ctx.lineWidth=3; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(gx(i),gy(data[i])); ctx.lineTo(gx(i+1),gy(data[i+1])); ctx.stroke();
+    }
+    const step = Math.max(1, Math.ceil(n/7));
+    ctx.font = `700 9.5px ${FONT}`; ctx.fillStyle='#8892A3'; ctx.textAlign='center';
+    labels.forEach((lb,i)=>{ if(i%step===0 || i===n-1) ctx.fillText(lb, gx(i), chartTop+chartH-2); });
+  }
+  cy = chartTop + chartH + 36;
+
+  ctx.textAlign='center'; ctx.fillStyle='rgba(150,160,175,.6)'; ctx.font=`700 11.5px ${FONT}`;
+  ctx.fillText(reportData.footer, W/2, cy);
+
+  return canvas;
+}
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '', ly = y;
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i] + ' ';
+    if(ctx.measureText(test).width > maxWidth && line){
+      ctx.fillText(line, x, ly); line = words[i] + ' '; ly += lineHeight;
+    } else line = test;
+  }
+  ctx.fillText(line, x, ly);
+}
+async function saveResumeAsImage(btn, reportData){
   const origHtml = btn.innerHTML;
   btn.innerHTML = 'در حال ساخت عکس...';
   btn.disabled = true;
   try{
-    // مطمئن می‌شیم فونت‌ها قبل از عکس گرفتن کامل لود شدن — وگرنه متن‌ها تو عکس خروجی جابه‌جا/بی‌فونت درمیان
-    if(document.fonts && document.fonts.ready){ await Promise.race([document.fonts.ready, new Promise(r=>setTimeout(r,2000))]); }
-    // باگ قبلی: scale ثابت ۳ بود؛ برای گزارش «جزئی» که خیلی بلندتره (کلی ردیف روز + جدول‌ها + نمودار)، این یعنی
-    // یه canvas خیلی بزرگ (مثلاً ۳۰۰۰px ارتفاع × ۳ = ۹۰۰۰px). خیلی از گوشی‌های متوسط/قدیمی محدودیت واقعی سخت‌افزاری
-    // رو حداکثر اندازه‌ی یه canvas/texture دارن (معمولاً ۴۰۹۶ یا ۸۱۹۲ پیکسل) — رد شدن از این مرز باعث می‌شد
-    // ساخت عکس بی‌صدا گیر کنه (نه خطا بده، نه چیزی سیو کنه). الان scale رو متناسب با ارتفاع واقعی صفحه محدود می‌کنیم.
-    const naturalH = sheet.scrollHeight || sheet.offsetHeight || 800;
-    const SAFE_MAX_DIM = 4200;
-    let scale = 3;
-    if(naturalH * scale > SAFE_MAX_DIM) scale = Math.max(1, Math.floor((SAFE_MAX_DIM / naturalH) * 10) / 10);
-    // scale:3 (یا هرچی امن باشه) برای خروجی باکیفیت (شبیه رتینا) — وگرنه عکس خروجی محو/بی‌کیفیت میشه
-    // یه سقف زمانی هم گذاشتیم — اگه یه منبع خارجی (فونت/آیکون) قابل‌دسترس نبود (مثلاً تحت فیلترینگ)، دکمه برای همیشه گیر نکنه
-    const canvasPromise = html2canvas(sheet, { scale, backgroundColor:'#161B2C', useCORS:true, logging:false, imageTimeout:8000 });
-    const canvas = await Promise.race([
-      canvasPromise,
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error('image-timeout')), 20000))
-    ]);
-    let dataUrl;
-    try{
-      dataUrl = canvas.toDataURL('image/png', 1.0);
-    }catch(secErr){
-      // اگه یه منبع خارجیِ بدون CORS رو کانواس نقاشی شده باشه، مرورگر canvas رو "آلوده" علامت می‌زنه و
-      // اجازه‌ی خروجی گرفتن نمی‌ده — این دقیقاً همون حالتیه که قبلاً بی‌صدا شکست می‌خورد
-      console.error('toDataURL blocked (tainted canvas)', secErr);
-      showToast('ساخت عکس به‌خاطر یه منبع خارجی مسدود شد — دوباره امتحان کن یا از PDF استفاده کن');
-      return;
-    }
+    const canvas = await drawResumeCanvas(reportData);
+    const dataUrl = canvas.toDataURL('image/png', 1.0);
     const a = document.createElement('a');
     a.href = dataUrl;
     a.download = `focus-mode-resume-${iranTodayISO()}.png`;
@@ -3918,7 +4393,7 @@ async function saveResumeAsImage(btn){
     showToast('عکس ذخیره شد');
   }catch(e){
     console.error(e);
-    showToast(e && e.message==='image-timeout' ? 'ساخت عکس خیلی طول کشید — دوباره امتحان کن' : 'ساخت عکس با خطا مواجه شد');
+    showToast('ساخت عکس با خطا مواجه شد — لطفاً به Claude گزارش بده: ' + (e && e.message || e));
   }finally{
     btn.innerHTML = origHtml; btn.disabled = false;
   }
@@ -3953,19 +4428,26 @@ function showMonthResume(m, detailed){
         ${weekRows}
       </table>`;
   // فقط تو جزئی: ریز تک‌تک روزهای هر هفته، با امتیاز و حرفش
-  const dayRows = m.weeks.map(w=>{
-    return w.dates.map((d,i)=>{
-      const sc = w.scores[i];
-      const st = weeklyStatus(sc);
-      return `<tr><td>هفته ${w.index}</td><td>${iranWeekday(d)}</td><td>${iranJalaliShort(d)}</td><td>${sc}</td><td><span class="resume-grade-pill ${st.cls}" style="font-size:10.5px;padding:1px 8px;">${st.grade}</span></td></tr>`;
-    }).join('');
-  }).join('');
+  // باگ قبلی: همه‌ی روزهای همه‌ی هفته‌ها تو یه جدول بزرگ پشت‌سرهم بودن؛ چون هیچ مرز مشخصی بین هفته‌ها نبود،
+  // موقع چاپ گاهی وسط یه هفته (مثلاً ۳ روز اول هفته‌ی دوم آخر صفحه، ۲ روز باقی اول صفحه‌ی بعد) می‌بریدش.
+  // الان هر هفته جدول جداگانه‌ی خودشو داره و «نشکن» فقط رو همون جدول کوچیک اعمال میشه — یعنی یا کل هفته با هم
+  // میره صفحه‌ی بعد، یا کامل همون‌جا می‌مونه؛ هیچ‌وقت وسط یه هفته بریده نمیشه.
   const daySectionHtml = detailed ? `
       <div class="resume-section-title" style="margin-top:18px;">ریز تک‌تک روزها</div>
-      <table class="resume-week-table resume-day-table">
-        <thead><tr><th>هفته</th><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr></thead>
-        <tbody>${dayRows}</tbody>
-      </table>` : '';
+      ${m.weeks.map(w=>{
+        const rows = w.dates.map((d,i)=>{
+          const sc = w.scores[i];
+          const st = weeklyStatus(sc);
+          return `<tr><td>${iranWeekday(d)}</td><td>${iranJalaliShort(d)}</td><td>${sc}</td><td><span class="resume-grade-pill ${st.cls}" style="font-size:10.5px;padding:1px 8px;">${st.grade}</span></td></tr>`;
+        }).join('');
+        return `<div class="resume-week-block">
+          <div class="resume-week-block-title">هفته ${w.index}</div>
+          <table class="resume-week-table resume-day-table">
+            <thead><tr><th>روز</th><th>تاریخ</th><th>امتیاز</th><th>حرف</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      }).join('')}` : '';
   const chartSectionHtml = `
       <div class="resume-chart-section">
         <div class="resume-section-title" style="margin-top:18px;">روند امتیاز روزانه</div>
@@ -3990,8 +4472,8 @@ function showMonthResume(m, detailed){
       </div>
       ${resumeMentorNoteHtml(m.score)}
       ${weekSectionHtml}
-      ${daySectionHtml}
       ${chartSectionHtml}
+      ${daySectionHtml}
       <div class="resume-footer">صادر شده در ${iranJalaliDate(iranTodayISO())} — Focus Mode Bootcamp™</div>
     </div>
   `;
@@ -4009,7 +4491,21 @@ function showMonthResume(m, detailed){
     area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
   });
   document.getElementById('resumePrintBtn').addEventListener('click', ()=>{ window.print(); });
-  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{ saveResumeAsImage(e.currentTarget); });
+  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{
+    const band = mentorScoreBand(Math.round(m.score));
+    const reportData = {
+      brand: `FOCUS MODE BOOTCAMP${detailed ? ' · جزئی' : ' · کلی'}`,
+      name: memberName,
+      codeLine: `کد ${currentCode||''} · ماه ${m.index}`,
+      score: Math.round(m.score*10)/10, grade: m.grade, gradeCls, label: m.label,
+      mentorScore: m.score, mentorHeadline: band.headline,
+      weekRows: m.weeks.map((w,i)=>({ name:`هفته ${i+1}`, score:Math.round(w.score*10)/10, grade:w.grade||'-', cls:w.cls||(w.grade==='A+'?'good':(w.grade==='B+'?'mid':'bad')) })),
+      dayRows: detailed ? m.weeks.flatMap(w=>w.dates.map((d,i)=>{ const sc=w.scores[i]; const st=weeklyStatus(sc); return { week:`هفته ${w.index}`, weekday:iranWeekday(d), date:iranJalaliShort(d), score:sc, grade:st.grade, cls:st.cls }; })) : null,
+      chart: { title:'روند امتیاز روزانه', labels, data, mode: chartMode },
+      footer: `صادر شده در ${iranJalaliDate(iranTodayISO())} — Focus Mode Bootcamp™`,
+    };
+    saveResumeAsImage(e.currentTarget, reportData);
+  });
 }
 // ================= رزومه‌ی چاپی یک هفته — همون طراحی، منتها ریز روزهای همون هفته =================
 function showWeekResume(w, detailed){
@@ -4068,7 +4564,21 @@ function showWeekResume(w, detailed){
     area.classList.remove('show'); area.classList.add('hidden'); area.innerHTML='';
   });
   document.getElementById('resumePrintBtn').addEventListener('click', ()=>{ window.print(); });
-  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{ saveResumeAsImage(e.currentTarget); });
+  document.getElementById('resumeImgBtn').addEventListener('click', (e)=>{
+    const band = mentorScoreBand(Math.round(w.score));
+    const reportData = {
+      brand: `FOCUS MODE BOOTCAMP${detailed ? ' · جزئی' : ' · کلی'}`,
+      name: memberName,
+      codeLine: `کد ${currentCode||''} · هفته ${w.index}`,
+      score: Math.round(w.score*10)/10, grade: w.grade||'-', gradeCls: wCls, label: w.label||'',
+      mentorScore: w.score, mentorHeadline: band.headline,
+      weekRows: [],
+      dayRows: w.dates.map((d,i)=>{ const sc=w.scores[i]; const st=weeklyStatus(sc); return { week:`هفته ${w.index}`, weekday:iranWeekday(d), date:iranJalaliShort(d), score:sc, grade:st.grade, cls:st.cls }; }),
+      chart: { title:'روند امتیاز روزهای هفته', labels, data, mode: chartMode },
+      footer: `صادر شده در ${iranJalaliDate(iranTodayISO())} — Focus Mode Bootcamp™`,
+    };
+    saveResumeAsImage(e.currentTarget, reportData);
+  });
 }
 // چاپ رزومه فقط یک بار و با نمودار کامل انجام بشه: درست قبل از چاپ، نمودار رو دوباره متناسب با
 // اندازه‌ی واقعی برگه‌ی چاپی می‌کشیم (چون CSS چاپ ارتفاع باکس نمودار رو عوض می‌کنه)
