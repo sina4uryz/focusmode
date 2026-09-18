@@ -273,11 +273,30 @@ function ensureHtml2Canvas(){
     min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px;flex-direction:column;gap:18px;
     background:var(--black);
   }
+  /* ================= ذرات دیجیتالِ پس‌زمینه‌ی لاگین — فقط opacity/transform (سبک، رو کامپوزیتور، بدون لگ) =================
+     باگ قبلی که تو همین صفحه قبلاً داشتیم: انیمیت‌کردن background-position/filter هر فریم نیاز به repaint کامل داره.
+     این ذرات فقط opacity و transform رو انیمیت می‌کنن — این دو تا مستقیم رو GPU اجرا میشن، هر چقدرم زیاد باشن سنگین نمیشن. */
+  #loginParticles{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  #loginParticles span{
+    position:absolute;border-radius:50%;
+    opacity:0;will-change:opacity,transform;
+    animation:loginParticlePulse var(--dur) ease-in-out var(--delay) infinite;
+  }
+  #loginParticles span.dust{background:#6FA8DC;box-shadow:0 0 5px 1px rgba(111,168,220,.6);}
+  #loginParticles span.orb{background:radial-gradient(circle at 35% 30%, #EAF2FF, #2E7CE6 55%, transparent 78%);box-shadow:0 0 16px 3px rgba(46,124,230,.55);}
+  #loginParticles span.orb.violet{background:radial-gradient(circle at 35% 30%, #F0E8FF, #8B5CF6 55%, transparent 78%);box-shadow:0 0 16px 3px rgba(139,92,246,.5);}
+  @keyframes loginParticlePulse{
+    0%{opacity:0;transform:translateY(0) scale(.5);}
+    50%{opacity:var(--maxop,.9);transform:translateY(var(--drift,-10px)) scale(1);}
+    100%{opacity:0;transform:translateY(calc(var(--drift,-10px)*2)) scale(.5);}
+  }
+  .quote-line{position:relative;z-index:1;}
+  .id-card{ z-index:1; }
   #loginScreen::before{
     content:'';position:absolute;inset:-8%;z-index:-1;
     background:
-      radial-gradient(700px 420px at 15% 10%, rgba(45,168,150,.45), transparent 62%),
-      radial-gradient(700px 460px at 85% 30%, rgba(62,95,203,.5), transparent 62%),
+      radial-gradient(700px 420px at 15% 10%, rgba(46,124,230,.4), transparent 62%),
+      radial-gradient(700px 460px at 85% 30%, rgba(111,168,220,.42), transparent 62%),
       radial-gradient(600px 600px at 50% 100%, rgba(20,30,55,.75), transparent 70%);
     animation:loginGradientMove 14s ease-in-out infinite alternate;
     will-change:transform;
@@ -756,6 +775,146 @@ function ensureHtml2Canvas(){
   .journey-peak svg{color:#F0D68A;width:18px;height:18px;}
   .journey-peak-grade{font-size:15px;font-weight:900;color:#fff;margin-top:2px;}
   .journey-peak-label{font-size:9.5px;color:#C4A3F5;font-weight:700;}
+
+  /* ================= جدول رتبه‌بندی زنده (تو بخش افتخارات) ================= */
+  .leaderboard-card{position:relative;overflow:hidden;}
+  .lb-sub-tag{font-size:10px;font-weight:700;color:var(--white-dim);margin-inline-start:auto;background:rgba(255,255,255,.06);padding:2px 9px;border-radius:20px;}
+  .lb-podium{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin:16px 0 6px;padding:0 4px;}
+  .lb-podium-slot{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;position:relative;opacity:0;animation:lbSlotIn .4s ease forwards;}
+  .lb-podium-slot:nth-child(1){animation-delay:.1s;} .lb-podium-slot:nth-child(2){animation-delay:0s;} .lb-podium-slot:nth-child(3){animation-delay:.2s;}
+  @keyframes lbSlotIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  .lb-podium-avatar{
+    width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:900;color:#12151C;margin-bottom:6px;
+    background:linear-gradient(155deg,#F2F4F7,var(--pc,#9AA3B2));
+    border:2.5px solid var(--pc,#9AA3B2);box-shadow:0 0 16px color-mix(in srgb, var(--pc,#9AA3B2) 55%, transparent);
+  }
+  .lb-h1 .lb-podium-avatar{width:56px;height:56px;font-size:21px;}
+  .lb-podium-rank{font-size:11px;font-weight:900;margin-bottom:2px;}
+  .lb-podium-name{font-size:11px;font-weight:800;color:var(--white);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-podium-score{font-size:10px;font-weight:700;color:var(--white-dim);margin-top:1px;}
+  .lb-podium-bar{width:100%;border-radius:8px 8px 0 0;margin-top:8px;opacity:.5;}
+  .lb-h1 .lb-podium-bar{height:56px;}
+  .lb-h2 .lb-podium-bar{height:38px;}
+  .lb-h3 .lb-podium-bar{height:24px;}
+  .lb-podium-slot.lb-me{filter:drop-shadow(0 0 8px rgba(139,92,246,.7));}
+  .lb-podium-slot.lb-me .lb-podium-name{color:#C9A6FF;}
+  .lb-empty{visibility:hidden;}
+  .lb-rest{margin-top:6px;border-top:1px solid rgba(255,255,255,.08);padding-top:8px;}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:7px 4px;border-radius:8px;opacity:0;animation:lbRowIn .35s ease forwards;}
+  .lb-row:nth-child(n){animation-delay:calc(var(--i,0)*40ms);}
+  @keyframes lbRowIn{from{opacity:0;transform:translateX(6px);}to{opacity:1;transform:translateX(0);}}
+  .lb-row.lb-me{background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.25);}
+  .lb-row-rank{width:18px;text-align:center;font-size:11px;font-weight:800;color:var(--white-dim);flex-shrink:0;}
+  .lb-row-avatar{width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,#9AA3B2,#525A68);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#12151C;flex-shrink:0;}
+  .lb-row-name{flex:1;font-size:12px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-row-score{font-size:11.5px;font-weight:800;color:var(--white-dim);}
+  .lb-arrow{display:inline-flex;align-items:center;gap:2px;font-size:10.5px;font-weight:800;padding:2px 6px;border-radius:20px;min-width:28px;justify-content:center;}
+  .lb-arrow.lb-up{background:rgba(34,197,143,.14);color:#22C58F;}
+  .lb-arrow.lb-down{background:rgba(232,86,79,.14);color:#E8564F;}
+  .lb-arrow.lb-flat{background:rgba(154,163,178,.12);color:#9AA3B2;}
+  .lb-arrow.lb-new{background:rgba(139,92,246,.14);color:#B794F6;font-size:9.5px;}
+
+  /* ================= اتاق چالش — هم پنل مدیریت هم آرنای کاربر ================= */
+  .ch-status-badge{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;margin-inline-start:8px;}
+  .ch-status-badge.live{background:rgba(34,197,143,.16);color:#22C58F;}
+  .ch-status-badge.upcoming{background:rgba(240,194,75,.16);color:#F0C24B;}
+  .ch-status-badge.done{background:rgba(154,163,178,.16);color:#9AA3B2;}
+  .ch-admin-row{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px 14px;margin-bottom:10px;position:relative;}
+  .ch-admin-row-head{display:flex;align-items:center;font-size:13px;margin-bottom:8px;}
+  .ch-admin-row-teams{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--white-dim);}
+  .ch-admin-team{display:flex;align-items:center;gap:6px;}
+  .ch-team-tag{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0;}
+  .ch-team-tag.a{background:#2E7CE6;} .ch-team-tag.b{background:#E8564F;}
+  .ch-admin-row-dates{font-size:10.5px;color:var(--white-dim);opacity:.7;margin-top:6px;}
+  .ch-admin-row [data-del-challenge]{position:absolute;top:10px;left:10px;}
+
+  .ch-pick-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+  .ch-pick-chip{
+    display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:12px;cursor:pointer;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:var(--white-dim);
+    font-family:inherit;font-size:12.5px;font-weight:700;transition:.15s;
+  }
+  .ch-pick-chip:active{transform:scale(.96);}
+  .ch-pick-chip.active{background:linear-gradient(135deg, rgba(139,92,246,.22), rgba(46,124,230,.18));border-color:rgba(139,92,246,.55);color:#fff;box-shadow:0 0 12px rgba(139,92,246,.25);}
+  .ch-pick-chip.small{padding:7px 14px;}
+  .ch-pick-avatar{width:22px;height:22px;border-radius:7px;background:linear-gradient(155deg,#9AA3B2,#525A68);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#12151C;flex-shrink:0;}
+  .ch-pick-count{font-size:10.5px;font-weight:700;color:#B794F6;margin-inline-start:6px;}
+  .ch-date-preview{font-size:12px;font-weight:700;color:var(--white-dim);text-align:center;background:rgba(255,255,255,.03);border-radius:10px;padding:9px;margin-top:4px;}
+
+  .ch-arena-card{
+    position:relative;overflow:hidden;border-radius:20px;padding:22px 18px;
+    background:linear-gradient(165deg, rgba(46,124,230,.1), rgba(139,92,246,.08) 60%, var(--navy-alt));
+    border:1px solid rgba(139,92,246,.25);box-shadow:0 10px 30px rgba(0,0,0,.35), 0 0 30px rgba(46,124,230,.08);
+    animation:chCardIn .5s cubic-bezier(.22,1,.36,1);
+  }
+  @keyframes chCardIn{from{opacity:0;transform:translateY(10px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+  .ch-arena-card::before{
+    content:''; position:absolute; top:0; right:0; left:0; height:3px; z-index:1;
+    background:linear-gradient(90deg, transparent, #8B5CF6, #2E7CE6, #8B5CF6, transparent);
+    background-size:200% 100%; animation:chTopSheen 4s linear infinite;
+  }
+  @keyframes chTopSheen{to{background-position:-200% 0;}}
+  .ch-arena-card::after{
+    content:''; position:absolute; inset:-50%; z-index:0; pointer-events:none;
+    background:radial-gradient(circle at 20% 20%, rgba(139,92,246,.16), transparent 45%),
+               radial-gradient(circle at 80% 80%, rgba(46,124,230,.16), transparent 45%);
+    animation:mentorBgDrift 10s ease-in-out infinite alternate;
+  }
+  .ch-arena-card > *{position:relative;z-index:1;}
+  .ch-vs-title{font-size:15px;font-weight:900;color:#fff;text-align:center;margin-bottom:14px;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .ch-days-chip{font-size:10px;font-weight:800;color:#B794F6;background:rgba(139,92,246,.15);padding:2px 10px;border-radius:20px;}
+  .ch-vs-row{display:flex;align-items:center;justify-content:center;gap:14px;}
+  .ch-vs-side{display:flex;flex-direction:column;gap:6px;flex:1;}
+  .ch-vs-badge{
+    position:relative;flex-shrink:0;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:13px;font-weight:900;color:#fff;background:linear-gradient(135deg,#2E7CE6,#8B5CF6);
+    box-shadow:0 0 20px rgba(139,92,246,.7), inset 0 1px 0 rgba(255,255,255,.3);animation:chVsPulse 1.8s ease-in-out infinite;
+  }
+  .ch-vs-badge::before{
+    content:''; position:absolute; inset:-6px; border-radius:50%; border:1.5px dashed rgba(139,92,246,.55);
+    animation:chVsSpin 6s linear infinite;
+  }
+  @keyframes chVsSpin{to{transform:rotate(360deg);}}
+  @keyframes chVsPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+  .ch-avatar-chip{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:10px;background:rgba(255,255,255,.04);opacity:0;animation:chChipIn .4s ease forwards;}
+  .ch-avatar-chip.me{background:rgba(139,92,246,.12);border:1px solid rgba(139,92,246,.35);box-shadow:0 0 10px rgba(139,92,246,.15);}
+  @keyframes chChipIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:translateX(0);}}
+  .ch-avatar-circle{width:26px;height:26px;border-radius:8px;background:linear-gradient(155deg,#9AA3B2,#525A68);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#12151C;flex-shrink:0;}
+  .ch-avatar-name{font-size:11px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ch-avatar-row{display:flex;flex-direction:column;gap:5px;margin-top:8px;}
+
+  .ch-setup-box{margin-top:18px;background:rgba(0,0,0,.15);border-radius:14px;padding:16px;}
+  .ch-setup-title{font-size:13px;font-weight:800;color:#fff;margin-bottom:4px;}
+  .ch-setup-sub{font-size:11px;color:var(--white-dim);line-height:1.6;margin-bottom:12px;}
+  .ch-task-list{display:flex;flex-direction:column;gap:6px;margin-bottom:10px;}
+  .ch-draft-row{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:9px;padding:7px 10px;}
+  .ch-draft-pts{font-size:11px;font-weight:900;color:#B794F6;background:rgba(139,92,246,.15);border-radius:20px;padding:2px 8px;flex-shrink:0;}
+  .ch-draft-name{flex:1;font-size:12.5px;font-weight:700;color:var(--white);}
+  .ch-add-row{display:flex;gap:8px;}
+  .ch-add-row input{flex:1;margin-bottom:0;}
+  .ch-total-chip{margin-top:10px;font-size:12px;font-weight:700;color:var(--white-dim);text-align:center;}
+  .ch-total-chip b{color:#22C58F;font-size:15px;}
+
+  .ch-result-banner{position:relative;overflow:hidden;text-align:center;font-size:16px;font-weight:900;padding:12px;border-radius:12px;margin-bottom:14px;}
+  .ch-result-banner.win{background:rgba(34,197,143,.16);color:#22C58F;animation:chWinGlow 1.6s ease-in-out infinite;}
+  @keyframes chWinGlow{0%,100%{box-shadow:0 0 0 rgba(34,197,143,0);}50%{box-shadow:0 0 22px rgba(34,197,143,.45);}}
+  .ch-result-banner.lose{background:rgba(232,86,79,.14);color:#E8564F;}
+  .ch-result-banner.tie{background:rgba(240,194,75,.14);color:#F0C24B;}
+  .ch-score-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:6px;}
+  .ch-score-side{flex:1;display:flex;flex-direction:column;align-items:center;}
+  .ch-score-num{font-size:38px;font-weight:900;color:var(--white-dim);line-height:1;font-variant-numeric:tabular-nums;}
+  .ch-score-num.me{color:#fff;text-shadow:0 0 18px rgba(139,92,246,.7);}
+  .ch-compare-bar{position:relative;display:flex;height:11px;border-radius:20px;overflow:visible;margin-top:18px;background:rgba(255,255,255,.06);}
+  .ch-compare-fill{position:relative;transition:width .8s cubic-bezier(.22,1,.36,1);border-radius:20px;}
+  .ch-compare-fill.me{background:linear-gradient(90deg,#8B5CF6,#2E7CE6);box-shadow:0 0 10px rgba(139,92,246,.5);}
+  .ch-compare-fill.opp{background:linear-gradient(90deg,#E8564F,#F0C24B);margin-inline-start:auto;box-shadow:0 0 10px rgba(232,86,79,.4);}
+  .ch-today-box{margin-top:18px;background:rgba(0,0,0,.15);border-radius:14px;padding:14px;}
+  .ch-today-task{display:flex;align-items:center;gap:10px;padding:9px 6px;font-size:12.5px;font-weight:700;color:var(--white);cursor:pointer;border-radius:9px;transition:background .2s;}
+  .ch-today-task:hover{background:rgba(255,255,255,.04);}
+  .ch-today-task input{width:17px;height:17px;flex-shrink:0;accent-color:#8B5CF6;}
+  .ch-today-task span{flex:1;}
+  .ch-today-task b{color:#B794F6;font-size:11px;}
   .journey-scene-card{position:relative;overflow:hidden;padding:14px 14px 0;}
   .journey-scene-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:10px;}
   .journey-scene-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
@@ -1487,6 +1646,37 @@ function ensureHtml2Canvas(){
 
 <!-- ===================== LOGIN ===================== -->
 <div id="loginScreen">
+  <div id="loginParticles"></div>
+  <script>
+    (function(){
+      var el = document.getElementById('loginParticles');
+      var html = '';
+      // لایه‌ی زیرین: گرد و غبار ریز آبیِ سیستم، تعداد زیاد ولی کم‌رنگ
+      var nDust = 42;
+      for(var i=0;i<nDust;i++){
+        var left = Math.random()*100, top = Math.random()*100;
+        var size = 1.5 + Math.random()*2.2;
+        var dur = 2.2 + Math.random()*3.5;
+        var delay = Math.random()*4;
+        var maxop = 0.3 + Math.random()*0.45;
+        var drift = -(8 + Math.random()*14);
+        html += '<span class="dust" style="left:'+left.toFixed(1)+'%;top:'+top.toFixed(1)+'%;width:'+size.toFixed(1)+'px;height:'+size.toFixed(1)+'px;--dur:'+dur.toFixed(2)+'s;--delay:'+delay.toFixed(2)+'s;--maxop:'+maxop.toFixed(2)+';--drift:'+drift.toFixed(1)+'px;"></span>';
+      }
+      // لایه‌ی رویی: چندتا گلوله‌ی نوری بزرگ‌تر (آبی/بنفش)، کم‌تعداد ولی چشمگیرتر — حس عمق میده
+      var nOrb = 9;
+      for(var j=0;j<nOrb;j++){
+        var oLeft = Math.random()*100, oTop = Math.random()*100;
+        var oSize = 5 + Math.random()*7;
+        var oDur = 3.5 + Math.random()*3.5;
+        var oDelay = Math.random()*5;
+        var oMaxop = 0.55 + Math.random()*0.4;
+        var oDrift = -(14 + Math.random()*20);
+        var cls = 'orb' + (j%3===0 ? ' violet' : '');
+        html += '<span class="'+cls+'" style="left:'+oLeft.toFixed(1)+'%;top:'+oTop.toFixed(1)+'%;width:'+oSize.toFixed(1)+'px;height:'+oSize.toFixed(1)+'px;--dur:'+oDur.toFixed(2)+'s;--delay:'+oDelay.toFixed(2)+'s;--maxop:'+oMaxop.toFixed(2)+';--drift:'+oDrift.toFixed(1)+'px;"></span>';
+      }
+      el.innerHTML = html;
+    })();
+  </script>
   <div class="quote-line" data-i18n="quoteLine">داستانت از وقتی شروع میشه که نظم رو انتخاب کنی</div>
 
   <div class="id-card">
@@ -1608,6 +1798,7 @@ function ensureHtml2Canvas(){
         <button class="tab-btn" data-tab="today"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3L16 10"/></svg><span data-i18n="tabToday">کارهای امروز</span></button>
         <button class="tab-btn" data-tab="dashboard"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span data-i18n="tabScores">روند پیشرفت</span></button>
         <button class="tab-btn" data-tab="journey"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3-6 5-9 9-9s6 3 9 9"/><circle cx="12" cy="6" r="3.2"/></svg><span data-i18n="tabJourney">مسیر ۲۰ روزه</span></button>
+        <button class="tab-btn hidden" data-tab="challenge" id="challengeTabBtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M6 8h4a2 2 0 012 2v0a2 2 0 002 2h4M18 16h-4a2 2 0 01-2-2v0a2 2 0 00-2-2H6"/></svg><span>اتاق چالش</span></button>
         <button class="tab-btn" data-tab="feedback"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg><span data-i18n="tabFeedback">بازخورد</span></button>
         <button class="tab-btn" data-tab="notes"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2v10z"/></svg><span data-i18n="tabNotes">یادداشت شخصی</span></button>
         <button class="tab-btn" data-tab="achievements"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v6a4 4 0 01-8 0V4z"/><path d="M8 5H4v2a4 4 0 004 4M16 5h4v2a4 4 0 01-4 4"/><path d="M12 14v3M9 21h6M9 21c0-2 1-3 3-3s3 1 3 3"/></svg><span data-i18n="tabHonor">اتاق افتخارات</span></button>
@@ -1628,6 +1819,7 @@ function ensureHtml2Canvas(){
       <div class="panel" id="panel-today"></div>
       <div class="panel" id="panel-dashboard"></div>
       <div class="panel" id="panel-journey"></div>
+      <div class="panel" id="panel-challenge"></div>
       <div class="panel" id="panel-feedback"></div>
       <div class="panel" id="panel-notes"></div>
       <div class="panel" id="panel-rules"></div>
@@ -1712,6 +1904,7 @@ function ensureHtml2Canvas(){
         <button class="tab-btn" data-atab="status"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12a10 10 0 0120 0"/><path d="M6 12a6 6 0 0112 0"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/></svg><span data-i18n="tabStatus">وضعیت</span></button>
         <button class="tab-btn" data-atab="rules"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h11v14a2.5 2.5 0 01-2.5 2.5H8"/><path d="M8 4a2.5 2.5 0 00-2.5 2.5V17A2.5 2.5 0 008 19.5"/><path d="M11 9h5M11 13h5"/></svg><span data-i18n="tabRules">قوانین</span></button>
         <button class="tab-btn" data-atab="controls"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg><span data-i18n="tabControls">کنترل‌ها</span></button>
+        <button class="tab-btn" data-atab="challenges"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4v16M18 4v16M6 8h4a2 2 0 012 2v0a2 2 0 002 2h4M18 16h-4a2 2 0 01-2-2v0a2 2 0 00-2-2H6"/></svg><span>اتاق چالش</span></button>
         <div class="sidebar-divider"></div>
         <button class="tab-btn" data-atab="settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg><span data-i18n="tabSettings">تنظیمات</span></button>
       </div>
@@ -1725,6 +1918,7 @@ function ensureHtml2Canvas(){
       <div class="panel" id="apanel-status"></div>
       <div class="panel" id="apanel-rules"></div>
       <div class="panel" id="apanel-controls"></div>
+      <div class="panel" id="apanel-challenges"></div>
       <div class="panel" id="apanel-settings"></div>
     </div>
   </div>
@@ -2044,6 +2238,10 @@ function localList(prefix){
 // ---- window.storage: اول تلاش می‌کنه با Supabase، اگه نشد خودکار میره سراغ حافظه محلی ----
 // یه کد مالک رو از روی کلید تشخیص میده (مثلاً 'daily:AB12' → 'AB12')؛ کلیدهای بدون ':' یعنی دیتای مشترک/عمومی (owner_code خالی می‌مونه)
 function extractOwnerCode(key){
+  // کلیدهای «رجیستری» (registry:members, registry:mentors, registry:challenges و ...) دیتای مشترک/عمومی‌ان،
+  // نه مال یه کاربر خاص — قبلاً اینجا اشتباهی owner_code رو از رو همون تیکه‌ی بعد از ':' می‌ساخت (مثلاً "challenges")
+  // که هیچ‌وقت کد عضویت واقعی هیچ‌کسی نیست؛ همین باعث رد شدن (400) نوشتن روی جدول ابری می‌شد.
+  if(key.startsWith('registry:')) return null;
   const idx = key.lastIndexOf(':');
   if(idx === -1) return null;
   return key.slice(idx+1) || null;
@@ -2244,6 +2442,8 @@ const ICONS = {
   thumbsUp: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11v10H4a1 1 0 01-1-1v-8a1 1 0 011-1h3z"/><path d="M7 11l4-8a2.5 2.5 0 015 1v5h4.5a2 2 0 011.95 2.45l-1.6 7A2 2 0 0118.9 21H10a3 3 0 01-3-3"/></svg>',
   refresh: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 10-2.9 6.2"/><path d="M20 6v6h-6"/></svg>',
   image: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.5" cy="9" r="1.5" fill="currentColor" stroke="none"/><path d="M21 15l-5-5-9 9"/></svg>',
+  arrowUpTiny: '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3l9 15H3z"/></svg>',
+  arrowDownTiny: '<svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21L3 6h18z"/></svg>',
   home: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V10"/></svg>',
   gear: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1.2-1.9-2-2-1.9 1.2a1.7 1.7 0 00-3 0L13.5 4.6h-3L9.3 6.8a1.7 1.7 0 00-3 0L4.4 5.6l-2 2 1.2 1.9a1.7 1.7 0 000 3L2.4 14.4l2 2 1.9-1.2a1.7 1.7 0 003 0l1.2 2.2h3l1.2-2.2a1.7 1.7 0 003 0l1.9 1.2 2-2z"/></svg>',
   layers: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 5-9 5-9-5 9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 17l9 5 9-5"/></svg>',
@@ -2717,6 +2917,27 @@ async function enterMemberApp(code, viewOnly, memberInfo, preloadedStatePromise)
     plannerTabBtn.classList.add('hidden');
     document.getElementById('panel-planner').innerHTML = '';
   }
+  // اتاق چالش — کاملاً مستقل از بقیه‌ی اپ؛ فقط اگه این کاربر تو یه چالشِ فعال/درحال‌آماده‌سازی باشه تبش دیده میشه
+  // قبلاً این چک فقط موقع لاگین انجام می‌شد؛ یعنی اگه مدیریت وقتی کاربر از قبل تو اپ لاگین بود چالش می‌ساخت،
+  // تب تا خروج و ورود دوباره‌ی کاربر اصلاً ظاهر نمی‌شد. الان با همون چرخه‌ی پولینگ زنده‌ی بقیه‌ی پنل‌ها هم وصل شده.
+  const challengeTabBtn = document.getElementById('challengeTabBtn');
+  function applyChallengeTabVisibility(ch){
+    challengeTabBtn.classList.toggle('hidden', !ch);
+    if(document.getElementById('panel-challenge').classList.contains('active')) renderChallengeTab();
+  }
+  findActiveChallengeForMember(currentCode).then(applyChallengeTabVisibility);
+  registerLiveListRefresh('panel-challenge', async function challengeLiveSnapshot(){
+    const ch = await findActiveChallengeForMember(currentCode);
+    if(!ch) return null;
+    const panelOpen = document.getElementById('panel-challenge').classList.contains('active');
+    if(!panelOpen) return { id: ch.id, status: ch.status }; // امتیاز زنده رو فقط وقتی خودِ اتاق چالش بازه حساب می‌کنیم تا هر ۱.۸ ثانیه بار اضافه به دیتابیس نزنیم
+    const myTeam = ch.teamA.includes(currentCode) ? ch.teamA : ch.teamB;
+    const oppTeam = ch.teamA.includes(currentCode) ? ch.teamB : ch.teamA;
+    const [myScore, oppScore] = await Promise.all([computeChallengeTeamScore(ch, myTeam), computeChallengeTeamScore(ch, oppTeam)]);
+    return { id: ch.id, status: ch.status, myScore, oppScore };
+  }, async function renderChallengeTabLive(){
+    applyChallengeTabVisibility(await findActiveChallengeForMember(currentCode));
+  });
   if(msgViewerRole==='mentor' && memberInfo.notesHiddenFromMentor){
     document.getElementById('panel-notes').innerHTML = `<div class="card"><div class="empty">${t('mentorHiddenSection')}</div></div>`;
   }else{
@@ -3188,16 +3409,10 @@ function buildCycleReminderHtml(cycleStart){
   }
   const info = computeCycle(cycleStart);
   const gid = 'crRingGrad'+Math.random().toString(36).slice(2,8); // چون ممکنه چند رینگ هم‌زمان تو صفحه باشه، id ثابت باعث تداخل گرادینت می‌شد
-  // به‌جای یه کمان یکدست، ۲۰ تا «دندونه»‌ی جدا — هر روز یه دندونه‌ی خودش، دقیقاً مثل حلقه‌ی روزه‌های اپ‌های ورزشی/استریک
-  const cx=22, cy=22, rIn=13.4, rOut=18.6, N=20;
-  let ticks = '';
-  for(let i=0;i<N;i++){
-    const angle = (-90 + i*(360/N)) * Math.PI/180;
-    const x1 = (cx + rIn*Math.cos(angle)).toFixed(2), y1 = (cy + rIn*Math.sin(angle)).toFixed(2);
-    const x2 = (cx + rOut*Math.cos(angle)).toFixed(2), y2 = (cy + rOut*Math.sin(angle)).toFixed(2);
-    const filled = i < info.dayIndex;
-    ticks += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${filled?`url(#${gid})`:'rgba(124,58,237,.2)'}" stroke-width="3.4" stroke-linecap="round" style="${filled?`animation:crTickPop .35s ease backwards; animation-delay:${i*22}ms;`:''}"/>`;
-  }
+  // یه حلقه‌ی دایره‌ی معمولی که ساده پر میشه — نه دندونه‌دندونه
+  const R = 18, C = Math.round(2*Math.PI*R);
+  const pct = Math.min(1, info.dayIndex/20);
+  const dash = Math.round(pct*C);
   const weekDots = Array.from({length:4}).map((_,i)=>{
     const done = i < info.currentWeekIndex-1, live = i === info.currentWeekIndex-1;
     return `<span class="cr-wk-dot ${done?'done':''} ${live?'live':''}"></span>`;
@@ -3210,7 +3425,9 @@ function buildCycleReminderHtml(cycleStart){
             <stop offset="0%" stop-color="#C9A6FF"/><stop offset="55%" stop-color="#8B5CF6"/><stop offset="100%" stop-color="#4A1D96"/>
           </linearGradient>
         </defs>
-        ${ticks}
+        <circle class="cr-ring-bg" cx="22" cy="22" r="${R}" fill="none" stroke="rgba(124,58,237,.2)" stroke-width="3.4"/>
+        <circle class="cr-ring-fill" cx="22" cy="22" r="${R}" fill="none" stroke="url(#${gid})" stroke-width="3.4" stroke-linecap="round"
+          stroke-dasharray="${C}" stroke-dashoffset="${C-dash}" transform="rotate(-90 22 22)" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1);"/>
       </svg>
       <div class="cr-ring-center"><span class="cr-ring-num">${info.dayIndex}</span><span class="cr-ring-of">از ۲۰</span></div>
     </div>
@@ -3314,6 +3531,7 @@ document.querySelectorAll('#mainTabs .tab-btn').forEach(btn=>{
     glassSwitchIn(targetPanel);
     if(btn.dataset.tab==='dashboard') renderDashboard();
     if(btn.dataset.tab==='journey') renderJourneyMap();
+    if(btn.dataset.tab==='challenge') renderChallengeTab();
     if(btn.dataset.tab==='smartmentor') renderSmartMentorTab();
     if(btn.dataset.tab==='today') renderToday();
     if(btn.dataset.tab==='status') renderStatusPanel('panel-status', 'member');
@@ -5554,11 +5772,99 @@ async function checkAndCelebrateNewMedals(code){
     }
   }catch(e){}
 }
+// ================= جدول رتبه‌بندی زنده — تو بخش افتخارات، با نشونِ تغییر رتبه نسبت به آخرین‌بار =================
+async function computeLeaderboard(){
+  const reg = await loadMemberRegistry();
+  // کسی که «مخفی از منتور» یا «مخفی‌کردن روند پیشرفت» رو براش روشن کردن، تو جدول رتبه‌بندی هم نمیاد —
+  // چون این تنظیمات یعنی این آدم صراحتاً نمی‌خواد نمره‌ش جلوی چشم بقیه باشه
+  const active = reg.filter(m=>!m.deleted && !m.hideFromMentor && !m.scoreHiddenFromMentor);
+  const rows = await Promise.all(active.map(async m=>{
+    let daily = {};
+    try{ const r = await window.storage.get('daily:'+m.code, true); daily = r && r.value ? JSON.parse(r.value) : {}; }catch(e){}
+    const today = iranTodayISO();
+    let sum=0, n=0;
+    for(let i=0;i<7;i++){
+      const d = addDays(today,-i);
+      if(daily[d]){ sum += daily[d].dailyScore; n++; }
+    }
+    const avg = n ? Math.round((sum/n)*10)/10 : 0;
+    return { code:m.code, name:m.name||m.code, avg, hasData:n>0 };
+  }));
+  rows.sort((a,b)=> b.avg - a.avg);
+  const ranked = rows.map((r,i)=>({...r, rank:i+1}));
+  return ranked;
+}
+async function loadPrevLeaderboardRanks(){
+  try{ const r = await window.storage.get('leaderboard:prevRanks', true); return r && r.value ? JSON.parse(r.value) : {}; }catch(e){ return {}; }
+}
+async function savePrevLeaderboardRanks(map){
+  try{ await window.storage.set('leaderboard:prevRanks', JSON.stringify(map), true); }catch(e){}
+}
+async function renderLeaderboardCard(highlightCode){
+  const box = document.createElement('div');
+  box.className = 'card leaderboard-card';
+  box.innerHTML = `<h2>${icon('trendUp')}جدول رتبه‌بندی زنده</h2><div class="empty">در حال محاسبه...</div>`;
+  (async ()=>{
+    const ranked = await computeLeaderboard();
+    const prev = await loadPrevLeaderboardRanks();
+    const withDelta = ranked.map(r=>{
+      const prevRank = prev[r.code];
+      const delta = (prevRank!==undefined) ? prevRank - r.rank : 0; // مثبت یعنی رتبه بهتر شده (عدد کوچیک‌تر)
+      return {...r, delta, isNew: prevRank===undefined};
+    });
+    const top3 = withDelta.slice(0,3);
+    const rest = withDelta.slice(3);
+    const podiumOrder = top3.length===3 ? [top3[1], top3[0], top3[2]] : top3; // ۲، ۱، ۳ برای چیدمانِ سکوی واقعی
+    const medalColors = ['#C0C0C0', '#F0C24B', '#CD7F32'];
+    const podiumHtml = podiumOrder.map((r)=>{
+      if(!r) return '<div class="lb-podium-slot lb-empty"></div>';
+      const realRankIdx = r.rank-1; // 0,1,2
+      const color = medalColors[realRankIdx];
+      const heightCls = r.rank===1 ? 'lb-h1' : r.rank===2 ? 'lb-h2' : 'lb-h3';
+      const isMe = r.code===highlightCode;
+      return `<div class="lb-podium-slot ${heightCls} ${isMe?'lb-me':''}">
+        <div class="lb-podium-avatar" style="--pc:${color};">${escapeHtml((r.name||'?').trim()[0]||'?')}</div>
+        <div class="lb-podium-rank" style="color:${color};">${r.rank}</div>
+        <div class="lb-podium-name">${escapeHtml(r.name)}</div>
+        <div class="lb-podium-score">${r.avg}</div>
+        <div class="lb-podium-bar" style="background:linear-gradient(180deg, ${color}, transparent);"></div>
+      </div>`;
+    }).join('');
+    const restHtml = rest.map((r,idx)=>{
+      const isMe = r.code===highlightCode;
+      const arrow = r.isNew ? `<span class="lb-arrow lb-new">جدید</span>` :
+        r.delta>0 ? `<span class="lb-arrow lb-up">${icon('arrowUpTiny')}${r.delta}</span>` :
+        r.delta<0 ? `<span class="lb-arrow lb-down">${icon('arrowDownTiny')}${Math.abs(r.delta)}</span>` :
+        `<span class="lb-arrow lb-flat">–</span>`;
+      return `<div class="lb-row ${isMe?'lb-me':''}" style="--i:${idx};">
+        <span class="lb-row-rank">${r.rank}</span>
+        <span class="lb-row-avatar">${escapeHtml((r.name||'?').trim()[0]||'?')}</span>
+        <span class="lb-row-name">${escapeHtml(r.name)}</span>
+        <span class="lb-row-score">${r.avg}</span>
+        ${arrow}
+      </div>`;
+    }).join('');
+    box.innerHTML = `
+      <h2>${icon('trendUp')}جدول رتبه‌بندی زنده<span class="lb-sub-tag">میانگین ۷ روز اخیر</span></h2>
+      ${withDelta.length===0 ? '<div class="empty">هنوز کسی ثبتی نداشته</div>' : `
+        <div class="lb-podium">${podiumHtml}</div>
+        ${restHtml ? `<div class="lb-rest">${restHtml}</div>` : ''}
+      `}
+    `;
+    // اسنپ‌شات رتبه‌های الان رو ذخیره کن که دفعه‌ی بعد بشه تغییرش رو نشون داد
+    const snap = {}; ranked.forEach(r=>{ snap[r.code]=r.rank; });
+    savePrevLeaderboardRanks(snap);
+  })();
+  return box;
+}
+// موقتاً غیرفعال — کدش نگه داشته شده که هروقت خواستیم برگردونیمش، فقط این خط رو true کنیم
+const LEADERBOARD_ENABLED = false;
 async function renderAchievementsPanel(panelId, code, readOnlyView){
   const el = document.getElementById(panelId);
   if(!el) return;
   const list = await loadAchievements(code);
-  if(list.length===0){ el.innerHTML = '<div class="card honor-card"><h2>'+icon('medal')+' افتخارات</h2><div class="empty">هنوز مدالی گرفته نشده</div></div>'; return; }
+  const lbCard = LEADERBOARD_ENABLED ? await renderLeaderboardCard(code) : null;
+  if(list.length===0){ el.innerHTML = '<div class="card honor-card"><h2>'+icon('medal')+' افتخارات</h2><div class="empty">هنوز مدالی گرفته نشده</div></div>'; if(lbCard) el.prepend(lbCard); return; }
   // خلاصه‌ی تعداد هر نوع مدال — یه نگاه سریع، به‌جای اینکه کل لیست تک‌تک شمرده بشه
   const counts = {};
   list.forEach(a=>{ const n = a.name||a.text; counts[n] = (counts[n]||0)+1; });
@@ -5572,6 +5878,7 @@ async function renderAchievementsPanel(panelId, code, readOnlyView){
   });
   html += '</div>';
   el.innerHTML = html;
+  if(lbCard) el.prepend(lbCard);
   if(!readOnlyView){
     el.querySelectorAll('[data-del-medal]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
       const card = btn.closest('.medal-card');
@@ -6132,6 +6439,22 @@ async function migrateStorageKey(oldKey, newKey){
     }
   }catch(e){ console.error('migrate failed', oldKey, newKey, e); }
 }
+// اگه کد عضویت یه کاربر عوض بشه، تیم‌های چالش‌های فعال/گذشته‌ش هنوز کد قدیمی رو نگه می‌داشتن —
+// یعنی چالشی که واقعاً توشه، بعد از تغییر کد، دیگه براش پیدا نمی‌شد (چون findActiveChallengeForMember دنبال کد جدیده)
+async function migrateChallengeMemberCode(oldCode, newCode){
+  const all = await loadChallenges();
+  const affected = all.filter(ch => ch.teamA.includes(oldCode) || ch.teamB.includes(oldCode));
+  if(!affected.length) return;
+  await Promise.all(affected.flatMap(ch => [
+    migrateStorageKey(`challengeTasks:${ch.id}:${oldCode}`, `challengeTasks:${ch.id}:${newCode}`),
+    migrateStorageKey(`challengeDaily:${ch.id}:${oldCode}`, `challengeDaily:${ch.id}:${newCode}`)
+  ]));
+  affected.forEach(ch=>{
+    ch.teamA = ch.teamA.map(c=>c===oldCode?newCode:c);
+    ch.teamB = ch.teamB.map(c=>c===oldCode?newCode:c);
+  });
+  await saveChallenges(all);
+}
 async function migrateMemberCode(oldCode, newCode){
   if(oldCode===newCode) return;
   const mentors = await loadMentorRegistry();
@@ -6143,6 +6466,7 @@ async function migrateMemberCode(oldCode, newCode){
     migrateStorageKey('thread_admin:'+oldCode, 'thread_admin:'+newCode),
     migrateStorageKey('seenupdates:'+oldCode, 'seenupdates:'+newCode),
     migrateStorageKey('presence:'+oldCode, 'presence:'+newCode),
+    migrateChallengeMemberCode(oldCode, newCode),
     ...mentors.map(m=>migrateStorageKey('thread_mentor:'+m.code+':'+oldCode, 'thread_mentor:'+m.code+':'+newCode))
   ]);
 }
@@ -6434,6 +6758,341 @@ async function renderAdminMedals(){
 
 // ================= admin: اپدیت‌ها =================
 // ================= Controls (فقط رئیس) =================
+// ================= اتاق چالش — کاملاً مستقل از سیستم تسک/امتیاز اصلی؛ تسک، ذخیره‌سازی و برد/باخت خودشو داره =================
+async function loadChallenges(){
+  try{ const r = await window.storage.get('registry:challenges', true); return r && r.value ? JSON.parse(r.value) : []; }catch(e){ console.error('loadChallenges failed', e); return []; }
+}
+async function saveChallenges(list){
+  try{ return await window.storage.set('registry:challenges', JSON.stringify(list), true); }catch(e){ console.error('saveChallenges failed', e); return null; }
+}
+async function loadChallengeTasks(challengeId, code){
+  try{ const r = await window.storage.get(`challengeTasks:${challengeId}:${code}`, true); return r && r.value ? JSON.parse(r.value) : null; }catch(e){ console.error('loadChallengeTasks failed', e); return null; }
+}
+async function saveChallengeTasks(challengeId, code, tasks){
+  try{ return await window.storage.set(`challengeTasks:${challengeId}:${code}`, JSON.stringify(tasks), true); }catch(e){ console.error('saveChallengeTasks failed', e); return null; }
+}
+async function loadChallengeDaily(challengeId, code){
+  try{ const r = await window.storage.get(`challengeDaily:${challengeId}:${code}`, true); return r && r.value ? JSON.parse(r.value) : {}; }catch(e){ console.error('loadChallengeDaily failed', e); return {}; }
+}
+async function saveChallengeDaily(challengeId, code, daily){
+  try{ return await window.storage.set(`challengeDaily:${challengeId}:${code}`, JSON.stringify(daily), true); }catch(e){ console.error('saveChallengeDaily failed', e); return null; }
+}
+// به تعداد تسک، امتیازِ کل (۱۰۰) رو مساوی (عدد صحیح) تقسیم می‌کنه — کاربر هیچ‌وقت خودش دستی امتیاز نمی‌زنه
+function normalizeChallengePoints(n){
+  if(n<=0) return [];
+  const base = Math.floor(100/n);
+  const remainder = 100 - base*n;
+  const arr = [];
+  for(let i=0;i<n;i++) arr.push(base + (i<remainder?1:0));
+  return arr;
+}
+function challengeDateRange(ch){
+  const dates = [];
+  let d = ch.startDate;
+  while(d <= ch.endDate){ dates.push(d); d = addDays(d,1); }
+  return dates;
+}
+// جمع امتیاز یه شرکت‌کننده تو کل بازه‌ی چالش (تا همین امروز، اگه هنوز تموم نشده)
+async function computeChallengeMemberScore(ch, code){
+  const tasks = await loadChallengeTasks(ch.id, code);
+  if(!tasks || !tasks.length) return 0;
+  const daily = await loadChallengeDaily(ch.id, code);
+  const today = iranTodayISO();
+  let sum = 0;
+  challengeDateRange(ch).forEach(d=>{
+    if(d>today) return;
+    const rec = daily[d];
+    if(!rec) return;
+    tasks.forEach(t=>{ if(rec[t.id]) sum += t.points; });
+  });
+  return sum;
+}
+async function computeChallengeTeamScore(ch, team){
+  const scores = await Promise.all(team.map(code=>computeChallengeMemberScore(ch, code)));
+  return scores.reduce((a,b)=>a+b, 0);
+}
+// اگه بازه‌ی چالش تموم شده ولی هنوز status اون رو ثبت نکرده، همین‌جا نتیجه رو قطعی و ذخیره می‌کنه
+async function settleChallengeIfEnded(ch){
+  if(ch.status==='completed') return ch;
+  const today = iranTodayISO();
+  if(today <= ch.endDate) return ch;
+  const scoreA = await computeChallengeTeamScore(ch, ch.teamA);
+  const scoreB = await computeChallengeTeamScore(ch, ch.teamB);
+  ch.status = 'completed';
+  ch.finalScoreA = scoreA; ch.finalScoreB = scoreB;
+  ch.winner = scoreA>scoreB ? 'A' : scoreB>scoreA ? 'B' : 'tie';
+  const all = await loadChallenges();
+  const idx = all.findIndex(x=>x.id===ch.id);
+  if(idx>=0){ all[idx] = ch; await saveChallenges(all); }
+  return ch;
+}
+// ---------- رندر تب اتاق چالش برای خودِ کاربر (یا کسی که داره پروفایلشو می‌بینه) ----------
+function memberNameByCode(reg, code){ const m = reg.find(x=>x.code===code); return m ? (m.name||code) : code; }
+async function findActiveChallengeForMember(code){
+  const all = await loadChallenges();
+  const today = iranTodayISO();
+  return all.find(ch => (ch.teamA.includes(code)||ch.teamB.includes(code)) && ch.status!=='completed' && today<=ch.endDate) || null;
+}
+async function renderChallengeTab(){
+  const el = document.getElementById('panel-challenge');
+  if(!el) return;
+  el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری چالش...</div></div>';
+  const ch = await findActiveChallengeForMember(currentCode);
+  if(!ch){ el.innerHTML = '<div class="card"><div class="empty">چالش فعالی نداری</div></div>'; return; }
+  await settleChallengeIfEnded(ch);
+
+  const reg = await loadMemberRegistry();
+  const myTeamKey = ch.teamA.includes(currentCode) ? 'A' : 'B';
+  const myTeam = myTeamKey==='A' ? ch.teamA : ch.teamB;
+  const oppTeam = myTeamKey==='A' ? ch.teamB : ch.teamA;
+  const myTasks = await loadChallengeTasks(ch.id, currentCode);
+  const today = iranTodayISO();
+  const started = today >= ch.startDate;
+  const ended = ch.status==='completed';
+
+  function avatarsHtml(team, highlight){
+    return team.map(code=>{
+      const nm = memberNameByCode(reg, code);
+      return `<div class="ch-avatar-chip ${highlight?'me':''}"><span class="ch-avatar-circle">${escapeHtml((nm||'?').trim()[0]||'?')}</span><span class="ch-avatar-name">${escapeHtml(nm)}</span></div>`;
+    }).join('');
+  }
+
+  // ---------- فاز ۱: هنوز تسک‌هاشو نساخته — باید بسازه، امتیازها کاملاً خودکاره ----------
+  if(!myTasks){
+    el.innerHTML = `
+      <div class="ch-arena-card">
+        <div class="ch-vs-title">${escapeHtml(ch.name)}</div>
+        <div class="ch-vs-row">
+          <div class="ch-vs-side">${avatarsHtml(myTeam,true)}</div>
+          <div class="ch-vs-badge">VS</div>
+          <div class="ch-vs-side">${avatarsHtml(oppTeam,false)}</div>
+        </div>
+        <div class="ch-setup-box">
+          <div class="ch-setup-title">تسک‌های خودتو بساز</div>
+          <div class="ch-setup-sub">هرچقدر تسک اضافه کنی، سیستم خودکار امتیازشون رو طوری تقسیم می‌کنه که جمعشون دقیقاً ۱۰۰ بشه — خودت هیچ‌وقت امتیاز دستی نمی‌زنی</div>
+          <div id="chTaskList" class="ch-task-list"></div>
+          <div class="ch-add-row">
+            <input type="text" id="chNewTask" placeholder="اسم تسک جدید...">
+            <button class="btn small" id="chAddTaskBtn">+ افزودن</button>
+          </div>
+          <div class="ch-total-chip">مجموع: <b id="chTotalPreview">۰</b> / ۱۰۰</div>
+          <button class="btn primary" id="chLockBtn" style="width:100%;margin-top:14px;" disabled>قفل کن و وارد چالش شو</button>
+        </div>
+      </div>`;
+    let draft = [];
+    function paintDraft(){
+      const pts = normalizeChallengePoints(draft.length);
+      document.getElementById('chTaskList').innerHTML = draft.map((tsk,i)=>
+        `<div class="ch-draft-row"><span class="ch-draft-pts">${pts[i]}</span><span class="ch-draft-name">${escapeHtml(tsk)}</span><button class="icon-btn" data-rm="${i}">${icon('close')}</button></div>`
+      ).join('');
+      document.getElementById('chTotalPreview').textContent = pts.reduce((a,b)=>a+b,0);
+      document.getElementById('chLockBtn').disabled = draft.length===0;
+      el.querySelectorAll('[data-rm]').forEach(b=>b.addEventListener('click', ()=>{ draft.splice(Number(b.dataset.rm),1); paintDraft(); }));
+    }
+    paintDraft();
+    document.getElementById('chAddTaskBtn').addEventListener('click', ()=>{
+      const inp = document.getElementById('chNewTask');
+      const val = inp.value.trim();
+      if(!val) return;
+      draft.push(val); inp.value=''; paintDraft(); inp.focus();
+    });
+    document.getElementById('chNewTask').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('chAddTaskBtn').click(); } });
+    document.getElementById('chLockBtn').addEventListener('click', guard(document.getElementById('chLockBtn'), async ()=>{
+      const pts = normalizeChallengePoints(draft.length);
+      const tasks = draft.map((name,i)=>({ id:uid(), name, points:pts[i] }));
+      const saveResult = await saveChallengeTasks(ch.id, currentCode, tasks);
+      if(saveResult && saveResult.source==='local'){
+        showToast('⚠️ به دیتابیس ابری وصل نشد — تسک‌هات فقط رو همین مرورگر ذخیره شد. اینترنتت رو چک کن و دوباره امتحان کن.');
+      }else{
+        showToast('تسک‌هات قفل شد — وارد چالش شدی!');
+      }
+      renderChallengeTab();
+    }));
+    return;
+  }
+
+  // ---------- فاز ۲: آرنا — امتیاز زنده، مقایسه، و چک‌لیست امروز ----------
+  const [myScore, oppScore, myDaily] = await Promise.all([
+    computeChallengeTeamScore(ch, myTeam),
+    computeChallengeTeamScore(ch, oppTeam),
+    loadChallengeDaily(ch.id, currentCode),
+  ]);
+  const maxScore = Math.max(myScore, oppScore, 1);
+  const myPct = Math.round((myScore/maxScore)*100);
+  const oppPct = Math.round((oppScore/maxScore)*100);
+  const daysTotal = challengeDateRange(ch).length;
+  const daysLeft = Math.max(0, challengeDateRange(ch).filter(d=>d>=today).length);
+
+  let resultBanner = '';
+  if(ended){
+    const won = (ch.winner==='A' && myTeamKey==='A') || (ch.winner==='B' && myTeamKey==='B');
+    const tie = ch.winner==='tie';
+    resultBanner = `<div class="ch-result-banner ${tie?'tie':won?'win':'lose'}">${tie ? 'مساوی شد!' : won ? '🏆 بردی!' : 'این‌بار باختی — دفعه‌ی بعد!'}</div>`;
+  }
+
+  const todayTasksHtml = (started && !ended) ? myTasks.map(t=>{
+    const checked = !!(myDaily[today] && myDaily[today][t.id]);
+    return `<label class="ch-today-task"><input type="checkbox" data-ch-task="${t.id}" ${checked?'checked':''}><span>${escapeHtml(t.name)}</span><b>${t.points}</b></label>`;
+  }).join('') : '';
+
+  el.innerHTML = `
+    <div class="ch-arena-card">
+      <div class="ch-vs-title">${escapeHtml(ch.name)}${!ended?`<span class="ch-days-chip">${daysLeft} روز مونده</span>`:''}</div>
+      ${resultBanner}
+      <div class="ch-score-row">
+        <div class="ch-score-side">
+          <div class="ch-score-num me">${myScore}</div>
+          <div class="ch-avatar-row">${avatarsHtml(myTeam,true)}</div>
+        </div>
+        <div class="ch-vs-badge">VS</div>
+        <div class="ch-score-side">
+          <div class="ch-score-num">${oppScore}</div>
+          <div class="ch-avatar-row">${avatarsHtml(oppTeam,false)}</div>
+        </div>
+      </div>
+      <div class="ch-compare-bar">
+        <div class="ch-compare-fill me" style="width:${myPct}%;"></div>
+        <div class="ch-compare-fill opp" style="width:${oppPct}%;"></div>
+      </div>
+      ${todayTasksHtml ? `<div class="ch-today-box"><div class="ch-setup-title">تسک‌های امروز</div>${todayTasksHtml}</div>` : ''}
+      ${!started ? `<div class="ch-setup-sub" style="text-align:center;margin-top:14px;">چالش از ${iranJalaliDate(ch.startDate)} شروع میشه</div>` : ''}
+    </div>`;
+
+  el.querySelectorAll('[data-ch-task]').forEach(cb=>cb.addEventListener('change', guard(cb, async ()=>{
+    const fresh = await loadChallengeDaily(ch.id, currentCode);
+    if(!fresh[today]) fresh[today] = {};
+    fresh[today][cb.dataset.chTask] = cb.checked;
+    const saveResult = await saveChallengeDaily(ch.id, currentCode, fresh);
+    if(saveResult && saveResult.source==='local'){
+      showToast('⚠️ به دیتابیس ابری وصل نشد — این تیک فقط رو همین مرورگر ذخیره شد و تو امتیاز نهایی حساب نمی‌شه تا اتصال درست شه.');
+    }
+    renderChallengeTab();
+  })));
+}
+
+
+async function renderAdminChallenges(){
+  const el = document.getElementById('apanel-challenges');
+  if(!el) return;
+  el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری...</div></div>';
+  const [reg, challenges] = await Promise.all([loadMemberRegistry(), loadChallenges()]);
+  const active = reg.filter(m=>!m.deleted);
+
+  // اگه چالشی به پایان بازه‌ش رسیده ولی هنوز «تموم‌شده» ثبت نشده، همین‌جا قطعیش می‌کنیم
+  for(const ch of challenges){ await settleChallengeIfEnded(ch); }
+
+  const memberChipsHtml = (groupId) => active.map(m=>`<button type="button" class="ch-pick-chip" data-group="${groupId}" data-code="${m.code}"><span class="ch-pick-avatar">${escapeHtml((m.name||m.code).trim()[0]||'?')}</span><span>${escapeHtml(m.name||m.code)}</span></button>`).join('');
+
+  const listHtml = challenges.length===0 ? '<div class="empty">هنوز چالشی ساخته نشده</div>' : challenges.slice().reverse().map(ch=>{
+    const namesA = ch.teamA.map(c=>escapeHtml(memberNameByCode(reg,c))).join('، ');
+    const namesB = ch.teamB.map(c=>escapeHtml(memberNameByCode(reg,c))).join('، ');
+    const statusBadge = ch.status==='completed'
+      ? `<span class="ch-status-badge done">تموم‌شده${ch.winner==='tie'?' · مساوی':ch.winner==='A'?' · برد تیم A':' · برد تیم B'}</span>`
+      : (iranTodayISO() < ch.startDate ? '<span class="ch-status-badge upcoming">هنوز شروع نشده</span>' : '<span class="ch-status-badge live">در حال اجرا</span>');
+    return `<div class="ch-admin-row">
+      <div class="ch-admin-row-head"><b>${escapeHtml(ch.name)}</b>${statusBadge}</div>
+      <div class="ch-admin-row-teams">
+        <div class="ch-admin-team"><span class="ch-team-tag a">A</span>${namesA}${ch.status==='completed'?` <b>(${ch.finalScoreA})</b>`:''}</div>
+        <div class="ch-admin-team"><span class="ch-team-tag b">B</span>${namesB}${ch.status==='completed'?` <b>(${ch.finalScoreB})</b>`:''}</div>
+      </div>
+      <div class="ch-admin-row-dates">${iranJalaliDate(ch.startDate)} تا ${iranJalaliDate(ch.endDate)}</div>
+      <button class="icon-btn" data-del-challenge="${ch.id}" title="حذف چالش">${icon('close')}</button>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="card">
+      <h2>${icon('trendUp')} ساخت چالش جدید</h2>
+      <div class="empty" style="text-align:right;margin-bottom:10px;">دو طرف باید تعداد نفرات مساوی داشته باشن (۱ در برابر ۱، ۲ در برابر ۲، یا ۳ در برابر ۳). تسک و امتیازش رو خودِ هر شرکت‌کننده داخل پنل خودش می‌سازه.</div>
+      <label class="field-label">اسم چالش</label>
+      <input type="text" id="chName" placeholder="مثلاً چالش هفته‌ی انضباط">
+      <label class="field-label">تیم A <span class="ch-pick-count" id="chCountA">۰ نفر</span></label>
+      <div class="ch-pick-grid">${memberChipsHtml('A')}</div>
+      <label class="field-label">تیم B <span class="ch-pick-count" id="chCountB">۰ نفر</span></label>
+      <div class="ch-pick-grid">${memberChipsHtml('B')}</div>
+      <label class="field-label">چالش کِی شروع بشه؟</label>
+      <div class="ch-pick-grid" id="chStartPicker">
+        <button type="button" class="ch-pick-chip small active" data-start="0">امروز</button>
+        <button type="button" class="ch-pick-chip small" data-start="1">فردا</button>
+        <button type="button" class="ch-pick-chip small" data-start="2">پس‌فردا</button>
+      </div>
+      <label class="field-label">مدت چالش چند روزه؟</label>
+      <div class="ch-pick-grid" id="chDurPicker">
+        <button type="button" class="ch-pick-chip small" data-dur="3">۳ روز</button>
+        <button type="button" class="ch-pick-chip small active" data-dur="7">۷ روز</button>
+        <button type="button" class="ch-pick-chip small" data-dur="14">۱۴ روز</button>
+        <button type="button" class="ch-pick-chip small" data-dur="20">۲۰ روز</button>
+      </div>
+      <div class="ch-date-preview" id="chDatePreview"></div>
+      <button class="btn primary" id="chCreateBtn" style="margin-top:12px;">ساخت و فعال‌سازی چالش</button>
+    </div>
+    <div class="card"><h2>${icon('trendUp')} چالش‌های ساخته‌شده</h2>${listHtml}</div>
+  `;
+
+  let startOffset = 0, duration = 7;
+  function updateDatePreview(){
+    const s = addDays(iranTodayISO(), startOffset);
+    const e = addDays(s, duration-1);
+    document.getElementById('chDatePreview').textContent = `بازه: ${iranJalaliDate(s)} تا ${iranJalaliDate(e)}`;
+  }
+  updateDatePreview();
+  document.getElementById('chStartPicker').querySelectorAll('[data-start]').forEach(b=>b.addEventListener('click', ()=>{
+    document.getElementById('chStartPicker').querySelectorAll('.ch-pick-chip').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); startOffset = Number(b.dataset.start); updateDatePreview();
+  }));
+  document.getElementById('chDurPicker').querySelectorAll('[data-dur]').forEach(b=>b.addEventListener('click', ()=>{
+    document.getElementById('chDurPicker').querySelectorAll('.ch-pick-chip').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); duration = Number(b.dataset.dur); updateDatePreview();
+  }));
+  el.querySelectorAll('.ch-pick-chip[data-code]').forEach(chip=>chip.addEventListener('click', ()=>{
+    const group = chip.dataset.group, code = chip.dataset.code;
+    const otherGroup = group==='A' ? 'B' : 'A';
+    // یه نفر نمی‌تونه هم‌زمان تو هر دو تیم باشه — اگه تو تیم مقابل انتخاب شده، اول از اونجا بردار
+    const otherChip = el.querySelector(`.ch-pick-chip[data-group="${otherGroup}"][data-code="${code}"]`);
+    if(otherChip && otherChip.classList.contains('active')) otherChip.classList.remove('active');
+    chip.classList.toggle('active');
+    document.getElementById('chCountA').textContent = el.querySelectorAll('.ch-pick-chip[data-group="A"].active').length + ' نفر';
+    document.getElementById('chCountB').textContent = el.querySelectorAll('.ch-pick-chip[data-group="B"].active').length + ' نفر';
+  }));
+
+  document.getElementById('chCreateBtn').addEventListener('click', guard(document.getElementById('chCreateBtn'), async ()=>{
+    const name = document.getElementById('chName').value.trim();
+    const teamA = Array.from(el.querySelectorAll('.ch-pick-chip[data-group="A"].active')).map(c=>c.dataset.code);
+    const teamB = Array.from(el.querySelectorAll('.ch-pick-chip[data-group="B"].active')).map(c=>c.dataset.code);
+    const startDate = addDays(iranTodayISO(), startOffset);
+    const endDate = addDays(startDate, duration-1);
+    if(!name){ showToast('اسم چالش رو بنویس'); return; }
+    if(teamA.length===0){ showToast('حداقل ۱ نفر تو هر تیم انتخاب کن'); return; }
+    if(teamA.length!==teamB.length){ showToast('تعداد نفرات دو تیم باید مساوی باشه'); return; }
+    if(teamA.length>3){ showToast('حداکثر ۳ در برابر ۳'); return; }
+    const all = await loadChallenges();
+    all.push({ id:uid(), name, teamA, teamB, startDate, endDate, status:'active', createdAt:iranTodayISO() });
+    const saveResult = await saveChallenges(all);
+    if(saveResult && saveResult.source==='local'){
+      // اینجا دقیقاً همون حالتیه که «تو پنل مدیریت ساخته شد ولی پیش کاربر نمیاد» — چون اصلاً به دیتابیس ابری نرسیده،
+      // فقط رو مرورگر خودِ مدیریت ذخیره شده و بین دستگاه‌ها/کاربرها مشترک نیست
+      showToast('⚠️ به دیتابیس ابری وصل نشد — چالش فقط رو همین مرورگر ذخیره شد و پیش کاربرها نمیاد. اینترنت/اتصال ابری رو چک کن و دوباره امتحان کن.');
+    }else{
+      showToast('چالش ساخته و فعال شد');
+    }
+    renderAdminChallenges();
+  }));
+  el.querySelectorAll('[data-del-challenge]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
+    if(!confirm('این چالش حذف بشه؟')) return;
+    const all = await loadChallenges();
+    const target = all.find(c=>c.id===btn.dataset.delChallenge);
+    const filtered = all.filter(c=>c.id!==btn.dataset.delChallenge);
+    await saveChallenges(filtered);
+    if(target){ // تسک‌ها و ثبت‌های روزانه‌ی این چالش هم پاک بشن که تو دیتابیس یتیم نمونن
+      const codes = [...target.teamA, ...target.teamB];
+      await Promise.all(codes.flatMap(code => [
+        window.storage.delete(`challengeTasks:${target.id}:${code}`, true).catch(()=>{}),
+        window.storage.delete(`challengeDaily:${target.id}:${code}`, true).catch(()=>{})
+      ]));
+    }
+    renderAdminChallenges();
+  })));
+}
 async function renderAdminControls(){
   const el = document.getElementById('apanel-controls');
   el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری...</div></div>';
@@ -6662,6 +7321,7 @@ document.querySelectorAll('#adminApp [data-atab]').forEach(btn=>{
     glassSwitchIn(targetPanel);
     if(btn.dataset.atab==='status') renderStatusPanel('apanel-status', 'admin');
     if(btn.dataset.atab==='controls') renderAdminControls();
+    if(btn.dataset.atab==='challenges') renderAdminChallenges();
     if(btn.dataset.atab==='members') renderAdminMembers(); // هر بار میای این تب، دوباره از دیتابیس تازه می‌خونه (مثلاً اگه از تب Controls منتور/مخفی‌بودن رو عوض کرده باشی، اینجا هم آپدیت شده نشون میده)
     if(btn.dataset.atab==='settings') renderSettingsPanel('apanel-settings');
     closeAdminSidebar();
