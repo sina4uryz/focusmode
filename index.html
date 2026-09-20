@@ -265,6 +265,10 @@ function ensureHtml2Canvas(){
   input:focus, textarea:focus{ box-shadow:0 0 0 3px rgba(111,168,220,.18); }
   body{margin:0;background:var(--black);color:var(--white);font-family:'Vazirmatn',sans-serif;font-weight:500;letter-spacing:.1px;min-height:100vh;}
   .wrap{max-width:960px;margin:0 auto;padding:20px 16px 60px;}
+  /* رو تبلت/لپ‌تاپ/مانیتور بزرگ، عرض محتوا رو بیشتر می‌کنیم که اون فضای خالی چپ و راست هدر نره —
+     زیر ۸۶۰px همون چیدمان قبلی (موبایل/ساید‌بار جمع‌شده) دست‌نخورده می‌مونه */
+  @media (min-width:861px) and (max-width:1279px){ .wrap{max-width:1100px;} }
+  @media (min-width:1280px){ .wrap{max-width:1320px;padding-left:28px;padding-right:28px;} }
   .hidden{display:none !important;}
 
   /* ---------- login screen ---------- */
@@ -310,7 +314,7 @@ function ensureHtml2Canvas(){
     100%{ transform:translate3d(4%,-3%,0) rotate(-4deg); }
   }
   .id-card{
-    width:100%;max-width:460px;position:relative;overflow:hidden;border-radius:24px;padding:38px 30px 46px;
+    width:100%;max-width:460px;min-height:420px;position:relative;overflow:hidden;border-radius:24px;padding:38px 30px 46px;
     background:rgba(27,34,51,0.42);
     border:1px solid rgba(255,255,255,0.16);
     box-shadow:0 12px 40px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10), inset 0 0 40px rgba(255,255,255,.03), 0 0 70px 14px rgba(111,168,220,.22);
@@ -335,6 +339,8 @@ function ensureHtml2Canvas(){
     max-width:420px;width:100%;text-align:center;font-size:15.5px;font-weight:800;padding:12px 10px;
     color:var(--lightblue); cursor:default; letter-spacing:.3px; line-height:1.7;
     text-shadow:0 0 14px rgba(111,168,220,.35);
+    min-height:3.4em;display:flex;align-items:center;justify-content:center;
+    /* حداقل ارتفاع می‌ذاریم که با متن کوتاه‌تر تو زبان‌های دیگه (انگلیسی/آلمانی/...) کارت لاگین جمع نشه و همون اندازه‌ی فارسی بمونه */
   }
   @keyframes shine{0%{background-position:180% 0;}50%{background-position:0% 0;}100%{background-position:-180% 0;}}
   @keyframes shineFast{0%{background-position:220% 0;filter:brightness(1);}50%{background-position:0% 0;filter:brightness(1.6);}100%{background-position:-220% 0;filter:brightness(1);}}
@@ -827,6 +833,7 @@ function ensureHtml2Canvas(){
   .ch-team-tag{width:18px;height:18px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;color:#fff;flex-shrink:0;}
   .ch-team-tag.a{background:#2E7CE6;} .ch-team-tag.b{background:#E8564F;}
   .ch-admin-row-dates{font-size:10.5px;color:var(--white-dim);opacity:.7;margin-top:6px;}
+  .ch-admin-row [data-view-challenge]{position:absolute;top:10px;left:40px;}
   .ch-admin-row [data-del-challenge]{position:absolute;top:10px;left:10px;}
 
   .ch-pick-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
@@ -915,6 +922,77 @@ function ensureHtml2Canvas(){
   .ch-today-task input{width:17px;height:17px;flex-shrink:0;accent-color:#8B5CF6;}
   .ch-today-task span{flex:1;}
   .ch-today-task b{color:#B794F6;font-size:11px;}
+
+  /* ---- ارتقای «چالش جهانی» — نوار عنوان طلایی، درخشش تیم پیشتاز، تاریخچه‌ی روزانه، دستیار هوشمند ---- */
+  .ch-world-ribbon{
+    display:flex;align-items:center;justify-content:center;gap:7px;font-size:11px;font-weight:900;letter-spacing:.3px;
+    color:#2A1B00;padding:6px 14px;border-radius:20px;margin:0 auto 10px;width:fit-content;
+    background:linear-gradient(90deg,#F0C24B,#FFE38A,#F0C24B);background-size:200% 100%;
+    box-shadow:0 4px 16px rgba(240,194,75,.35);animation:chGoldSheen 3.5s linear infinite;
+  }
+  @keyframes chGoldSheen{to{background-position:-200% 0;}}
+  .ch-arena-card.leading{border-color:rgba(240,194,75,.55);box-shadow:0 10px 30px rgba(0,0,0,.35), 0 0 34px rgba(240,194,75,.22);}
+  .ch-arena-card.leading::before{background:linear-gradient(90deg, transparent, #F0C24B, #8B5CF6, #F0C24B, transparent);background-size:200% 100%;}
+  .ch-score-num{transition:color .3s;}
+  .ch-history-box{margin-top:14px;background:rgba(0,0,0,.15);border-radius:14px;padding:14px;animation:chCardIn .4s ease;}
+  .ch-history-strip{display:flex;gap:7px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;}
+  .ch-history-day{display:flex;flex-direction:column;align-items:center;gap:5px;flex-shrink:0;min-width:24px;}
+  .ch-history-bars{display:flex;align-items:flex-end;gap:2.5px;height:56px;}
+  .ch-history-bar{width:7px;border-radius:3px 3px 1px 1px;min-height:2px;transition:height .5s cubic-bezier(.22,1,.36,1);}
+  .ch-history-bar.me{background:linear-gradient(180deg,#8B5CF6,#2E7CE6);box-shadow:0 0 6px rgba(139,92,246,.5);}
+  .ch-history-bar.opp{background:linear-gradient(180deg,#E8564F,#F0C24B);box-shadow:0 0 6px rgba(232,86,79,.4);}
+  .ch-history-date{font-size:9px;color:var(--white-dim);opacity:.75;font-variant-numeric:tabular-nums;}
+  .ch-history-legend{display:flex;justify-content:center;gap:16px;margin-top:6px;font-size:10.5px;color:var(--white-dim);}
+  .ch-history-legend span{display:flex;align-items:center;gap:5px;}
+  .ch-history-legend i{width:9px;height:9px;border-radius:3px;display:inline-block;}
+  .ch-history-legend i.me{background:linear-gradient(135deg,#8B5CF6,#2E7CE6);}
+  .ch-history-legend i.opp{background:linear-gradient(135deg,#E8564F,#F0C24B);}
+  .ch-ai-box{
+    margin-top:14px;display:flex;gap:12px;align-items:flex-start;border-radius:16px;padding:14px 16px;
+    background:linear-gradient(165deg, rgba(139,92,246,.1), rgba(46,124,230,.06));
+    border:1px solid rgba(139,92,246,.3);animation:chCardIn .45s ease;
+  }
+  .ch-ai-box.win{border-color:rgba(34,197,143,.4);background:linear-gradient(165deg, rgba(34,197,143,.12), rgba(46,124,230,.05));}
+  .ch-ai-box.warn{border-color:rgba(232,86,79,.4);background:linear-gradient(165deg, rgba(232,86,79,.12), rgba(139,92,246,.05));}
+  .ch-ai-icon{flex-shrink:0;width:34px;height:34px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:16px;
+    background:linear-gradient(135deg,#8B5CF6,#2E7CE6);box-shadow:0 0 14px rgba(139,92,246,.5);animation:chVsPulse 2.4s ease-in-out infinite;}
+  .ch-ai-box.win .ch-ai-icon{background:linear-gradient(135deg,#22C58F,#2E7CE6);box-shadow:0 0 14px rgba(34,197,143,.5);}
+  .ch-ai-box.warn .ch-ai-icon{background:linear-gradient(135deg,#E8564F,#F0C24B);box-shadow:0 0 14px rgba(232,86,79,.5);}
+  .ch-ai-body{flex:1;min-width:0;}
+  .ch-ai-label{font-size:10px;font-weight:800;color:#B794F6;margin-bottom:3px;}
+  .ch-ai-text{font-size:12.5px;font-weight:600;color:var(--white);line-height:1.7;}
+
+  /* ---- مودال «مشاهده‌ی مدیریت» ---- */
+  .ch-admin-view-overlay{
+    position:fixed;inset:0;z-index:900;display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;
+    background:rgba(0,0,0,.68);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  }
+  .ch-admin-view-card{
+    position:relative;max-width:460px;width:100%;margin:20px auto;padding:22px 18px;border-radius:22px;
+    background:linear-gradient(165deg, rgba(255,255,255,.06), rgba(255,255,255,.015));
+    border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(20px) saturate(200%);-webkit-backdrop-filter:blur(20px) saturate(200%);
+    box-shadow:0 30px 70px rgba(0,0,0,.5);animation:chCardIn .35s ease;
+  }
+  .ch-admin-view-close{position:absolute;top:14px;left:14px;z-index:2;}
+  .ch-admin-member-list{margin-top:14px;background:rgba(0,0,0,.15);border-radius:14px;padding:12px;}
+  .ch-admin-member-row{display:flex;align-items:center;gap:8px;padding:8px 4px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05);}
+  .ch-admin-member-row:last-child{border-bottom:none;}
+  .ch-admin-member-name{flex:1;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .ch-admin-member-score{font-weight:900;color:#B794F6;font-size:11.5px;}
+  .ch-admin-member-today{font-size:10.5px;color:var(--white-dim);flex-shrink:0;}
+  .ch-admin-member-note{font-size:10.5px;color:var(--white-dim);opacity:.7;}
+
+  /* ---- سوییچرِ چند-اتاقه — وقتی یه عضو هم‌زمان تو چندتا چالش فعاله ---- */
+  .ch-room-switcher{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:2px;}
+  .ch-room-chip{
+    flex-shrink:0;display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:20px;font-size:11.5px;font-weight:800;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--white-dim);cursor:pointer;transition:all .2s;
+  }
+  .ch-room-chip:active{transform:scale(.96);}
+  .ch-room-chip.active{
+    color:#fff;background:linear-gradient(135deg, rgba(240,194,75,.22), rgba(139,92,246,.2));
+    border-color:rgba(240,194,75,.5);box-shadow:0 0 12px rgba(240,194,75,.25);
+  }
   .journey-scene-card{position:relative;overflow:hidden;padding:14px 14px 0;}
   .journey-scene-head{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:800;color:var(--white);margin-bottom:10px;}
   .journey-scene-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;}
@@ -1517,6 +1595,7 @@ function ensureHtml2Canvas(){
     transition:opacity .3s ease;
   }
   .save-toast.show{opacity:1;animation:toastPop .5s cubic-bezier(.34,1.56,.64,1) forwards;}
+  .save-toast.warning{background:linear-gradient(135deg, #E8564F, #C93A34);box-shadow:0 8px 26px rgba(200,50,45,.5), inset 0 1px 0 rgba(255,255,255,.3);}
   @keyframes toastPop{0%{transform:translateX(-50%) translateY(16px) scale(.88);opacity:0;}55%{transform:translateX(-50%) translateY(-4px) scale(1.045);opacity:1;}100%{transform:translateX(-50%) translateY(0) scale(1);opacity:1;}}
   .save-toast-icon{display:inline-flex;flex-shrink:0;}
   .save-toast-icon svg{display:block;filter:drop-shadow(0 0 3px rgba(255,255,255,.5));}
@@ -1618,7 +1697,7 @@ function ensureHtml2Canvas(){
     <div class="splash-brand-line">MODE</div>
     <div class="splash-underline"></div>
   </div>
-  <div class="splash-version">Version 6.0.0</div>
+  <div class="splash-version">Version 8.1.3</div>
 </div>
 <script>
 (function(){
@@ -1725,7 +1804,7 @@ function ensureHtml2Canvas(){
     <div class="lf-line" data-i18n="lfCopy2">Unauthorized copying, reproduction, modification, or distribution of this website or its contents is strictly prohibited.</div>
     <div class="lf-line" data-i18n="lfDesigned">Designed &amp; Developed by</div>
     <div class="lf-name-line">NorthDesign</div>
-    <div class="lf-line">Version 6.0.0</div>
+    <div class="lf-line">Version 8.1.3</div>
   </div>
 </div>
 
@@ -2352,6 +2431,12 @@ const DEFAULT_MENTORS = [
 
 // ================= session state =================
 let currentCode = null;      // active member code being displayed
+let challengeTabPainted = false;   // برای جلوگیری از فلیکرِ «در حال بارگذاری» هر بار که تسک تیک می‌خوره یا پولینگ زنده رندر می‌کنه
+let adminChallengesPainted = false; // همون منطق برای پنل مدیریتِ اتاق چالش (ساخت/حذف چالش)
+let challengeActiveList = [];   // همه‌ی چالش‌های فعالی که این عضو هم‌زمان توشونه (ممکنه بیشتر از یکی باشه)
+let challengeSelectedId = null; // کدوم چالش الان تو پنل کاربر انتخاب شده
+let challengeLastListSig = null; // امضای لیست چالش‌های فعال — برای تشخیص اینکه واقعاً لیست عوض شده یا فقط امتیاز
+let challengeArenaCtx = null;    // زمینه‌ی چالشِ در حال نمایش — برای آپدیت زنده‌ی امتیاز بدون رندر کامل (ضدِ فلیکر)
 let currentMember = null;    // active member profile {name,phone,code,num}
 let isViewOnly = false;
 let viaMentorList = false;   // true if we entered member view from mentor/admin list (show back button)
@@ -2407,6 +2492,8 @@ const uid = () => Math.random().toString(36).slice(2,9);
 const ICONS = {
   user: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7"/></svg>',
   crown: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4 4 5-7 5 7 4-4-2 10H5L3 8z"/></svg>',
+  palette: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 100 18c1.1 0 1.8-.9 1.8-1.9 0-.5-.2-.9-.5-1.3-.3-.3-.5-.7-.5-1.2 0-1 .8-1.8 1.8-1.8H16a4 4 0 004-4c0-4.4-3.6-7.8-8-7.8z"/><circle cx="7.5" cy="10.5" r="1.2" fill="currentColor" stroke="none"/><circle cx="11" cy="7" r="1.2" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1.2" fill="currentColor" stroke="none"/></svg>',
+  sparkle: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/><path d="M19 15l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2z"/></svg>',
   mentor: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9l10-5 10 5-10 5-10-5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg>',
   calendar: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   checkCircle: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.3 2.3L16 10"/></svg>',
@@ -2512,9 +2599,15 @@ const CAT_ICON_NAMES = ['target','flame','dumbbell','bolt','bulb','rocket'];
 function catColor(idx){ return CAT_COLORS[idx % CAT_COLORS.length]; }
 function catIconHtml(idx){ return icon(CAT_ICON_NAMES[idx % CAT_ICON_NAMES.length]); }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function showToast(msg){
+function showToast(msg, type){
   const toastEl = document.getElementById('toast');
   const textEl = document.getElementById('toastText');
+  const iconEl = document.getElementById('toastIcon');
+  // آیکونِ توست بسته به نوعش (موفقیت/هشدار) عوض می‌شه — پیام خودش همیشه فقط متن خامه، هیچ HTML/ایموجی‌ای توش نمی‌ره
+  iconEl.innerHTML = type==='warning'
+    ? ICONS.warnTriangle
+    : '<svg viewBox="0 0 24 24" width="15" height="15" fill="none"><circle class="toast-check-circle" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/><path class="toast-check-mark" d="M7.5 12.4l3 3 6-6.4" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>';
+  toastEl.classList.toggle('warning', type==='warning');
   textEl.textContent = msg || t('savedToast');
   // برای اینکه انیمیشن چک‌مارک هر بار از اول پخش بشه (نه فقط بار اول)، کلاس رو برمی‌داریم، فورس-ریفلو می‌کنیم، دوباره می‌ذاریم
   toastEl.classList.remove('show');
@@ -2790,6 +2883,9 @@ function backToLogin(){
   // پاک کردن کامل وضعیت جلسه تا نقش قبلی رو نگه نداره
   currentCode=null; currentMember=null; isViewOnly=false; viaMentorList=false;
   currentMentorCode=null; currentMentorProfile=null;
+  challengeTabPainted = false; // دفعه‌ی بعد که یکی لاگین کرد، تب چالش دوباره از حالت لودینگ شروع بشه
+  adminChallengesPainted = false;
+  challengeActiveList = []; challengeSelectedId = null; challengeLastListSig = null; challengeArenaCtx = null;
   if(cloudReady && sb && sb.auth){
     sb.auth.signOut().catch(e=>console.error(e));
   }
@@ -2836,7 +2932,7 @@ function showColorPickerModal(code, memberInfo){
   wrap.className = 'color-pick-overlay';
   wrap.innerHTML = `
     <div class="color-pick-card">
-      <div class="color-pick-title">🎨 رنگ خودتو انتخاب کن</div>
+      <div class="color-pick-title">${icon('palette')} رنگ خودتو انتخاب کن</div>
       <div class="color-pick-sub">این رنگ آواتار توئه، همه‌جا با همینه</div>
       <div class="color-pick-grid">
         ${colors.map(c=>`<button type="button" class="color-pick-swatch" data-color="${c}" style="background:${c};"></button>`).join('')}
@@ -2917,26 +3013,38 @@ async function enterMemberApp(code, viewOnly, memberInfo, preloadedStatePromise)
     plannerTabBtn.classList.add('hidden');
     document.getElementById('panel-planner').innerHTML = '';
   }
-  // اتاق چالش — کاملاً مستقل از بقیه‌ی اپ؛ فقط اگه این کاربر تو یه چالشِ فعال/درحال‌آماده‌سازی باشه تبش دیده میشه
-  // قبلاً این چک فقط موقع لاگین انجام می‌شد؛ یعنی اگه مدیریت وقتی کاربر از قبل تو اپ لاگین بود چالش می‌ساخت،
-  // تب تا خروج و ورود دوباره‌ی کاربر اصلاً ظاهر نمی‌شد. الان با همون چرخه‌ی پولینگ زنده‌ی بقیه‌ی پنل‌ها هم وصل شده.
+  // اتاق چالش — کاملاً مستقل از بقیه‌ی اپ؛ اگه این کاربر تو یک یا چند چالشِ فعال باشه تبش دیده میشه
+  // یه عضو ممکنه هم‌زمان تو چندتا چالش شرکت کنه؛ برای همین همیشه لیست کامل چالش‌های فعالش رو نگه می‌داریم،
+  // نه فقط یکی — و بالای اتاق یه سوییچر می‌ذاریم که بتونه بین‌شون جابه‌جا بشه.
   const challengeTabBtn = document.getElementById('challengeTabBtn');
-  function applyChallengeTabVisibility(ch){
-    challengeTabBtn.classList.toggle('hidden', !ch);
-    if(document.getElementById('panel-challenge').classList.contains('active')) renderChallengeTab();
+  function applyChallengeTabVisibility(list){
+    challengeTabBtn.classList.toggle('hidden', !list || !list.length);
   }
-  findActiveChallengeForMember(currentCode).then(applyChallengeTabVisibility);
+  findActiveChallengesForMember(currentCode).then(list=>{
+    applyChallengeTabVisibility(list);
+    if(document.getElementById('panel-challenge').classList.contains('active')) renderChallengeTab();
+  });
   registerLiveListRefresh('panel-challenge', async function challengeLiveSnapshot(){
-    const ch = await findActiveChallengeForMember(currentCode);
-    if(!ch) return null;
+    const list = await findActiveChallengesForMember(currentCode);
+    const idsSig = list.map(c=>c.id).sort().join(',');
+    if(!list.length) return { idsSig };
     const panelOpen = document.getElementById('panel-challenge').classList.contains('active');
-    if(!panelOpen) return { id: ch.id, status: ch.status }; // امتیاز زنده رو فقط وقتی خودِ اتاق چالش بازه حساب می‌کنیم تا هر ۱.۸ ثانیه بار اضافه به دیتابیس نزنیم
-    const myTeam = ch.teamA.includes(currentCode) ? ch.teamA : ch.teamB;
-    const oppTeam = ch.teamA.includes(currentCode) ? ch.teamB : ch.teamA;
-    const [myScore, oppScore] = await Promise.all([computeChallengeTeamScore(ch, myTeam), computeChallengeTeamScore(ch, oppTeam)]);
-    return { id: ch.id, status: ch.status, myScore, oppScore };
+    if(!panelOpen) return { idsSig }; // امتیاز زنده رو فقط وقتی خودِ اتاق چالش بازه حساب می‌کنیم تا هر ۱.۸ ثانیه بار اضافه به دیتابیس نزنیم
+    const sel = list.find(c=>c.id===challengeSelectedId) || list[0];
+    const myTeam = sel.teamA.includes(currentCode) ? sel.teamA : sel.teamB;
+    const oppTeam = sel.teamA.includes(currentCode) ? sel.teamB : sel.teamA;
+    const [myScore, oppScore] = await Promise.all([computeChallengeTeamScore(sel, myTeam), computeChallengeTeamScore(sel, oppTeam)]);
+    return { idsSig, sel: sel.id, status: sel.status, myScore, oppScore };
   }, async function renderChallengeTabLive(){
-    applyChallengeTabVisibility(await findActiveChallengeForMember(currentCode));
+    const list = await findActiveChallengesForMember(currentCode);
+    applyChallengeTabVisibility(list);
+    if(!document.getElementById('panel-challenge').classList.contains('active')) return;
+    const idsSig = list.map(c=>c.id).sort().join(',');
+    if(idsSig !== challengeLastListSig){
+      renderChallengeTab(); // یه چالش جدید اضافه/حذف/تموم شده — این‌بار واقعاً باید کامل رندر بشه
+    } else {
+      refreshChallengeArenaLive(); // فقط همون چالشِ انتخاب‌شده — امتیاز/تاریخچه/دستیار رو زنده آپدیت کن، بدون فلیکر و بدون بازسازی کل DOM
+    }
   });
   if(msgViewerRole==='mentor' && memberInfo.notesHiddenFromMentor){
     document.getElementById('panel-notes').innerHTML = `<div class="card"><div class="empty">${t('mentorHiddenSection')}</div></div>`;
@@ -4673,7 +4781,7 @@ function showMonthResume(m, detailed){
       </div>`;
   const memberName = (currentMember && currentMember.name) || '';
   area.innerHTML = `
-    <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
+    <button type="button" class="resume-close-btn" id="resumeCloseBtn">${icon('close')}</button>
     <button type="button" class="resume-print-btn" id="resumePrintBtn">${icon('printer')} چاپ / ذخیره PDF</button>
     <button type="button" class="resume-print-btn resume-img-btn" id="resumeImgBtn">${icon('image')} ذخیره به‌صورت عکس</button>
     <div class="resume-sheet">
@@ -4749,7 +4857,7 @@ function showWeekResume(w, detailed){
       </div>`;
   const memberName = (currentMember && currentMember.name) || '';
   area.innerHTML = `
-    <button type="button" class="resume-close-btn" id="resumeCloseBtn">✕</button>
+    <button type="button" class="resume-close-btn" id="resumeCloseBtn">${icon('close')}</button>
     <button type="button" class="resume-print-btn" id="resumePrintBtn">${icon('printer')} چاپ / ذخیره PDF</button>
     <button type="button" class="resume-print-btn resume-img-btn" id="resumeImgBtn">${icon('image')} ذخیره به‌صورت عکس</button>
     <div class="resume-sheet">
@@ -6440,7 +6548,7 @@ async function migrateStorageKey(oldKey, newKey){
   }catch(e){ console.error('migrate failed', oldKey, newKey, e); }
 }
 // اگه کد عضویت یه کاربر عوض بشه، تیم‌های چالش‌های فعال/گذشته‌ش هنوز کد قدیمی رو نگه می‌داشتن —
-// یعنی چالشی که واقعاً توشه، بعد از تغییر کد، دیگه براش پیدا نمی‌شد (چون findActiveChallengeForMember دنبال کد جدیده)
+// یعنی چالشی که واقعاً توشه، بعد از تغییر کد، دیگه براش پیدا نمی‌شد (چون findActiveChallengesForMember دنبال کد جدیده)
 async function migrateChallengeMemberCode(oldCode, newCode){
   const all = await loadChallenges();
   const affected = all.filter(ch => ch.teamA.includes(oldCode) || ch.teamB.includes(oldCode));
@@ -6811,6 +6919,73 @@ async function computeChallengeTeamScore(ch, team){
   const scores = await Promise.all(team.map(code=>computeChallengeMemberScore(ch, code)));
   return scores.reduce((a,b)=>a+b, 0);
 }
+// ---------- تاریخچه‌ی امتیاز روز‌به‌روز (نه انباشته) — برای نوار تاریخچه ----------
+async function challengeMemberDailyHistory(ch, code){
+  const [tasks, daily] = await Promise.all([loadChallengeTasks(ch.id, code), loadChallengeDaily(ch.id, code)]);
+  const today = iranTodayISO();
+  const dates = challengeDateRange(ch).filter(d=>d<=today);
+  if(!tasks || !tasks.length) return dates.map(d=>({date:d, earned:0, done:0, total:0}));
+  return dates.map(d=>{
+    const rec = (daily && daily[d]) || {};
+    let earned=0, done=0;
+    tasks.forEach(t=>{ if(rec[t.id]){ earned+=t.points; done++; } });
+    return { date:d, earned, done, total:tasks.length };
+  });
+}
+async function challengeTeamDailyHistory(ch, team){
+  const perMember = await Promise.all(team.map(code=>challengeMemberDailyHistory(ch, code)));
+  const today = iranTodayISO();
+  const dates = challengeDateRange(ch).filter(d=>d<=today);
+  return dates.map((d,i)=> ({ date:d, earned: perMember.reduce((s,m)=> s + (m[i]?m[i].earned:0), 0) }));
+}
+// یه نوار افقیِ تاریخچه‌ی روزانه می‌سازه — تیم خودی در برابر تیم حریف، روز به روز
+function renderChallengeHistoryStripHtml(myHist, oppHist){
+  if(!myHist.length) return '';
+  const max = Math.max(1, ...myHist.map(x=>x.earned), ...oppHist.map(x=>x.earned));
+  const days = myHist.map((d,i)=>{
+    const opp = oppHist[i] ? oppHist[i].earned : 0;
+    const meH = Math.round((d.earned/max)*100);
+    const oppH = Math.round((opp/max)*100);
+    const dayNum = Number(d.date.slice(8,10));
+    return `<div class="ch-history-day" title="${iranJalaliDate(d.date)} — من:${d.earned} · حریف:${opp}">
+      <div class="ch-history-bars">
+        <div class="ch-history-bar me" style="height:${Math.max(3,meH)}%;"></div>
+        <div class="ch-history-bar opp" style="height:${Math.max(3,oppH)}%;"></div>
+      </div>
+      <div class="ch-history-date">${dayNum}</div>
+    </div>`;
+  }).join('');
+  return `<div class="ch-history-box">
+    <div class="ch-setup-title">${icon('trendUp')} تاریخچه‌ی امتیاز روزانه</div>
+    <div class="ch-history-strip">${days}</div>
+    <div class="ch-history-legend"><span><i class="me"></i> تیم خودم</span><span><i class="opp"></i> تیم حریف</span></div>
+  </div>`;
+}
+// ---------- دستیار هوشمند شخصی — فقط برای همون کاربر ساخته و نمایش داده می‌شه؛ هیچ‌جا ذخیره یا با کسی به اشتراک گذاشته نمی‌شه ----------
+function buildChallengeAssistantMessage(ctx){
+  const { myScore, oppScore, daysLeft, started, ended, todayDone, todayTotal, won } = ctx;
+  const diff = Math.abs(myScore-oppScore);
+  if(ended){
+    if(won) return { mood:'win', text:`بردی! با اختلاف ${diff} امتیاز این چالش رو بستی. همین ریتم رو تو چالش بعدی هم نگه دار.` };
+    if(myScore===oppScore) return { mood:'neutral', text:`مساوی شدی (${myScore} به ${oppScore}) — خیلی نزدیک بود. یه تسک بیشتر تو روزای آخر می‌تونست نتیجه رو عوض کنه.` };
+    return { mood:'warn', text:`این‌بار ${diff} امتیاز عقب موندی. ببین کدوم روزا تسکاتو نصفه گذاشتی، دفعه‌ی بعد رو همون‌جاها تمرکز کن.` };
+  }
+  if(!started) return { mood:'neutral', text:'چالش هنوز شروع نشده. همین الان که وقت داری، یه بار تسکاتو مرور کن تا روز اول آماده باشی.' };
+  if(todayTotal>0 && todayDone===todayTotal) return { mood:'win', text:`امروز هر ${todayTotal} تسکتو کامل زدی. ${daysLeft} روز مونده — همین‌جوری ادامه بده تا فاصله‌ت با حریف بیشتر بشه.` };
+  if(todayTotal>0 && todayDone===0) return { mood:'warn', text:`امروز هنوز هیچ تسکی نزدی. ${daysLeft} روز تا پایان چالش مونده — همین امروز جبران کن که از حریف عقب نیفتی.` };
+  if(myScore>oppScore) return { mood:'win', text:`الان ${diff} امتیاز جلویی. تا آخر چالش ${daysLeft} روز مونده، حواست به تسکای هر روز باشه که این فاصله از دست نره.` };
+  if(myScore<oppScore) return { mood:'warn', text:`الان ${diff} امتیاز عقبی. جای نگرانی نیست — ${daysLeft} روز فرصت داری، تسکای امروز رو کامل بزن تا برگردی بالا.` };
+  return { mood:'neutral', text:'الان با حریف مساوی هستی. امروز رو کامل ببند تا جلو بیفتی.' };
+}
+function renderChallengeAssistantHtml(msg){
+  return `<div class="ch-ai-box ${msg.mood}">
+    <div class="ch-ai-icon">${icon('sparkle')}</div>
+    <div class="ch-ai-body">
+      <div class="ch-ai-label">دستیار هوشمند چالش</div>
+      <div class="ch-ai-text">${escapeHtml(msg.text)}</div>
+    </div>
+  </div>`;
+}
 // اگه بازه‌ی چالش تموم شده ولی هنوز status اون رو ثبت نکرده، همین‌جا نتیجه رو قطعی و ذخیره می‌کنه
 async function settleChallengeIfEnded(ch){
   if(ch.status==='completed') return ch;
@@ -6828,18 +7003,40 @@ async function settleChallengeIfEnded(ch){
 }
 // ---------- رندر تب اتاق چالش برای خودِ کاربر (یا کسی که داره پروفایلشو می‌بینه) ----------
 function memberNameByCode(reg, code){ const m = reg.find(x=>x.code===code); return m ? (m.name||code) : code; }
-async function findActiveChallengeForMember(code){
+// یه عضو ممکنه هم‌زمان تو چندتا چالش شرکت کنه — برای همین همیشه کل لیست فعال‌هاش رو برمی‌گردونیم، نه فقط یکی
+async function findActiveChallengesForMember(code){
   const all = await loadChallenges();
   const today = iranTodayISO();
-  return all.find(ch => (ch.teamA.includes(code)||ch.teamB.includes(code)) && ch.status!=='completed' && today<=ch.endDate) || null;
+  return all.filter(ch => (ch.teamA.includes(code)||ch.teamB.includes(code)) && ch.status!=='completed' && today<=ch.endDate);
+}
+// وقتی بیشتر از یه چالشِ فعال داره، بالای اتاق یه سوییچر نشون می‌ده که بتونه بین‌شون جابه‌جا بشه و همه رو انجام بده
+function renderChallengeRoomSwitcherHtml(list, selectedId){
+  if(list.length<2) return '';
+  return `<div class="ch-room-switcher">${list.map(c=>
+    `<button type="button" class="ch-room-chip${c.id===selectedId?' active':''}" data-room="${c.id}">${icon('trendUp')}<span>${escapeHtml(c.name)}</span></button>`
+  ).join('')}</div>`;
 }
 async function renderChallengeTab(){
   const el = document.getElementById('panel-challenge');
   if(!el) return;
-  el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری چالش...</div></div>';
-  const ch = await findActiveChallengeForMember(currentCode);
-  if(!ch){ el.innerHTML = '<div class="card"><div class="empty">چالش فعالی نداری</div></div>'; return; }
+  // «در حال بارگذاری» رو فقط دفعه‌ی اولی که این تب باز میشه نشون بده — نه هر بار که یه تسک تیک می‌خوره
+  // یا پولینگ زنده (هر ۱.۸ ثانیه) دوباره صداش می‌زنه؛ وگرنه کل تخته‌امتیاز و چک‌لیست هی خالی و پر می‌شد (فلیکر)
+  if(!challengeTabPainted) el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری چالش...</div></div>';
+  const list = await findActiveChallengesForMember(currentCode);
+  challengeActiveList = list;
+  challengeLastListSig = list.map(c=>c.id).sort().join(',');
+  if(!list.length){ el.innerHTML = '<div class="card"><div class="empty">چالش فعالی نداری</div></div>'; challengeTabPainted = true; challengeArenaCtx = null; return; }
+  if(!challengeSelectedId || !list.find(c=>c.id===challengeSelectedId)) challengeSelectedId = list[0].id;
+  const ch = list.find(c=>c.id===challengeSelectedId);
   await settleChallengeIfEnded(ch);
+  const roomSwitcherHtml = renderChallengeRoomSwitcherHtml(list, challengeSelectedId);
+  function wireRoomSwitcher(){
+    el.querySelectorAll('[data-room]').forEach(btn=>btn.addEventListener('click', ()=>{
+      if(btn.dataset.room===challengeSelectedId) return;
+      challengeSelectedId = btn.dataset.room;
+      renderChallengeTab();
+    }));
+  }
 
   const reg = await loadMemberRegistry();
   const myTeamKey = ch.teamA.includes(currentCode) ? 'A' : 'B';
@@ -6859,7 +7056,10 @@ async function renderChallengeTab(){
 
   // ---------- فاز ۱: هنوز تسک‌هاشو نساخته — باید بسازه، امتیازها کاملاً خودکاره ----------
   if(!myTasks){
+    challengeArenaCtx = null;
     el.innerHTML = `
+      <div class="ch-world-ribbon">${icon('trendUp')} چالش جهانی بوت‌کمپ</div>
+      ${roomSwitcherHtml}
       <div class="ch-arena-card">
         <div class="ch-vs-title">${escapeHtml(ch.name)}</div>
         <div class="ch-vs-row">
@@ -6879,6 +7079,8 @@ async function renderChallengeTab(){
           <button class="btn primary" id="chLockBtn" style="width:100%;margin-top:14px;" disabled>قفل کن و وارد چالش شو</button>
         </div>
       </div>`;
+    challengeTabPainted = true;
+    wireRoomSwitcher();
     let draft = [];
     function paintDraft(){
       const pts = normalizeChallengePoints(draft.length);
@@ -6902,7 +7104,7 @@ async function renderChallengeTab(){
       const tasks = draft.map((name,i)=>({ id:uid(), name, points:pts[i] }));
       const saveResult = await saveChallengeTasks(ch.id, currentCode, tasks);
       if(saveResult && saveResult.source==='local'){
-        showToast('⚠️ به دیتابیس ابری وصل نشد — تسک‌هات فقط رو همین مرورگر ذخیره شد. اینترنتت رو چک کن و دوباره امتحان کن.');
+        showToast('به دیتابیس ابری وصل نشد — تسک‌هات فقط رو همین مرورگر ذخیره شد. اینترنتت رو چک کن و دوباره امتحان کن.', 'warning');
       }else{
         showToast('تسک‌هات قفل شد — وارد چالش شدی!');
       }
@@ -6911,11 +7113,13 @@ async function renderChallengeTab(){
     return;
   }
 
-  // ---------- فاز ۲: آرنا — امتیاز زنده، مقایسه، و چک‌لیست امروز ----------
-  const [myScore, oppScore, myDaily] = await Promise.all([
+  // ---------- فاز ۲: آرنا — امتیاز زنده، مقایسه، تاریخچه‌ی روزانه، و دستیار هوشمند شخصی ----------
+  const [myScore, oppScore, myDaily, myHist, oppHist] = await Promise.all([
     computeChallengeTeamScore(ch, myTeam),
     computeChallengeTeamScore(ch, oppTeam),
     loadChallengeDaily(ch.id, currentCode),
+    challengeTeamDailyHistory(ch, myTeam),
+    challengeTeamDailyHistory(ch, oppTeam),
   ]);
   const maxScore = Math.max(myScore, oppScore, 1);
   const myPct = Math.round((myScore/maxScore)*100);
@@ -6924,29 +7128,38 @@ async function renderChallengeTab(){
   const daysLeft = Math.max(0, challengeDateRange(ch).filter(d=>d>=today).length);
 
   let resultBanner = '';
+  let won = false;
   if(ended){
-    const won = (ch.winner==='A' && myTeamKey==='A') || (ch.winner==='B' && myTeamKey==='B');
+    won = (ch.winner==='A' && myTeamKey==='A') || (ch.winner==='B' && myTeamKey==='B');
     const tie = ch.winner==='tie';
-    resultBanner = `<div class="ch-result-banner ${tie?'tie':won?'win':'lose'}">${tie ? 'مساوی شد!' : won ? '🏆 بردی!' : 'این‌بار باختی — دفعه‌ی بعد!'}</div>`;
+    resultBanner = `<div class="ch-result-banner ${tie?'tie':won?'win':'lose'}">${tie ? 'مساوی شد!' : won ? `${icon('trophy')} بردی!` : 'این‌بار باختی — دفعه‌ی بعد!'}</div>`;
   }
 
+  const todayRec = myDaily[today] || {};
+  const todayDone = myTasks.filter(t=>todayRec[t.id]).length;
   const todayTasksHtml = (started && !ended) ? myTasks.map(t=>{
-    const checked = !!(myDaily[today] && myDaily[today][t.id]);
+    const checked = !!todayRec[t.id];
     return `<label class="ch-today-task"><input type="checkbox" data-ch-task="${t.id}" ${checked?'checked':''}><span>${escapeHtml(t.name)}</span><b>${t.points}</b></label>`;
   }).join('') : '';
 
+  const aiMsg = buildChallengeAssistantMessage({ myScore, oppScore, daysLeft, started, ended, todayDone, todayTotal: myTasks.length, won });
+  const crownMe = (!ended && myScore>oppScore) ? icon('crown')+' ' : '';
+  const crownOpp = (!ended && oppScore>myScore) ? icon('crown')+' ' : '';
+
   el.innerHTML = `
-    <div class="ch-arena-card">
+    <div class="ch-world-ribbon">${icon('trendUp')} چالش جهانی بوت‌کمپ</div>
+    ${roomSwitcherHtml}
+    <div class="ch-arena-card ${myScore>oppScore?'leading':''}">
       <div class="ch-vs-title">${escapeHtml(ch.name)}${!ended?`<span class="ch-days-chip">${daysLeft} روز مونده</span>`:''}</div>
       ${resultBanner}
       <div class="ch-score-row">
         <div class="ch-score-side">
-          <div class="ch-score-num me">${myScore}</div>
+          <div class="ch-score-num me">${crownMe}${myScore}</div>
           <div class="ch-avatar-row">${avatarsHtml(myTeam,true)}</div>
         </div>
         <div class="ch-vs-badge">VS</div>
         <div class="ch-score-side">
-          <div class="ch-score-num">${oppScore}</div>
+          <div class="ch-score-num">${crownOpp}${oppScore}</div>
           <div class="ch-avatar-row">${avatarsHtml(oppTeam,false)}</div>
         </div>
       </div>
@@ -6956,7 +7169,13 @@ async function renderChallengeTab(){
       </div>
       ${todayTasksHtml ? `<div class="ch-today-box"><div class="ch-setup-title">تسک‌های امروز</div>${todayTasksHtml}</div>` : ''}
       ${!started ? `<div class="ch-setup-sub" style="text-align:center;margin-top:14px;">چالش از ${iranJalaliDate(ch.startDate)} شروع میشه</div>` : ''}
-    </div>`;
+    </div>
+    ${renderChallengeHistoryStripHtml(myHist, oppHist)}
+    ${renderChallengeAssistantHtml(aiMsg)}`;
+  challengeTabPainted = true;
+  wireRoomSwitcher();
+  // زمینه‌ی این چالش رو نگه می‌داریم تا پولینگ زنده و تیک‌زدنِ تسک بعدی فقط امتیاز/تاریخچه رو آپدیت کنن، نه رندر کامل (ضدِ فلیکر)
+  challengeArenaCtx = { ch, myTeam, oppTeam, myTasks, started, ended, daysLeft, myTeamKey };
 
   el.querySelectorAll('[data-ch-task]').forEach(cb=>cb.addEventListener('change', guard(cb, async ()=>{
     const fresh = await loadChallengeDaily(ch.id, currentCode);
@@ -6964,17 +7183,124 @@ async function renderChallengeTab(){
     fresh[today][cb.dataset.chTask] = cb.checked;
     const saveResult = await saveChallengeDaily(ch.id, currentCode, fresh);
     if(saveResult && saveResult.source==='local'){
-      showToast('⚠️ به دیتابیس ابری وصل نشد — این تیک فقط رو همین مرورگر ذخیره شد و تو امتیاز نهایی حساب نمی‌شه تا اتصال درست شه.');
+      showToast('به دیتابیس ابری وصل نشد — این تیک فقط رو همین مرورگر ذخیره شد و تو امتیاز نهایی حساب نمی‌شه تا اتصال درست شه.', 'warning');
     }
-    renderChallengeTab();
+    // به‌جای رندر کامل دوباره‌ی کل تب (که همه‌چی رو از نو می‌سازه و باعث فلیکر می‌شد)،
+    // فقط امتیازها، نوار مقایسه، تاریخچه و متن دستیار رو آپدیت می‌کنیم؛ چک‌باکس‌ها دست‌نخورده می‌مونن
+    await refreshChallengeArenaLive();
   })));
+}
+// فقط امتیاز/نوار مقایسه/تاریخچه/دستیارِ چالشِ در حال نمایش رو زنده آپدیت می‌کنه — بدون بازسازی کل DOM، پس هیچ فلیکری نداره.
+// هم بعد از تیک‌زدنِ یه تسک صدا زده می‌شه، هم هر ۱.۸ ثانیه از پولینگ زنده (تا وقتی لیست چالش‌های فعال واقعاً عوض نشده)
+async function refreshChallengeArenaLive(){
+  const ctx = challengeArenaCtx;
+  if(!ctx) return;
+  const el = document.getElementById('panel-challenge');
+  if(!el || !el.classList.contains('active')) return;
+  const { ch, myTeam, oppTeam, myTasks, started, ended, daysLeft, myTeamKey } = ctx;
+  const [newMy, newOpp, newMyHist, newOppHist, myDaily] = await Promise.all([
+    computeChallengeTeamScore(ch, myTeam),
+    computeChallengeTeamScore(ch, oppTeam),
+    challengeTeamDailyHistory(ch, myTeam),
+    challengeTeamDailyHistory(ch, oppTeam),
+    loadChallengeDaily(ch.id, currentCode),
+  ]);
+  const today = iranTodayISO();
+  const todayRecNow = myDaily[today] || {};
+  const newTodayDone = myTasks.filter(t=>todayRecNow[t.id]).length;
+  const won = ended && ((ch.winner==='A' && myTeamKey==='A') || (ch.winner==='B' && myTeamKey==='B'));
+  const newMax = Math.max(newMy, newOpp, 1);
+  const meNum = el.querySelector('.ch-score-num.me');
+  const oppNum = el.querySelector('.ch-score-num:not(.me)');
+  const meFill = el.querySelector('.ch-compare-fill.me');
+  const oppFill = el.querySelector('.ch-compare-fill.opp');
+  const arenaCard = el.querySelector('.ch-arena-card');
+  if(meNum) meNum.innerHTML = (!ended && newMy>newOpp ? icon('crown')+' ' : '') + newMy;
+  if(oppNum) oppNum.innerHTML = (!ended && newOpp>newMy ? icon('crown')+' ' : '') + newOpp;
+  if(meFill) meFill.style.width = Math.round((newMy/newMax)*100)+'%';
+  if(oppFill) oppFill.style.width = Math.round((newOpp/newMax)*100)+'%';
+  if(arenaCard) arenaCard.classList.toggle('leading', newMy>newOpp);
+  const histBox = el.querySelector('.ch-history-box');
+  if(histBox) histBox.outerHTML = renderChallengeHistoryStripHtml(newMyHist, newOppHist);
+  const aiBox = el.querySelector('.ch-ai-box');
+  const newAiMsg = buildChallengeAssistantMessage({ myScore:newMy, oppScore:newOpp, daysLeft, started, ended, todayDone:newTodayDone, todayTotal: myTasks.length, won });
+  if(aiBox) aiBox.outerHTML = renderChallengeAssistantHtml(newAiMsg);
 }
 
 
+// ---------- مشاهده‌ی اتاق چالش از دید مدیریت — فقط نمایش، بدون امکان تغییر؛ کل تیم‌ها و تاریخچه‌ی هر نفر رو نشون می‌ده ----------
+async function showAdminChallengeView(ch){
+  const overlay = document.createElement('div');
+  overlay.className = 'ch-admin-view-overlay';
+  overlay.innerHTML = `<div class="ch-admin-view-card"><div class="empty">در حال بارگذاری چالش...</div></div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
+
+  const reg = await loadMemberRegistry();
+  const [myScore, oppScore, myHist, oppHist] = await Promise.all([
+    computeChallengeTeamScore(ch, ch.teamA),
+    computeChallengeTeamScore(ch, ch.teamB),
+    challengeTeamDailyHistory(ch, ch.teamA),
+    challengeTeamDailyHistory(ch, ch.teamB),
+  ]);
+  const maxScore = Math.max(myScore, oppScore, 1);
+  const today = iranTodayISO();
+
+  async function memberRowHtml(code, tagCls){
+    const [tasks, daily] = await Promise.all([loadChallengeTasks(ch.id, code), loadChallengeDaily(ch.id, code)]);
+    const name = memberNameByCode(reg, code);
+    if(!tasks || !tasks.length) return `<div class="ch-admin-member-row"><span class="ch-team-tag ${tagCls}">${tagCls.toUpperCase()}</span><span class="ch-admin-member-name">${escapeHtml(name)}</span><span class="ch-admin-member-note">هنوز تسک نساخته</span></div>`;
+    const rec = daily[today] || {};
+    const done = tasks.filter(t=>rec[t.id]).length;
+    const score = await computeChallengeMemberScore(ch, code);
+    return `<div class="ch-admin-member-row"><span class="ch-team-tag ${tagCls}">${tagCls.toUpperCase()}</span><span class="ch-admin-member-name">${escapeHtml(name)}</span><span class="ch-admin-member-score">${score} امتیاز</span><span class="ch-admin-member-today">${done}/${tasks.length} امروز</span></div>`;
+  }
+  const [rowsA, rowsB] = await Promise.all([
+    Promise.all(ch.teamA.map(c=>memberRowHtml(c,'a'))),
+    Promise.all(ch.teamB.map(c=>memberRowHtml(c,'b'))),
+  ]);
+
+  let resultBanner = '';
+  if(ch.status==='completed'){
+    const tie = ch.winner==='tie';
+    resultBanner = `<div class="ch-result-banner ${tie?'tie':'win'}">${tie ? 'مساوی شد!' : (ch.winner==='A' ? `برد تیم A ${icon('trophy')}` : `برد تیم B ${icon('trophy')}`)}</div>`;
+  }
+
+  overlay.querySelector('.ch-admin-view-card').innerHTML = `
+    <button class="icon-btn ch-admin-view-close" title="بستن">${icon('close')}</button>
+    <div class="ch-world-ribbon">${icon('eye')} مشاهده‌ی مدیریت</div>
+    <div class="ch-arena-card">
+      <div class="ch-vs-title">${escapeHtml(ch.name)}</div>
+      ${resultBanner}
+      <div class="ch-score-row">
+        <div class="ch-score-side">
+          <div class="ch-score-num me">${myScore>oppScore?icon('crown')+' ':''}${myScore}</div>
+          <div class="ch-avatar-row">${ch.teamA.map(c=>memberNameByCode(reg,c)).map(n=>`<div class="ch-avatar-chip me"><span class="ch-avatar-circle">${escapeHtml((n||'?').trim()[0]||'?')}</span><span class="ch-avatar-name">${escapeHtml(n)}</span></div>`).join('')}</div>
+        </div>
+        <div class="ch-vs-badge">VS</div>
+        <div class="ch-score-side">
+          <div class="ch-score-num">${oppScore>myScore?icon('crown')+' ':''}${oppScore}</div>
+          <div class="ch-avatar-row">${ch.teamB.map(c=>memberNameByCode(reg,c)).map(n=>`<div class="ch-avatar-chip"><span class="ch-avatar-circle">${escapeHtml((n||'?').trim()[0]||'?')}</span><span class="ch-avatar-name">${escapeHtml(n)}</span></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="ch-compare-bar">
+        <div class="ch-compare-fill me" style="width:${Math.round((myScore/maxScore)*100)}%;"></div>
+        <div class="ch-compare-fill opp" style="width:${Math.round((oppScore/maxScore)*100)}%;"></div>
+      </div>
+    </div>
+    ${renderChallengeHistoryStripHtml(myHist, oppHist)}
+    <div class="ch-admin-member-list">
+      <div class="ch-setup-title">جزئیات هر نفر</div>
+      ${rowsA.join('')}${rowsB.join('')}
+    </div>
+  `;
+  overlay.querySelector('.ch-admin-view-close').addEventListener('click', ()=>overlay.remove());
+}
 async function renderAdminChallenges(){
   const el = document.getElementById('apanel-challenges');
   if(!el) return;
-  el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری...</div></div>';
+  // مثل تب کاربر: فقط دفعه‌ی اول لودینگ نشون بده، نه بعد از هر ساخت/حذف چالش — وگرنه کل فرم (اسم، تیم‌ها، تاریخ) هی خالی و پر می‌شد
+  if(!adminChallengesPainted) el.innerHTML = '<div class="card"><div class="empty">در حال بارگذاری...</div></div>';
   const [reg, challenges] = await Promise.all([loadMemberRegistry(), loadChallenges()]);
   const active = reg.filter(m=>!m.deleted);
 
@@ -6996,6 +7322,7 @@ async function renderAdminChallenges(){
         <div class="ch-admin-team"><span class="ch-team-tag b">B</span>${namesB}${ch.status==='completed'?` <b>(${ch.finalScoreB})</b>`:''}</div>
       </div>
       <div class="ch-admin-row-dates">${iranJalaliDate(ch.startDate)} تا ${iranJalaliDate(ch.endDate)}</div>
+      <button class="icon-btn" data-view-challenge="${ch.id}" title="مشاهده‌ی اتاق چالش">${icon('eye')}</button>
       <button class="icon-btn" data-del-challenge="${ch.id}" title="حذف چالش">${icon('close')}</button>
     </div>`;
   }).join('');
@@ -7028,6 +7355,7 @@ async function renderAdminChallenges(){
     </div>
     <div class="card"><h2>${icon('trendUp')} چالش‌های ساخته‌شده</h2>${listHtml}</div>
   `;
+  adminChallengesPainted = true;
 
   let startOffset = 0, duration = 7;
   function updateDatePreview(){
@@ -7071,12 +7399,19 @@ async function renderAdminChallenges(){
     if(saveResult && saveResult.source==='local'){
       // اینجا دقیقاً همون حالتیه که «تو پنل مدیریت ساخته شد ولی پیش کاربر نمیاد» — چون اصلاً به دیتابیس ابری نرسیده،
       // فقط رو مرورگر خودِ مدیریت ذخیره شده و بین دستگاه‌ها/کاربرها مشترک نیست
-      showToast('⚠️ به دیتابیس ابری وصل نشد — چالش فقط رو همین مرورگر ذخیره شد و پیش کاربرها نمیاد. اینترنت/اتصال ابری رو چک کن و دوباره امتحان کن.');
+      showToast('به دیتابیس ابری وصل نشد — چالش فقط رو همین مرورگر ذخیره شد و پیش کاربرها نمیاد. اینترنت/اتصال ابری رو چک کن و دوباره امتحان کن.', 'warning');
     }else{
       showToast('چالش ساخته و فعال شد');
     }
     renderAdminChallenges();
   }));
+  el.querySelectorAll('[data-view-challenge]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
+    const all = await loadChallenges();
+    const target = all.find(c=>c.id===btn.dataset.viewChallenge);
+    if(!target) return;
+    await settleChallengeIfEnded(target);
+    await showAdminChallengeView(target);
+  })));
   el.querySelectorAll('[data-del-challenge]').forEach(btn=>btn.addEventListener('click', guard(btn, async ()=>{
     if(!confirm('این چالش حذف بشه؟')) return;
     const all = await loadChallenges();
